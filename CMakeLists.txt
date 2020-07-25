@@ -7,7 +7,7 @@ set(EXTERNAL_PROJECTS_INSTALL_PREFIX ${EXTERNAL_PROJECTS_PREFIX}/installed)
 include(ExternalProject)
 
 if(EXISTS "${EXTERNAL_PROJECTS_INSTALL_PREFIX}/lib/librestbed.a")
-    message(AUTHOR_WARNING "Not rebuilding librestbed. Delete ${EXTERNAL_PROJECTS_INSTALL_PREFIX}/lib/librestbed.a if you want to rebuild. You should now be able to build the project.")
+    message(AUTHOR_INFO "Not rebuilding librestbed. Delete ${EXTERNAL_PROJECTS_INSTALL_PREFIX}/lib/librestbed.a if you want to rebuild. You should now be able to build the project.")
 else()
 
     ExternalProject_Add(externalRestbed
@@ -28,10 +28,15 @@ else()
     # endif()
 
 # add_dependencies(${PROJECT_NAME} externalRestbed)
-
 endif()
 
-add_executable(${PROJECT_NAME} main.cpp)
+include("${CMAKE_SOURCE_DIR}/rapidjson.cmake")
+
+
+file(GLOB sources *.cpp)
+MESSAGE(STATUS "Detected source files: ${sources}")
+
+add_executable(${PROJECT_NAME}  ${sources})
 set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_STANDARD 14
     CXX_STANDARD_REQUIRED YES
@@ -39,9 +44,14 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     )
 
 # add_dependencies(${PROJECT_NAME} externalRestbed)
+add_dependencies(${PROJECT_NAME} rapidjson)
 
 #find_package(restbed REQUIRED)
-include_directories(${EXTERNAL_PROJECTS_INSTALL_PREFIX}/include)
+include_directories(
+    ${EXTERNAL_PROJECTS_INSTALL_PREFIX}/include
+    ${RAPIDJSON_INCLUDE_DIR}
+)
+
 #add_library(${EXTERNAL_PROJECTS_INSTALL_PREFIX}/lib/librestbed.a )
 #target_link_libraries(${PROJECT_NAME} PRIVATE restbed)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${EXTERNAL_PROJECTS_INSTALL_PREFIX}/lib/librestbed.a)

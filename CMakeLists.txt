@@ -33,6 +33,7 @@ endif()
 include("${CMAKE_SOURCE_DIR}/rapidjson.cmake")
 
 
+
 file(GLOB sources *.cpp)
 MESSAGE(STATUS "Detected source files: ${sources}")
 
@@ -58,3 +59,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${EXTERNAL_PROJECTS_INSTALL_PREFIX
 
 find_package(Threads REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
+
+INCLUDE(FindBoost)
+set(Boost_USE_MULTITHREADED ON)
+find_package( Boost 1.65.1 REQUIRED thread regex system filesystem)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${Boost_LIBRARIES})
+

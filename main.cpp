@@ -5,12 +5,12 @@
 #include <cstdlib>
 #include <restbed>
 #include <iostream>
+#include <fstream>
 #include "rapidjson/document.h"     // rapidjson's DOM-style API
 #include "rapidjson/prettywriter.h" // for stringify JSON
+#include <boost/regex.hpp>
+
 using namespace rapidjson;
-
-
-
 
 using namespace std;
 using namespace restbed;
@@ -21,27 +21,41 @@ vector<shared_ptr<Session>> sessions;
 //handle static content
 void handle_static( const shared_ptr< Session > session )
 {
-    // const auto request = session->get_request( );
-    // const string filename = request->get_path_parameter( "filename" );
+    const auto request = session->get_request( );
+    const string filename = request->get_path_parameter( "filename" );
+
+    ifstream stream( "wwwdir/" + filename, ifstream::in );
     
-    // ifstream stream( "./" + filename, ifstream::in );
-    
-    // if ( stream.is_open( ) )
-    // {
-    //     const string body = string( istreambuf_iterator< char >( stream ), istreambuf_iterator< char >( ) );
+    if ( stream.is_open( ) )
+    {
+		boost::smatch what;
+		if (regex_search(
+			filename,
+			what,
+			boost::regex("([^.]*$)")
+		))
+		{
+			session->close( INTERNAL_SERVER_ERROR );
+		}
+
+
+        const string body = string( istreambuf_iterator< char >( stream ), istreambuf_iterator< char >( ) );
         
-    //     const multimap< string, string > headers
-    //     {
-    //         { "Content-Type", "text/html" },
-    //         { "Content-Length", ::to_string( body.length( ) ) }
-    //     };
+        const multimap< string, string > headers
+        {
+            { "Content-Type", "text/html" },
+            { "Content-Length", ::to_string( body.length( ) ) }
+        };
         
-    //     session->close( OK, body, headers );
-    // }
-    // else
-    // {
-    //     session->close( NOT_FOUND );
-    // }
+        session->close( OK, body, headers );
+    }
+    else
+    {
+		string errormsg;
+		errormsg="Cant find file ";
+		errormsg+=filename;
+        session->close( NOT_FOUND , errormsg);
+    }
 }
 
 //register new session
@@ -96,8 +110,9 @@ int main(const int, const char **)
 
 	{
 		auto resource = make_shared<Resource>();
-		resource->set_path("/static/{filename: [a-z]*\\.html}");
+		resource->set_path("/static/{filename: [a-zA-Z0-9._-]*}");
 		resource->set_method_handler("GET", handle_static);
+		service->publish(resource);
 	}
 	{
 		auto resource = make_shared<Resource>();

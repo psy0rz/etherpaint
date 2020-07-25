@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 project(restbed_test)
+include(GNUInstallDirs)
 
 set(EXTERNAL_PROJECTS_PREFIX ${CMAKE_BINARY_DIR}/external-projects)
 set(EXTERNAL_PROJECTS_INSTALL_PREFIX ${EXTERNAL_PROJECTS_PREFIX}/installed)
@@ -7,7 +8,7 @@ include(ExternalProject)
 ExternalProject_Add(externalRestbed
     PREFIX "${EXTERNAL_PROJECTS_PREFIX}"
     GIT_REPOSITORY "https://github.com/Corvusoft/restbed.git"
-    GIT_TAG "master"
+    GIT_TAG "4.7"
     CMAKE_ARGS 
        -DCMAKE_INSTALL_PREFIX=${EXTERNAL_PROJECTS_INSTALL_PREFIX}
        -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}

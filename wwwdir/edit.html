@@ -1,0 +1,391 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!-- (C)edwin@datux.nl - released under GPL -->
+<html>
+
+<head paperId="%id%">
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	<meta name="title" content="Internet papier nr %id%" />
+	<meta name="description" content="Samen online tekenen." />
+	<link rel="image_src" href="%png%" />
+	
+	<title>Internet papier #%id%</title>
+	
+	<script type="text/javascript" src="/synapse/synapse.js?2"></script>
+	<script type="text/javascript" src="/synapse/common.js"></script>
+	
+	<script type="text/javascript" src="/paper/svg.js"></script>
+	<script type="text/javascript" src="/lib/jquery.url.js"></script>
+	<script type="text/javascript" src="/paper/paper.js?1"></script>
+	<link rel="stylesheet" href="/paper/paper.css" type="text/css" />
+
+</head>
+
+
+<body style='
+	font-family:arial;
+	margin:0;
+	padding:0;
+	height:100%;
+	overflow:hidden;
+	font-size:12px; 
+	'>
+
+	<div id='topbar' style='
+	position:absolute; 
+	left:0;
+	top: 0;
+	right:0;
+	height:54px;
+	border-style:none;
+	font-style:italic;
+	color:#aaaaaa'>
+	Internet papier - nog volop in ontwikkeling
+	</div>
+			
+
+	<div id='menuBgBar' style='
+	position:absolute; 
+	left:0;
+	top: 54px;
+	right:0;
+	height:34px;
+	background-color:#421F59;'>
+	</div>
+
+
+
+	<div id='toolbox' style='
+	position:absolute; 
+	left:0;
+	top: 88px;
+	width: 199px;
+	bottom:0;
+	border-width: 1px;
+	border-color:#dddddd;
+	border-right-style:solid'>
+
+		<div class='toolHeader' style='border-top-style:none; background-image:url("/paper/paper.png");'>
+			Papier <span id='objectId'></span>	
+			<br>
+			<div shareType='facebook' class='share facebook' title='Delen op facebook'></div>
+			<div shareType='twitter' class='share twitter' title='Tweet dit'></div>
+			<div shareType='linkedin' class='share linkedin' title='Delen op LinkedIn'></div>
+			<div shareType='hyves' class='share hyves' title='Delen op hyves'></div>
+			<div shareType='addthis' class='share addthis' title='Delen via andere netwerken...'></div>
+			<br>
+			<div shareType='email' class='share email' title='Stuur via email'></div>
+			<div class='print' title='Printen'></div>
+		</div>
+
+		<div class='auth_change'>
+			<div class='toolHeader' style='background-image:url("/paper/paper.png");'>
+				Gereedschappen	
+			</div>
+	
+	
+			<div id='modes' class='toolList'>
+				<div 
+					class='tool' 
+					value='move' 
+					changeHigh='1' 
+					changeShow='' 
+					changeFocus='#chatInput' 
+					style='background-image:url("/paper/icon-pijl.jpg")'>
+				</div>
+				
+				<div 
+					class='tool' 
+					value='line' 
+					changeHigh='0' 
+					changeShow='.settingWidth'  
+					changeFocus='#chatInput'
+					style='background-image:url("/paper/icon-lijn.jpg")'>
+				</div>
+				
+				<div 
+					class='tool defaultTool' 
+					value='polyline' 
+					changeHigh=0 
+					changeShow='.settingWidth'
+					changeFocus='#chatInput'
+					style='background-image:url("/paper/icon-potlood.jpg")'>
+				</div>
+				
+				<div 
+					class='tool' 
+					value='polyline' 
+					fill 
+					changeHigh=0 
+					changeShow='' 
+					changeFocus='#chatInput'
+					style='background-image:url("/paper/icon-potlood-rondje.jpg")'>
+				</div>
+	
+				<br></br>
+	
+				<div 
+					class='tool' 
+					value='rect' 
+					changeHigh=0 
+					changeShow='.settingWidth'
+					changeFocus='#chatInput'
+					style='background-image:url("/paper/icon-vierkant-open.jpg")'>
+				</div>
+				
+				<div 
+					class='tool'
+					value='rect'
+					fill
+					changeHigh=0
+					changeShow=''
+					changeFocus='#chatInput'
+					style='background-image:url("/paper/icon-vierkant-dicht.jpg")'>
+				</div>
+				
+				<div 
+					class='tool' 
+					value='circle' 
+					changeHigh=0 
+					changeShow='.settingWidth'  
+					changeFocus='#chatInput'
+					style='background-image:url("/paper/icon-rondje-open.jpg")'>
+				</div>
+				
+				<div 
+					class='tool' 
+					value='circle' 
+					fill 
+					changeHigh=0 
+					changeShow='' 
+					changeFocus='#chatInput'
+					style='background-image:url("/paper/icon-rondje-dicht.jpg")'>
+				</div>
+				
+				<br></br>
+				
+				<div 
+					class='tool' 
+					value='text' 
+					fill 
+					changeHigh=0 
+					changeShow='.settingText' 
+					changeFocus='#textInput'
+					style='background-image:url("/paper/icon-tekst.jpg")'>
+				</div>	
+				
+				<div 
+					class='tool' 
+					value='delete' 
+					changeHigh='1' 
+					changeShow='' 
+					changeFocus='#chatInput'
+					style='background-image:url("/paper/icon-gum.jpg")'>
+				</div>
+				
+				<div
+					class='tool'
+					value='image'
+					changeHigh='0'
+					changeShow='.settingImage'
+					fill
+					changeFocus='#imageInput'
+					style='background-image:url("/paper/icon-afbeelding.jpg")'>
+				</div>
+	
+				<!-- add extra per-tool settings here, will be automaticly shown if show=... is specified in a tool -->
+				<div class='setting settingWidth defaultSetting'>
+					Grootte (<span id='widthText'>3</span>)
+					<div id='width' style='
+						margin:1em;			
+					'></div>
+				</div>
+		
+				<div class='setting settingText'>
+					Text: 
+					<textarea id='textInput' class='autoFocus' cols=20 rows=3></textarea>
+				</div>
+		
+				<div class='setting settingImage'>
+					Image url: 
+					<textarea id='imageInput' class='autoFocus' cols=20 rows=3></textarea>
+				</div>
+	
+			</div>
+	
+	
+			<div class='toolHeader' style='background-image:url("/paper/paper.png");'>
+				Kleuren	
+			</div>
+	
+			<div id='colors'  class='toolList'>
+				<div class='tool color defaultTool' style='background-color:#000000' value='#000000'>&nbsp;</div>
+				<div class='tool color' style='background-color:#0000ff' value='#0000ff'>&nbsp;</div>
+				<div class='tool color' style='background-color:#00ff00' value='#00ff00'>&nbsp;</div>
+				<div class='tool color' style='background-color:#00ffff' value='#00ffff'>&nbsp;</div>
+				<br>
+				<div class='tool color' style='background-color:#FF8040' value='#FF8040'>&nbsp;</div>
+				<div class='tool color' style='background-color:#ffffff' value='#ffffff'>&nbsp;</div>
+				<div class='tool color' style='background-color:#ff0000' value='#ff0000'>&nbsp;</div>
+				<div class='tool color' style='background-color:#ff00ff' value='#ff00ff'>&nbsp;</div>
+				<br>
+				<div class='tool color' style='background-color:#ffff00' value='#ffff00'>&nbsp;</div>
+				<div class='tool color' style='background-color:#999999' value='#999999'>&nbsp;</div>
+				<div class='tool color' style='background-color:#804000' value='#804000'>&nbsp;</div>
+				<div class='tool color' style='background-color:#F87217' value='#F87217'>&nbsp;</div>
+			</div>		
+	
+	
+			<!-- 
+			<div id='styles'>
+				<div class='tool defaultTool' value='none'>norm</div>
+				<div class='tool' value='20,200'>stip</div>
+				<div class='tool' value='200,200'>streep</div>
+			</div>
+	 -->
+	
+		</div>
+	</div>
+
+
+
+
+	<div id='drawingSize' style='
+	position:absolute; 
+	left:200px;
+	top: 88px;
+	right:0;
+	bottom:0;
+	margin: 0;
+	padding: 0;
+	background-color:#eeeeee;
+	'></div>
+
+	<div id='drawing'>
+	</div>		
+
+
+	<div id='fileBar' class='menuBar' style='
+	position:absolute; 
+	top: 54px;
+	left:199px;
+	height:34px;'>
+		Bestand
+		<div id='fileMenu' class='menu' style='
+		position:absolute; 
+		top: 34px;
+		left:0px;'>
+			<div id='clear' class='menuItem'>Nieuw papier</div>
+			<div id='authShow' class='menuItem'>Inloggen</div>
+			<div class='menuSeperator'></div>
+			<div id='savePNG' class='save menuItem'>Bekijk als PNG</div>
+			<div id='saveSVG' class='save menuItem'>Bekijk als SVG</div>
+		</div>
+	</div>
+
+	<div id='loginButton' style='
+	position:absolute; 
+	top: 54px;
+	left:299px;
+	height:34px;'> 
+	
+		Inloggen
+	</div>
+
+
+	<div  style='
+	position:absolute; 
+	top: 14px;
+	width: 195px;
+	right:16px;
+	height:27px;
+	border-style:none;
+	color: #ffffff;
+	border-width:1px;
+	border-color:#dddddd;
+	border-style:solid;
+	padding-left:38px;'>
+	<input id='chatClientName' class='autoFocus' style='border:none;padding:0;margin:0;' type='text' size=10></input> 
+	</div>
+
+	<div id='chatBar' class='chatBar' style='
+	position:absolute; 
+	top: 54px;
+	width: 222px;
+	right: 0px;
+	height: 34px;'>
+	Tekening word ingeladen...
+	</div>
+
+
+
+	<div id='chatBox' style='
+	position:absolute; 	
+	top: 88px;
+	width: 248px;
+	right:0;
+	bottom:0;
+	background-color:#ffffff;
+	border-style:solid;
+	border-color:#FF8400;
+	border-width:1px;
+	border-top-width:0px;
+	display:none;
+	'>
+		<div id='chatClients' style='
+		position:absolute; 	
+		top: 0em;
+		left: 0em;
+		right: 0em;
+		background-color:#FFF0E9;
+		border-style:none;
+		max-height:5em;
+		overflow: auto;
+		padding:1em;
+		'>
+		</div>
+
+		<div id='chatList' style='
+		position:absolute; 	
+		top: 7em;
+		left: 0em;
+		right: 0em;
+		bottom: 5em;
+		padding:1em;
+		background-color:#ffffff;
+		border-style:none;
+		overflow: auto;
+		'>
+		</div>
+
+		<textarea id='auth_chat chatInput' class='autoFocus' rows=3 cols=30 style='
+		position:absolute; 	
+		bottom: 1em;
+		left: 1em;
+		height: 4em;
+		background-color:#ffffff;
+		border-style:solid;
+		border-color:#FF8400;
+		border-width:1px;
+		'></textarea>
+	</div>
+
+
+	<div id='loading' style='
+	position:absolute;
+	left:0;
+	right:0;
+	top:1em;
+	bottom:0;
+	background-fill:none;
+	text-align:center;
+	color: red;
+	font-size: 1000%;'>
+	</div>
+
+	<div style='display:none' id='authForm' title='Wachtwoord'>
+		<p>Wachtwoord: <input type='text' id='authKey'>
+		<div id='authMsg' style='background-color:yellow'></div>
+	</div>
+	
+</body>
+</html>

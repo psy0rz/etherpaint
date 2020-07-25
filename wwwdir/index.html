@@ -1,0 +1,323 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!-- (C)edwin@datux.nl - released under GPL -->
+<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	<title>Internet Papier</title>
+
+	<script type="text/javascript" src="/synapse/synapse.js"></script>
+	<script type="text/javascript" src="/synapse/common.js"></script>
+
+	<script>
+
+		//submit value to server
+		function submit()
+		{
+			$("#addMessage").show();
+			$("#addMessage").html("Zoeken...");
+			send(0,"paper_Check", {
+				"objectId":$("#objectId").val(),
+			});
+		}
+
+		synapse_register("module_SessionStart",function(msg_src, msg_dst, msg_event, msg)
+		{
+			
+			//submit on click	
+			$("#editButton").click(function(m)
+			{
+				submit();
+			});
+
+			//submit on enter
+			$('#objectId').keydown(function(e)
+			{
+				if (e.keyCode==13)
+					submit();
+			});
+
+			//request new object	
+			$("#addButton").click(function(m)
+			{
+				$("#addMessage").show();
+				$("#addMessage").html("Pagina word aangemaakt...");
+				send(0,"paper_Create");
+			});
+
+			
+			$("#objectId").focus();
+
+			$("#addBox").show();
+			$("#editBox").show();
+
+			$("#protected").change(function()
+			{
+				if ($("#protected:checked").val())
+					$("#passwordBox").show();
+				else
+					$("#passwordBox").hide();
+			});
+			$("#protected").change();
+			
+			send(0,"paper_GetList");
+		});
+
+
+		//we probably created a new object
+		synapse_register("object_Joined",function(msg_src, msg_dst, msg_event, msg)
+		{
+			//up on creating we get temporary owner rights.
+			//now set permanent global rights to "allow all"
+			send(msg_src,"paper_ChangeAuth",
+			{
+				"key":"",
+				"rights":
+				{
+					"owner":1,
+					"chat":1,
+					"cursor":1,
+					"change":1,
+					"description":"Creator of this paper"
+				}
+			}); 
+
+			//now go to the paper
+			document.location=msg["htmlPath"];//+"#"+getClientId();
+		});
+
+
+		
+		//the requested paper exists, so go to the editor		
+		synapse_register("paper_CheckOk",function(msg_src, msg_dst, msg_event, msg)
+		{
+			$("#message").html("Pagina word ingeladen...");
+			document.location=msg["htmlPath"];			
+		});
+
+		//paper number does not exist
+		synapse_register("paper_CheckNotFound",function(msg_src, msg_dst, msg_event, msg)
+		{
+			$("#message").html("Deze pagina bestaat niet!");
+		});
+	
+	
+		//list of papers
+		synapse_register("paper_List",function(msg_src, msg_dst, msg_event, msg)
+		{
+			//update list
+			$("#paperList").empty();
+			for (msgI in msg["list"])
+			{
+				var paper=msg["list"][msgI];
+				var delta=msg["time"]-paper["changeTime"];
+				var html="";
+
+				html+="<a href='"+paper["htmlPath"]+"'>";
+				html+="<div class='paper'>";
+				html+="<img src='"+paper["thumbPath"]+"'>";
+
+				if (delta<30)
+					html+="sinds enkelle seconden";
+				else if (delta<120)
+					html+="sinds een minuut";
+				else if (delta<3600)
+					html+="sinds "+Math.round(delta/60)+" minuten";
+				else if (delta<80000)
+					html+="sinds "+Math.round(delta/3600)+" uren";
+				else 
+					html+="sinds "+Math.round(delta/3600/24)+" dagen";
+				
+				
+				html+="</div>";
+				html+="</a>";
+				
+				$("#paperList").append(html);				
+			}
+
+			//ask again after some time
+			setTimeout(function() 
+			{
+				 send(0,"paper_GetList");
+			},10000);
+		});
+	</script>
+
+
+	<style>
+		body 
+		{
+			margin:0;
+			padding:0;
+			height:100%;
+			width:100%;
+		} 
+		
+		a
+		{
+			border:none;
+			text-decoration:none;
+			color: inherit;
+		}
+		
+		img
+		{
+			border:none;
+		}
+
+		.button
+		{
+			color:#ffffff;
+			font-size:2em;
+			padding:1em;
+			border-size:2px;
+			border-color:#aaaaaa;
+			border-style:solid;
+			width:6em;
+			margin-left:5em;
+			cursor:pointer;
+		}
+		
+		input
+		{
+			background-color:#ffff55;
+		}
+		
+		.button:hover
+		{
+			border-color:yellow;
+		}
+
+		.description
+		{
+			font-size:2em;
+			font-style:italic;
+		}
+
+		#addBox
+		{
+			margin-top:2em;
+			margin-left:auto;
+			margin-right:auto;
+			width:40em;
+			display: none;
+		}
+
+		#addButton
+		{
+			background-color:green;
+		}
+
+		#editBox
+		{
+			margin-top:3em;
+			margin-left:auto;
+			margin-right:auto;
+			width:40em;
+			display: none;
+		}
+
+
+		#editButton
+		{
+			background-color:blue;
+		}
+
+		.hidden
+		{
+			display: none;
+		}	
+
+	
+		#footer
+		{
+			position:fixed;
+			text-align:center;
+			left:0;
+			right:0;
+			bottom:0;
+			color:#777777;
+			border-top:1px;
+			border-color:#777777;
+			border-top-style:solid;
+			background-color: #ffffff;
+		}
+		
+		.paper
+		{
+			padding: 3px;
+			color: #aaaaaa;
+		}		
+		
+		.paper:hover
+		{
+			background-color:#eeeeee;
+		}
+		
+		.paper img 
+		{
+			display: block;
+			border-style: solid;
+			border-width: 1px 3px 3px 1px;
+			border-color: #000000;
+		}
+		
+	</style>
+</head>
+
+
+<body class='ui-widget'>
+	<div class='ui-widget-header' style='text-align:center'>
+		Welkom bij Internet Papier
+	</div>
+
+	<div style='color:red;'>Disclaimer: Internet papier is nog volop in ontwikkeling. Voel u vrij om alvast te testen.</div>
+
+	<div id='paperList' style='
+			position: absolute;
+			right:0px;
+			width:200px;
+	'>
+	</div>	
+
+	<div id='addBox'>
+		<div class='description'>
+			Begin met een schoon papier:
+		</div>
+
+		<div class='button' id='addButton'>
+			<img src='/paper/note_add.png'/>	
+			Nieuw...
+		</div>
+		<div>
+			<input type='checkbox' id='protected'>Beveiligen met een wachtwoord</input>
+			<div id='passwordBox' class='hidden'>
+				Wachtwoord voor de nieuwe tekening: <input type='text' id='password'></input>
+			</div>
+			<div class='hidden ui-state-highlight' id='addMessage'>
+			</div>
+			
+		</div>
+	</div>
+
+	<div id='editBox'>
+			<div class='description'>
+					Bekijk dit papier nummer: 
+			</div>	
+			<div class='button' id='editButton'>
+				<img src='/paper/note_edit.png'/>
+				<input size='5' id='objectId'>
+				Bekijk...
+			</div>
+			<br>
+			<div class='hidden ui-state-highlight' id='editMessage'>
+			</div>
+	</div>
+
+	
+	<div id='footer'>
+	(C)2010 DatuX - Powered by SYN-3 - <a href='http://www.syn-3.eu'>http://www.syn-3.eu</a> - info@datux.nl
+	</div>
+	
+</body>
+</html>

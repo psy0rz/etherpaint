@@ -6,7 +6,7 @@
 #include <restbed>
 #include <iostream>
 #include <fstream>
-#include "rapidjson/document.h"     // rapidjson's DOM-style API
+#include "rapidjson/document.h"		// rapidjson's DOM-style API
 #include "rapidjson/prettywriter.h" // for stringify JSON
 #include <boost/regex.hpp>
 
@@ -18,44 +18,87 @@ using namespace std::chrono;
 
 vector<shared_ptr<Session>> sessions;
 
+const map<string, string> content_type_map{
+	{
+		"css",
+		"text/css",
+	},
+	{
+		"html",
+		"text/html",
+	},
+	{
+		"",
+		"text/html",
+	},
+	{
+		"js",
+		"application/javascript",
+	},
+	{
+		"gif",
+		"image/gif",
+	},
+	{
+		"jpeg",
+		"image/jpeg",
+	},
+	{
+		"jpg",
+		"image/jpeg",
+	},
+	{
+		"png",
+		"image/png",
+	},
+	{
+		"htc",
+		"text/x-component",
+	},
+	{
+		"swf",
+		"application/x-shockwave-flash",
+	},
+	{"svg", "image/svg+xml"}};
+
 //handle static content
-void handle_static( const shared_ptr< Session > session )
+void handle_static(const shared_ptr<Session> session)
 {
-    const auto request = session->get_request( );
-    const string filename = request->get_path_parameter( "filename" );
+	const auto request = session->get_request();
+	const string filename = request->get_path_parameter("filename");
 
-    ifstream stream( "wwwdir/" + filename, ifstream::in );
-    
-    if ( stream.is_open( ) )
-    {
+	ifstream stream("../wwwdir/" + filename, ifstream::in);
+
+	if (stream.is_open())
+	{
 		boost::smatch what;
-		if (regex_search(
-			filename,
-			what,
-			boost::regex("([^.]*$)")
-		))
+		if (!regex_search(
+				filename,
+				what,
+				boost::regex("([^.]*$)")))
 		{
-			session->close( INTERNAL_SERVER_ERROR );
+			session->close(INTERNAL_SERVER_ERROR, "Incorrect filename format.");
 		}
+		else
+		{
+			string extention = what[1];
+			string content_type = content_type_map.at(extention);
+			const string body = string(istreambuf_iterator<char>(stream), istreambuf_iterator<char>());
 
+			const multimap<string, string> headers{
+				{"Content-Type", content_type},
+				{"Content-Length", ::to_string(body.length())}};
 
-        const string body = string( istreambuf_iterator< char >( stream ), istreambuf_iterator< char >( ) );
-        
-        const multimap< string, string > headers
-        {
-            { "Content-Type", "text/html" },
-            { "Content-Length", ::to_string( body.length( ) ) }
-        };
-        
-        session->close( OK, body, headers );
-    }
-    else
-    {
+			session->close(OK, body, headers);
+		}
+	}
+	else
+	{
 		string errormsg;
-		errormsg="Cant find file ";
-		errormsg+=filename;
-        session->close( NOT_FOUND , errormsg);
-    }
+		errormsg = "Cant find file ";
+		errormsg += filename;
+		session->close(NOT_FOUND, errormsg);
+	}
 }
 
 //register new session

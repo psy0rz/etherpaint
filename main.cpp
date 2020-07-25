@@ -6,9 +6,10 @@
 #include <restbed>
 #include <iostream>
 #include <fstream>
-#include "rapidjson/document.h"		// rapidjson's DOM-style API
-#include "rapidjson/prettywriter.h" // for stringify JSON
+#include "rapidjson/document.h"		
+#include "rapidjson/prettywriter.h" 
 #include <boost/regex.hpp>
+#include "msg_session_manager.hpp"
 
 using namespace rapidjson;
 
@@ -102,7 +103,10 @@ void handle_static(const shared_ptr<Session> session)
 	}
 }
 
-//register new session
+
+MsgSessionManager msg_session_manager;
+
+//register new server side event session
 void handle_events(const shared_ptr<Session> session)
 {
 	static long id = 0;
@@ -114,34 +118,45 @@ void handle_events(const shared_ptr<Session> session)
 		{"Content-Type", "text/event-stream"},
 		{"Access-Control-Allow-Origin", "*"} //Only required for demo purposes.
 	};
-	session->set("blaat", id);
+
+
 
 	session->yield(OK, headers, [](const shared_ptr<Session> session) {
-		sessions.push_back(session);
+
+		auto msg_session=msg_session_manager.create();
+	    session->set("msg_session", msg_session);
+
+
+		string message;
+		message+="data: id=";
+		message+=msg_session->m_id;
+		message+="\n\n";
+		session->yield(message);
+
 	});
 }
 
-//send data to all connected sessions
-void send_events(void)
-{
-	static size_t counter = 0;
-	// const auto message = "data: event " + to_string( counter ) + "\n\n";
+// //send data to all connected sessions
+// void send_events(void)
+// {
+// 	static size_t counter = 0;
+// 	// const auto message = "data: event " + to_string( counter ) + "\n\n";
 
-	sessions.erase(
-		std::remove_if(sessions.begin(), sessions.end(),
-					   [](const shared_ptr<Session> &a) {
-						   return a->is_closed();
-					   }),
-		sessions.end());
+// 	sessions.erase(
+// 		std::remove_if(sessions.begin(), sessions.end(),
+// 					   [](const shared_ptr<Session> &a) {
+// 						   return a->is_closed();
+// 					   }),
+// 		sessions.end());
 
-	for (auto session : sessions)
-	{
-		auto message = "data: event " + to_string((long)session->get("blaat")) + "\n\n";
-		session->yield(message);
-	}
+// 	for (auto session : sessions)
+// 	{
+// 		auto message = "data: event \n\n";
+// 		session->yield(message);
+// 	}
 
-	counter++;
-}
+// 	counter++;
+// }
 
 void handle_send(const shared_ptr<Session> session)
 {
@@ -180,13 +195,14 @@ int main(const int, const char **)
 		service->publish(resource);
 	}
 
-	// service->schedule(send_events, milliseconds(1000));
+	// service->schedule(send_events, milliseconds(10000));
+    // service->set_session_manager( make_shared< InMemorySessionManager >( ) );
 
 	auto settings = make_shared<Settings>();
 	settings->set_port(1984);
 	settings->set_worker_limit(10);
 	cout << "timeout " << settings->get_connection_timeout().count()<< endl;
-	cout << "limit " << settings->get_connection_limit() << endl;
+	cout << "limit " << settings->get_connectionz_limit() << endl;
 	service->start(settings);
 
 	return EXIT_SUCCESS;

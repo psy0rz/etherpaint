@@ -5,8 +5,14 @@ cd build
 cmake --build . -- -j10 || exit 1
 echo "GO.."
 ./restbed_test &
+
 # for bla in `seq 0 1000`; do curl -s http://localhost:1984/stream >/dev/null & done
-curl -s http://localhost:1984/stream
+# sleep 10
+# killall -9 restbed_test
+
+curl -v http://localhost:1984/stream
+
 wait
+
 
 

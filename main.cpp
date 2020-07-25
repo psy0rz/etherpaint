@@ -62,6 +62,7 @@ const map<string, string> content_type_map{
 	{"svg", "image/svg+xml"}};
 
 //handle static content
+//TOOD: keepalive
 void handle_static(const shared_ptr<Session> session)
 {
 	const auto request = session->get_request();
@@ -142,9 +143,18 @@ void send_events(void)
 	counter++;
 }
 
-void handle_cursor(const shared_ptr<Session> session)
+void handle_send(const shared_ptr<Session> session)
 {
-	send_events();
+	string body;
+	body="Moiii";
+
+	const multimap<string, string> headers{
+		{"Content-Type", "application/json"},
+		{"Content-Length", ::to_string(body.length())},
+		{"Connection", "keep-alive"},
+	};
+
+	session->yield(OK, body, headers);
 }
 
 int main(const int, const char **)
@@ -165,16 +175,18 @@ int main(const int, const char **)
 	}
 	{
 		auto resource = make_shared<Resource>();
-		resource->set_path("/cursor");
-		resource->set_method_handler("GET", handle_cursor);
+		resource->set_path("/send");
+		resource->set_method_handler("POST", handle_send);
 		service->publish(resource);
 	}
 
-	// service->schedule( send_events, milliseconds( 1000/25 ) );
+	// service->schedule(send_events, milliseconds(1000));
 
 	auto settings = make_shared<Settings>();
 	settings->set_port(1984);
 	settings->set_worker_limit(10);
+	cout << "timeout " << settings->get_connection_timeout().count()<< endl;
+	cout << "limit " << settings->get_connection_limit() << endl;
 	service->start(settings);
 
 	return EXIT_SUCCESS;

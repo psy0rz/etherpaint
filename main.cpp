@@ -1,3 +1,32 @@
+/* Released under GNU General Public License v3.0
+ * (C) Edwin Eefting -- ediwn@datux.nl 
+ *
+ * This framework is designed with performance and scalability in mind. All design decisions are made accordingly:
+ *  - I choose restbed because its superfast, clean, stable and has server-side event support. (and is event driven and multi threaded)
+ *  - I choose rapidjson because its the fastest AND it has a nice DOM API. (and stable and secure as well, its created by the desginers of Weechat i think, it has regression testing and 100% testing coverage)
+ *  - We dont use regular cookies (for performance reasons, we send up to 25 POSTs per second)
+ *  - We dont want extra headers, so we stay compatible with proxies.
+ *  - Note that a "session" here is an active message-stream from the server to a javascript instance in the browser. Not to be confused with regular php session stuff.
+ * 
+ * The external message format (json) between browser and server:
+ *  - Every message contains the session id and a bunch of events. (events are batched for performance reasons)
+ *  - Data can be any json compatible structure.
+ *  - Messages from/to server have the same format:
+ * 
+ *    [ "sessionid", [ [ "eventname", data ], [ ... ] ] ]
+ *
+ *  - Messages FROM server to brower are sent via server-sent events via the url /events:
+ *  - As soon as this connection dies, the session becomes invalid and all is lost. :)  (javascript stuff will nicely reconnect/resync)
+ *
+ * The internal message format (C++):
+ *  - For performance reasons we stay as close to rapidjson as possible, so we dont have to create extra copies or datastructures. 
+ *  - EventHandlers are called with references to the rapidjson document object.
+ *  - Only after execution of all eventhandlers the object will be discarded and an OK will be yielded.
+ * 
+ * 
+ * 
+ */
+
 #include <map>
 #include <chrono>
 #include <string>
@@ -22,6 +51,7 @@ using namespace restbed;
 using namespace std::chrono;
 
 vector<shared_ptr<Session>> sessions;
+
 
 const map<string, string> content_type_map{
 	{
@@ -228,8 +258,7 @@ int main(const int, const char **)
 	auto settings = make_shared<Settings>();
 	settings->set_port(1984);
 	settings->set_worker_limit(10);
-	// cout << "timeout " << settings->get_connection_timeout().count() << endl;
-	// cout << "limit " << settings->get_connection_limit() << endl;
+	settings->set_connection_limit(1000);
 	service->start(settings);
 
 	return EXIT_SUCCESS;

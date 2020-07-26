@@ -62,6 +62,11 @@ class MsgSessionManager
             return(nullptr);
 
         }
+
+        void sendall()
+        {
+            
+        }
         
         
     private:

@@ -6,6 +6,7 @@ using namespace std;
 #include <memory>
 #include <random>
 #include <cstdlib>
+#include "log.hpp"
 
 class MsgSession
 {
@@ -25,6 +26,6 @@ public:
             m_id += charset.at(selector(generator));
         }
 
-
+        DEB("Created new session " << m_id);
     }
 };

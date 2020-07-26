@@ -18,6 +18,8 @@ else()
         CMAKE_ARGS 
             -DCMAKE_INSTALL_PREFIX=${EXTERNAL_PROJECTS_INSTALL_PREFIX}
             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
+            -DBUILD_SSL=OFF
+            -DBUILD_TESTS=OFF
         )
     # if(NOT EXISTS "${EXTERNAL_PROJECTS_INSTALL_PREFIX}/include")
     #     # Happens on first CMake run.

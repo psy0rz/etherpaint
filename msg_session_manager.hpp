@@ -25,9 +25,9 @@ class MsgSessionManager
         }
                 
         //create new MsgSession
-        shared_ptr<MsgSession> create( )
+        shared_ptr<MsgSession> create( const shared_ptr<restbed::Session> & send_session)
         {
-            auto msg_session=make_shared<MsgSession>();
+            auto msg_session=make_shared<MsgSession>(send_session);
 
             {
                 unique_lock< mutex > lock( m_msg_sessions_lock );
@@ -39,8 +39,8 @@ class MsgSessionManager
             return(msg_session);
         }
         
-        //find existing session (also prunes expired sessions)
-        shared_ptr<MsgSession> find( string & id )
+        //find existing session (alsco prunes expired sessions)
+        shared_ptr<MsgSession> find( const string & id )
         {
             unique_lock< mutex > lock( m_msg_sessions_lock );
 

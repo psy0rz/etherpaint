@@ -144,9 +144,8 @@ void handle_events(const shared_ptr<Session> session)
 	};
 
 	session->yield(OK, headers, [](const shared_ptr<Session> session) {
-		auto msg_session = msg_session_manager.create();
-		session->set("msg_session", msg_session);
-		sessions.push_back(session);
+		//this is also what keeps the session alive
+		auto msg_session = msg_session_manager.create(session);
 
 		string message;
 		message += "data: event ";

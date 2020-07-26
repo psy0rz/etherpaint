@@ -202,7 +202,7 @@ int main(const int, const char **)
 	settings->set_port(1984);
 	settings->set_worker_limit(10);
 	cout << "timeout " << settings->get_connection_timeout().count()<< endl;
-	cout << "limit " << settings->get_connectionz_limit() << endl;
+	cout << "limit " << settings->get_connection_limit() << endl;
 	service->start(settings);
 
 	return EXIT_SUCCESS;

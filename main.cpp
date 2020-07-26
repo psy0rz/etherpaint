@@ -8,11 +8,12 @@
 #include <fstream>
 #include "rapidjson/document.h"
 #include "rapidjson/stringbuffer.h"
-#include <rapidjson/writer.h>
+#include "rapidjson/writer.h"
+#include "rapidjson/error/en.h"
+
 #include <boost/regex.hpp>
 #include "msg_session_manager.hpp"
 #include "log.hpp"
-
 
 using namespace rapidjson;
 
@@ -65,8 +66,16 @@ const map<string, string> content_type_map{
 	},
 	{"svg", "image/svg+xml"}};
 
+void yield_text(Session &session, const int status = 200, const string &text = "", const std::function<void(std::shared_ptr<restbed::Session>)> &callback = nullptr)
+{
+	const multimap<string, string> headers{
+		{"Connection", "keep-alive"},
+		{"Content-Length", ::to_string(text.length())}};
+
+	session.yield(status, text, headers, callback);
+}
+
 //handle static content
-//TOOD: keepalive
 void handle_static(const shared_ptr<Session> session)
 {
 	const auto request = session->get_request();
@@ -74,16 +83,11 @@ void handle_static(const shared_ptr<Session> session)
 
 	ifstream stream("../wwwdir/" + filename, ifstream::in);
 
-	// static int count=1;
-
-	// if (!session->has("count"))
-	// {
-	// 	count++;
-	// 	DEB ("new connection " << count );
-	// 	session->set("count", count);
-	// }
-
-	if (stream.is_open())
+	if (!stream.is_open())
+	{
+		yield_text(*session, NOT_FOUND, "File not found.\n");
+	}
+	else
 	{
 		boost::smatch what;
 		if (!regex_search(
@@ -91,16 +95,11 @@ void handle_static(const shared_ptr<Session> session)
 				what,
 				boost::regex("([^.]*$)")))
 		{
-			string errormsg;
-			errormsg = "Incorrect filename format";
-			const multimap<string, string> headers{
-				{"Connection", "keep-alive"},
-				{"Content-Length", ::to_string(errormsg.length())}};
-
-			session->yield(INTERNAL_SERVER_ERROR, errormsg, headers);
+			yield_text(*session, INTERNAL_SERVER_ERROR, "Incorrect filename format\n");
 		}
 		else
 		{
+			//send file
 			string extention = what[1];
 			string content_type = content_type_map.at(extention);
 			const string body = string(istreambuf_iterator<char>(stream), istreambuf_iterator<char>());
@@ -112,18 +111,6 @@ void handle_static(const shared_ptr<Session> session)
 
 			session->yield(OK, body, headers);
 		}
-	}
-	else
-	{
-		string errormsg;
-		errormsg = "Cant find file ";
-		errormsg += filename;
-
-		const multimap<string, string> headers{
-			{"Connection", "keep-alive"},
-			{"Content-Length", ::to_string(errormsg.length())}};
-
-		session->yield(NOT_FOUND, errormsg, headers);
 	}
 }
 
@@ -180,27 +167,36 @@ void send_events(void)
 //handle incomming message via /send
 void handle_send(const shared_ptr<Session> session)
 {
-	//restbed: vector van uint8's
-	//rapidjson: StringStream
+	const auto request = session->get_request();
 
-	DEB("bam");
+	size_t content_length = request->get_header("Content-Length", 0);
 
-	// auto document=make_shared<Document>();
-	Bytes  b=session->get_request()->get_header()
-	DEB("bytes input " << b);
-	
-	// document->Parse( reinterpret_cast<const char *>(b.data()), b.size());
+	session->fetch(content_length, [request](const shared_ptr<Session> session, const Bytes &body) {
+		// fprintf(stdout, "RAW %.*s\n", (int)body.size(), body.data());
 
-	// //convert test
-	// StringBuffer buffer;
-	// Writer<StringBuffer> writer(buffer);
-	// document->Accept(writer);
- 	// DEB( buffer.GetString());
+		auto document = make_shared<Document>();
+		//note: can perhaps prevent a copy by using document->ParseInsitu
+		document->Parse(reinterpret_cast<const char *>(body.data()), body.size());
 
-	
+		if (document->HasParseError())
+		{
+			stringstream error_text;
+			error_text << "Parse error at offset " << document->GetErrorOffset() << ": " << GetParseError_En(document->GetParseError()) << "\n";
 
-	session->yield(OK, multimap<string, string>{
-						   {"Connection", "keep-alive"}});
+			yield_text(*session, INTERNAL_SERVER_ERROR, error_text.str());
+		}
+		else
+		{
+			//convert test
+			StringBuffer buffer;
+			Writer<StringBuffer> writer(buffer);
+			document->Accept(writer);
+			DEB("stringified " << buffer.GetString());
+
+			session->yield(OK, multimap<string, string>{
+								   {"Connection", "keep-alive"}});
+		}
+	});
 }
 
 int main(const int, const char **)

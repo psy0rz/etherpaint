@@ -48,14 +48,10 @@ class MsgSessionManager
             auto previous_session = m_msg_sessions.find( id );
             if ( previous_session not_eq m_msg_sessions.end( ) )
             {
-                //expired?
-                if (previous_session->second.expired())
+                //not closed?
+                if (!previous_session->second->expired())
                 {
-                    m_msg_sessions.erase(previous_session);
-                }
-                else
-                {
-                    return(previous_session->second.lock());
+                    return(previous_session->second);
                 }
             }
 
@@ -65,13 +61,13 @@ class MsgSessionManager
 
         void sendall()
         {
-            
+
         }
         
         
     private:
         mutex m_msg_sessions_lock;
         
-        map< string, weak_ptr< MsgSession > > m_msg_sessions;
+        map< string, shared_ptr< MsgSession > > m_msg_sessions;
 };
 

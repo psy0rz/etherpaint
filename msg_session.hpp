@@ -31,4 +31,8 @@ public:
 
         DEB("Created new session " << m_id);
     }
+
+    bool expired(){
+        return(m_send_session->is_closed());
+    }
 };

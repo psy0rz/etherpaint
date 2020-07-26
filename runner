@@ -11,8 +11,8 @@ echo "GO.."
 # sleep 10
 # killall -9 restbed_test
 
-curl -v http://localhost:1984/events
-
+# curl -v http://localhost:1984/events
+curl -d "['12321',[{bla:1},{bla:2}]]\n" http://localhost:1984/send -v &> /dev/null
 wait
 
 

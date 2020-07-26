@@ -7,10 +7,12 @@
 #include <iostream>
 #include <fstream>
 #include "rapidjson/document.h"
-#include "rapidjson/prettywriter.h"
+#include "rapidjson/stringbuffer.h"
+#include <rapidjson/writer.h>
 #include <boost/regex.hpp>
 #include "msg_session_manager.hpp"
 #include "log.hpp"
+
 
 using namespace rapidjson;
 
@@ -74,15 +76,12 @@ void handle_static(const shared_ptr<Session> session)
 
 	// static int count=1;
 
-
 	// if (!session->has("count"))
 	// {
 	// 	count++;
 	// 	DEB ("new connection " << count );
 	// 	session->set("count", count);
 	// }
-
-
 
 	if (stream.is_open())
 	{
@@ -178,18 +177,30 @@ void send_events(void)
 	// counter++;
 }
 
+//handle incomming message via /send
 void handle_send(const shared_ptr<Session> session)
 {
-	string body;
-	body = "Moiii";
+	//restbed: vector van uint8's
+	//rapidjson: StringStream
 
-	const multimap<string, string> headers{
-		{"Content-Type", "application/json"},
-		{"Content-Length", ::to_string(body.length())},
-		{"Connection", "keep-alive"},
-	};
+	DEB("bam");
 
-	session->yield(OK, body, headers);
+	// auto document=make_shared<Document>();
+	Bytes  b=session->get_request()->get_header()
+	DEB("bytes input " << b);
+	
+	// document->Parse( reinterpret_cast<const char *>(b.data()), b.size());
+
+	// //convert test
+	// StringBuffer buffer;
+	// Writer<StringBuffer> writer(buffer);
+	// document->Accept(writer);
+ 	// DEB( buffer.GetString());
+
+	
+
+	session->yield(OK, multimap<string, string>{
+						   {"Connection", "keep-alive"}});
 }
 
 int main(const int, const char **)

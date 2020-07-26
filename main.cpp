@@ -188,13 +188,13 @@ void handle_send(const shared_ptr<Session> session)
 		else
 		{
 			//convert test
-			StringBuffer buffer;
-			Writer<StringBuffer> writer(buffer);
-			document->Accept(writer);
-			DEB("stringified " << buffer.GetString());
+			// StringBuffer buffer;
+			// Writer<StringBuffer> writer(buffer);
+			// document->Accept(writer);
+			// DEB("stringified " << buffer.GetString());
 
-			session->yield(OK, multimap<string, string>{
-								   {"Connection", "keep-alive"}});
+			yield_text(*session, OK);
+
 		}
 	});
 }

@@ -167,10 +167,10 @@ using namespace std::chrono;
 
 using namespace uWS;
 
+FileCacher file_cacher("../wwwdir");
 
 int main(const int, const char **)
 {
-	FileCache file_cache("../wwwdir");
 
 #ifdef SSL
 	uWS::SSLApp({.key_file_name = "../misc/key.pem",
@@ -180,34 +180,41 @@ int main(const int, const char **)
 	uWS::App()
 #endif
 		.get("/*", [](auto *res, auto *req) {
-			string s;
+			// string s;
 
-			for(int i=0; i<10000000; i++)
-			{	
-				s=s.append("s");
+			// string_view view();
+			auto  file=file_cacher.get(string(req->getUrl()));
+			
+
+			if (file==file_cacher.m_cached_files.end())
+			{
+				res->writeStatus("404");
+				res->end("not found");
+			}
+			else
+				res->end(file->second.m_view);
+
+
+
+			// res->onWritable([s,res](int offset) {
+			// // res->cork([s,res,offset] {
+
+			// 	   ERROR("WIL MEER!" << offset)
+			// 		res->tryEnd(s, 100000000);
+			// 	   ERROR("MEER gegeve!" << offset)
+			// // });
+			// 	   return true;
+
+
+			//    })
+			// 	->onAborted([]() {
+			// 		ERROR("ABORTED!");
+			// 	});
 				
-			};
-
-
-			res->onWritable([s,res](int offset) {
-			// res->cork([s,res,offset] {
-
-				   ERROR("WIL MEER!" << offset)
-					res->tryEnd(s, 100000000);
-				   ERROR("MEER gegeve!" << offset)
-			// });
-				   return true;
-
-
-			   })
-				->onAborted([]() {
-					ERROR("ABORTED!");
-				});
-				
-			ERROR("STARTS");
-			ERROR("START");
-			res->tryEnd(s, 100000000);
-			ERROR("done");
+			// ERROR("STARTS");
+			// ERROR("START");
+			// res->tryEnd(s, 100000000);
+			// ERROR("done");
 
 
 			// res->cork([res] {

@@ -14,7 +14,7 @@ echo "GO.."
 # curl -v http://localhost:1984/events
 # curl -d '["12321",[{"bla":1},{"bla":2}]]' http://localhost:1984/send -v 
 # curl  -v http://localhost:3000   >/dev/null
-#  curl --limit-rate 200k -v http://localhost:3000   >/dev/null
+curl  -v http://localhost:3000/edit.html
 
 echo
 echo "CURL DONE"

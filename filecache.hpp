@@ -35,6 +35,8 @@ public:
     vector<char> m_content;
     filesystem::path m_path;
 
+    string_view m_view;
+
     CachedFile(filesystem::path path)
     {
         m_path = path;
@@ -53,17 +55,22 @@ public:
 
         m_content.resize(size);
         file.read(m_content.data(), size);
+
+        //uwebsockets uses views
+        m_view = string_view(m_content.data(), m_content.size());
     }
 };
 
-class FileCache
+class FileCacher
 {
 
 public:
     string m_root_dir;
-    map<string, CachedFile> m_cached_files;
 
-    FileCache(string root_dir)
+    typedef map<string, CachedFile> t_cached_files;
+    t_cached_files m_cached_files;
+
+    FileCacher(string root_dir)
     {
         m_root_dir = root_dir;
 
@@ -71,13 +78,18 @@ public:
         {
             if (dir_entry.is_regular_file())
             {
-                //path str is how webbrowser sees it
-                string path_str(dir_entry.path().string());
-                path_str.erase(0,m_root_dir.length());
 
-                m_cached_files.insert(make_pair(path_str, CachedFile(dir_entry.path())));
-                DEB("Web path: " << path_str);
+                string url(dir_entry.path().string());
+                url.erase(0, m_root_dir.length());
+
+                m_cached_files.insert(make_pair(url, CachedFile(dir_entry.path())));
+                DEB("Web path: " << url);
             }
         }
+    }
+
+    auto get(string url)
+    {
+        return (m_cached_files.find(url));
     }
 };

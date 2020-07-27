@@ -3,7 +3,7 @@
     "files.associations": {
         "mutex": "cpp",
         "thread": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "string": "cpp"
     },
-    "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }

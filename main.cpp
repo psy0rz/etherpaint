@@ -43,6 +43,7 @@
 #include <boost/regex.hpp>
 #include "msg_session_manager.hpp"
 #include "log.hpp"
+#include "filecache.hpp"
 
 #include <App.h>
 
@@ -53,50 +54,6 @@ using namespace std;
 using namespace std::chrono;
 
 // vector<shared_ptr<Session>> sessions;
-
-
-const map<string, string> content_type_map{
-	{
-		"css",
-		"text/css",
-	},
-	{
-		"html",
-		"text/html",
-	},
-	{
-		"",
-		"text/html",
-	},
-	{
-		"js",
-		"application/javascript",
-	},
-	{
-		"gif",
-		"image/gif",
-	},
-	{
-		"jpeg",
-		"image/jpeg",
-	},
-	{
-		"jpg",
-		"image/jpeg",
-	},
-	{
-		"png",
-		"image/png",
-	},
-	{
-		"htc",
-		"text/x-component",
-	},
-	{
-		"swf",
-		"application/x-shockwave-flash",
-	},
-	{"svg", "image/svg+xml"}};
 
 // void yield_text(Session &session, const int status = 200, const string &text = "", const std::function<void(std::shared_ptr<restbed::Session>)> &callback = nullptr)
 // {
@@ -173,7 +130,6 @@ const map<string, string> content_type_map{
 // 	});
 // }
 
-
 // //handle incomming message via /send
 // void handle_send(const shared_ptr<Session> session)
 // {
@@ -209,26 +165,79 @@ const map<string, string> content_type_map{
 // 	});
 // }
 
+using namespace uWS;
+
+
 int main(const int, const char **)
 {
+	FileCache file_cache("../wwwdir");
+
 #ifdef SSL
-	uWS::SSLApp({
-	  .key_file_name = "../misc/key.pem",
-	  .cert_file_name = "../misc/cert.pem",
-	  .passphrase = "1234"
-	  })
+	uWS::SSLApp({.key_file_name = "../misc/key.pem",
+				 .cert_file_name = "../misc/cert.pem",
+				 .passphrase = "1234"})
 #else
 	uWS::App()
 #endif
-	.get("/*", [](auto *res, auto *req) {
-	    res->end("Hello world!");
-	}).listen(3000, [](auto *token) {
-	    if (token) {
-		INFO("Listening on port " << 3000 << std::endl)
-	    }
-	}).run();
+		.get("/*", [](auto *res, auto *req) {
+			string s;
+
+			for(int i=0; i<10000000; i++)
+			{	
+				s=s.append("s");
+				
+			};
 
 
+			res->onWritable([s,res](int offset) {
+			// res->cork([s,res,offset] {
+
+				   ERROR("WIL MEER!" << offset)
+					res->tryEnd(s, 100000000);
+				   ERROR("MEER gegeve!" << offset)
+			// });
+				   return true;
+
+
+			   })
+				->onAborted([]() {
+					ERROR("ABORTED!");
+				});
+				
+			ERROR("STARTS");
+			ERROR("START");
+			res->tryEnd(s, 100000000);
+			ERROR("done");
+
+
+			// res->cork([res] {
+			// 	while (true)
+			// 	{
+			// 		std::pair<bool, bool> status;
+			// 		status = res->tryEnd("Hello worl", 1000000);
+			// 		if (!status.first) 
+			// 		{
+			// 			ERROR("NOT OK BREAK");
+			// 			break;
+			// 		}
+			// 		if (status.second) 
+			// 		{
+			// 			ERROR("RESPONDED BREAK");
+			// 			break;
+			// 		}
+			// 		ERROR("SKRIEM")
+			// 	}
+			// });
+			return;
+		})
+		.listen(3000, [](auto *token) {
+			if (token)
+			{
+
+				INFO("Listening on port " << 3000 << std::endl)
+			}
+		})
+		.run();
 
 	// auto service = make_shared<Service>();
 

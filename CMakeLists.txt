@@ -6,6 +6,7 @@ set(EXTERNAL_PROJECTS_PREFIX ${CMAKE_BINARY_DIR}/external-projects)
 set(EXTERNAL_PROJECTS_INSTALL_PREFIX ${EXTERNAL_PROJECTS_PREFIX}/installed)
 include(ExternalProject)
 
+##################### fetch/build restbed
 if(EXISTS "${EXTERNAL_PROJECTS_INSTALL_PREFIX}/lib/librestbed.a")
     message(AUTHOR_INFO "Not rebuilding librestbed. Delete ${EXTERNAL_PROJECTS_INSTALL_PREFIX}/lib/librestbed.a if you want to rebuild. You should now be able to build the project.")
 else()
@@ -32,10 +33,20 @@ else()
 # add_dependencies(${PROJECT_NAME} externalRestbed)
 endif()
 
+############################# build rapid json
 include("${CMAKE_SOURCE_DIR}/rapidjson.cmake")
 
 
+############################# build usockets
+set(LIBUSOCKETS ${CMAKE_SOURCE_DIR}/lib/uWebSockets/uSockets/uSockets.a)
+add_custom_target(
+    usockets
+    BYPRODUCTS ${LIBUSOCKETS}
+    COMMAND make -j1
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/lib/uWebSockets/uSockets
+)
 
+############################ main project
 file(GLOB sources *.cpp)
 MESSAGE(STATUS "Detected source files: ${sources}")
 
@@ -48,6 +59,8 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 
 # add_dependencies(${PROJECT_NAME} externalRestbed)
 add_dependencies(${PROJECT_NAME} rapidjson)
+add_dependencies(${PROJECT_NAME} usockets)
+
 
 #find_package(restbed REQUIRED)
 include_directories(
@@ -58,6 +71,7 @@ include_directories(
 #add_library(${EXTERNAL_PROJECTS_INSTALL_PREFIX}/lib/librestbed.a )
 #target_link_libraries(${PROJECT_NAME} PRIVATE restbed)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${EXTERNAL_PROJECTS_INSTALL_PREFIX}/lib/librestbed.a)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBUSOCKETS})
 
 find_package(Threads REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)

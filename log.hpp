@@ -48,10 +48,10 @@
 
 //debug output with extra info:
 #ifndef NDEBUG
+#define DEB(s) {}
+#else
 //#define DEB(s) LOG (boost::this_thread::get_id() << " " << "DEB: " << s << " @" << __FILE__ << ":" << __LINE__ << " in " << __PRETTY_FUNCTION__ << std::endl)
 #define DEB(s) LOG (boost::this_thread::get_id() << " " << s << " [" << __FILE__ << ":" << __LINE__ << "]" << std::endl)
-#else
-#define DEB(s) {}
 #endif
 
 //normal info:

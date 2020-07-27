@@ -4,5 +4,6 @@
         "mutex": "cpp",
         "thread": "cpp",
         "*.ipp": "cpp"
-    }
+    },
+    "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }

@@ -3,7 +3,7 @@ killall -9 restbed_test
 
 cd build
 cmake .. || exit 1
-cmake --build . -- -j10 || exit 1
+cmake --build . -v -- -j10 || exit 1
 echo "GO.."
 ./restbed_test &
 

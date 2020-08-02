@@ -4,6 +4,7 @@
         "mutex": "cpp",
         "thread": "cpp",
         "*.ipp": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "algorithm": "cpp"
     },
 }

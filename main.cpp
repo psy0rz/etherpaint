@@ -3,7 +3,8 @@
  *
  * This framework is designed with performance and scalability in mind. All
  * design decisions are made accordingly:
- *  - I choose uwebsockets because its the fastest out here. (first did some testing with restbed which is awesome as well)
+ *  - I choose uwebsockets because its the fastest out here. (first did some
+ * testing with restbed which is awesome as well)
  *  - I choose rapidjson because its the fastest AND it has a nice DOM API. (and
  * stable and secure as well, its created by the desginers of Weechat i think,
  * it has regression testing and 100% testing coverage)
@@ -18,7 +19,7 @@
  *
  *    [ "eventname", data ]
  *  - Data can be any json compatible structure.
-  *
+ *
  *  - As soon as this connection dies, the session becomes invalid and all is
  * lost. :)  (javascript stuff will nicely reconnect/resync)
  *
@@ -46,6 +47,7 @@
 #include <thread>
 
 #include "filecache.hpp"
+#include "handler_manager.hpp"
 #include "log.hpp"
 #include "msg_session_manager.hpp"
 #include "rapidjson/document.h"
@@ -112,6 +114,10 @@ struct PerSocketData
 int
 main(const int, const char**)
 {
+  handlers["kut"](1, 2);
+  handlers["poep"](1, 2);
+
+  return 1;
   std::vector<std::thread*> threads(std::thread::hardware_concurrency());
 
   std::transform(
@@ -161,7 +167,7 @@ main(const int, const char**)
                     // yield_text(*session, INTERNAL_SERVER_ERROR,
                     // error_text.str());
                   } else {
-                    
+
                     // convert test
                     // StringBuffer buffer;
                     // Writer<StringBuffer> writer(buffer);

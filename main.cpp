@@ -33,6 +33,8 @@
  *
  */
 
+#define ENABLE_SSL false
+
 #include <chrono>
 #include <cstdlib>
 #include <map>
@@ -108,29 +110,37 @@ using namespace uWS;
 
 FileCacher file_cacher("../wwwdir");
 
+int itarget=123;
+
+
+class geert
+{
+  public:
+  ~geert()
+  {
+    DEB("GEERT DOOD");
+  };
+
+
+};
 struct PerSocketData
-{};
+{
+
+  int a;
+  shared_ptr<geert> g;
+};
 
 int
 main(const int, const char**)
 {
-  handlers["kut"](1, 2);
-  handlers["poep"](1, 2);
-
-  return 1;
   std::vector<std::thread*> threads(std::thread::hardware_concurrency());
 
   std::transform(
     threads.begin(), threads.end(), threads.begin(), [](std::thread* t) {
       return new std::thread([]() {
-
-#ifdef SSL
-        uWS::SSLApp({ .key_file_name = "../misc/key.pem",
-                      .cert_file_name = "../misc/cert.pem",
-                      .passphrase = "1234" })
-#else
-		    uWS::App()
-#endif
+        uWS::TemplatedApp<ENABLE_SSL>({ .key_file_name = "../misc/key.pem",
+                                        .cert_file_name = "../misc/cert.pem",
+                                        .passphrase = "1234" })
           .get("/*",
                [](auto* res, auto* req) {
                  auto file = file_cacher.get(string(req->getUrl()));
@@ -150,9 +160,18 @@ main(const int, const char**)
               .idleTimeout = 1000,
               .maxBackpressure = 1024,
               /* Handlers */
-              .open = [](auto* ws) { DEB("websocket open" << ws); },
+              .open =
+                [](auto* ws) {
+                  DEB("websocket open" << ws);
+                  static_cast<PerSocketData*>(ws->getUserData())->a = 13;
+                  static_cast<PerSocketData*>(ws->getUserData())->g = make_shared<geert>();
+
+                },
               .message =
                 [](auto* ws, std::string_view message, uWS::OpCode opCode) {
+                  DEB("bla ="
+                      << static_cast<PerSocketData*>(ws->getUserData())->a);
+
                   auto document = make_shared<Document>();
                   // note: can perhaps prevent a copy by using
                   // document->ParseInsitu
@@ -194,7 +213,7 @@ main(const int, const char**)
           .listen(3000,
                   [](auto* token) {
                     if (token) {
-                      INFO("Listening on port " << 3000 << std::endl)
+                      INFO("Listening");
                     }
                   })
           .run();

@@ -41,6 +41,8 @@
 #include <memory>
 #include <string>
 // #include <restbed>
+
+// uwebsockets
 #include <App.h>
 
 #include <boost/regex.hpp>
@@ -48,20 +50,21 @@
 #include <iostream>
 #include <thread>
 
+#include <rapidjson/document.h>
+#include <rapidjson/error/en.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
+
 #include "filecache.hpp"
 #include "handler_manager.hpp"
 #include "log.hpp"
-#include "msg_session_manager.hpp"
-#include "rapidjson/document.h"
-#include "rapidjson/error/en.h"
-#include "rapidjson/stringbuffer.h"
-#include "rapidjson/writer.h"
+#include "msg_session.hpp"
 
-using namespace rapidjson;
+// using namespace rapidjson;
 
-using namespace std;
+// using namespace std;
 // using namespace restbed;
-using namespace std::chrono;
+// using namespace std::chrono;
 
 // MsgSessionManager msg_session_manager;
 
@@ -110,24 +113,16 @@ using namespace uWS;
 
 FileCacher file_cacher("../wwwdir");
 
-int itarget=123;
-
+int itarget = 123;
 
 class geert
 {
-  public:
-  ~geert()
-  {
-    DEB("GEERT DOOD");
-  };
-
-
+public:
+  ~geert() { DEB("GEERT DOOD"); };
 };
 struct PerSocketData
 {
-
-  int a;
-  shared_ptr<geert> g;
+  shared_ptr<MsgSession> msg_session;
 };
 
 int
@@ -158,42 +153,42 @@ main(const int, const char**)
             { .compression = uWS::DISABLED,
               .maxPayloadLength = 16 * 1024,
               .idleTimeout = 1000,
-              .maxBackpressure = 1024,
               /* Handlers */
               .open =
                 [](auto* ws) {
                   DEB("websocket open" << ws);
-                  static_cast<PerSocketData*>(ws->getUserData())->a = 13;
-                  static_cast<PerSocketData*>(ws->getUserData())->g = make_shared<geert>();
-
+                  // create message session
+                  static_cast<PerSocketData*>(ws->getUserData())->msg_session =
+                    make_shared<MsgSession>(ws);
                 },
+              // received websocket message
               .message =
                 [](auto* ws, std::string_view message, uWS::OpCode opCode) {
-                  DEB("bla ="
-                      << static_cast<PerSocketData*>(ws->getUserData())->a);
+                  if (opCode != uWS::TEXT) {
+                    ERROR("Invalid websocket opcode");
+                    return;
+                  }
 
-                  auto document = make_shared<Document>();
-                  // note: can perhaps prevent a copy by using
-                  // document->ParseInsitu
+                  // DEB("bla ="
+                  // << static_cast<PerSocketData*>(ws->getUserData())->a);
+
+                  // parse json string
+                  auto document = make_shared<rapidjson::Document>();
                   document->Parse(reinterpret_cast<const char*>(message.data()),
                                   message.size());
                   if (document->HasParseError()) {
                     stringstream error_text;
-                    error_text << "Parse error at offset "
-                               << document->GetErrorOffset() << ": "
-                               << GetParseError_En(document->GetParseError());
+                    error_text
+                      << "Parse error at offset " << document->GetErrorOffset()
+                      << ": "
+                      << rapidjson::GetParseError_En(document->GetParseError());
                     ERROR(error_text.str());
-                    // yield_text(*session, INTERNAL_SERVER_ERROR,
-                    // error_text.str());
+
+                    // TODO: send error back to client
                   } else {
+                    // call handler
 
-                    // convert test
-                    // StringBuffer buffer;
-                    // Writer<StringBuffer> writer(buffer);
-                    // document->Accept(writer);
-                    // DEB("stringified " << buffer.GetString());
-
-                    // /			yield_text(*session, OK);
+                    static_cast<PerSocketData*>(ws->getUserData())->msg_session;
                     DEB("chus");
                   }
                 },
@@ -201,13 +196,18 @@ main(const int, const char**)
               //    DEB("websocket message" << ws); },
               .drain =
                 [](auto* ws) {
-                  /* Check getBufferedAmount here */
+                  // buffered amount changed, check if we have some more queued
+                  // messages that can be send
+                  static_cast<PerSocketData*>(ws->getUserData())
+                    ->msg_session->send_queue();
                 },
               .ping = [](auto* ws) { DEB("websocket ping" << ws); },
               .pong = [](auto* ws) { DEB("websocket pong" << ws); },
               .close =
                 [](auto* ws, int code, std::string_view message) {
                   DEB("websocket close" << ws);
+                  static_cast<PerSocketData*>(ws->getUserData())
+                    ->msg_session->closed();
                 } })
 
           .listen(3000,

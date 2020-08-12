@@ -4,18 +4,23 @@
 #define HANDLER_MANAGER_HPP
 
 #include "program_error.hpp"
+#include "msg.hpp"
+
 #include <functional>
 #include <iostream>
 #include <map>
 #include <sstream>
 
 
-//uwebsocket specific stuff
+// implementation specific. we use uwebsocket + rapidjson for now
 #include <WebSocket.h>
 
+typedef std::function<void(uWS::WebSocket<ENABLE_SSL, true>* ws,
+                           shared_ptr<msg_type> document)>
+  handler_type;
 
-typedef std::function<void(uWS::WebSocket<ENABLE_SSL, true> * ws, double)> handler_type;
 std::map<const char*, handler_type> handlers;
+
 // Thanks to hkaiser@#boost for helping me with the automatic handler
 // registration:
 struct register_handler
@@ -31,10 +36,9 @@ struct register_handler
   }
 };
 
-register_handler kut("kut", [](auto * a, auto b) {
-  cout << "kut\n\n";
-  return;
-});
-
+// register_handler kut("kut", [](auto * a, auto b) {
+//   cout << "kut\n\n";
+//   return;
+// });
 
 #endif

@@ -19,10 +19,11 @@
             ws.onopen = function( )
             {
                console.log("Connected");
+               ws.send("rommel");
                send(1);
                send({});
                send({'event':1});
-               send({'event':'kkdikeeventg'});
+               send({'event':'testevent'});
 
             };
 

@@ -184,18 +184,19 @@ main(const int, const char**)
                   } else {
                     if (!document->IsObject())
                       msg_session->enqueue_error(
-                        "JSON error: Message is not an object.");
+                        "Message error: Message is not an object.");
                     else if (!document->HasMember("event"))
                       msg_session->enqueue_error(
-                        "JSON error: Message doesn't have key 'event'.");
+                        "Message error: Message doesn't have key 'event'.");
                     else {
                       rapidjson::Value& v = (*document)["event"];
                       if (!v.IsString())
                         msg_session->enqueue_error(
-                          "JSON error: Key 'event' isnt a string.");
+                          "Message error: Key 'event' isnt a string.");
                       else
                       {
-                        DEB("OK" << v.GetString());
+                        DEB("Received " << v.GetString());
+                        msg_session->enqueue_msg(document);
                       }
                       // handlers[(*document)["event"].GetString()](ws,
                       // document);

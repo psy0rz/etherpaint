@@ -33,6 +33,27 @@
  *
  */
 
+
+/* test results:
+
+In release mode, without SSL, without compression:
+
+psy@ws1 ~/Downloads/wrk % ./wrk http://localhost:3000/edit.html  -d 10  -t 10 -c 125
+Running 10s test @ http://localhost:3000/edit.html
+  10 threads and 125 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.85ms    1.72ms  37.17ms   91.00%
+    Req/Sec    34.18k     8.07k   65.92k    77.57%
+  3419501 requests in 10.09s, 29.97GB read
+Requests/sec: 338940.14
+Transfer/sec:      2.97GB
+
+
+
+*/
+
+
+
 #define ENABLE_SSL false
 #define RAPIDJSON_HAS_STDSTRING 1
 
@@ -146,12 +167,12 @@ main(const int, const char**)
           .ws<PerSocketData>(
             "/ws",
             { .compression = uWS::DISABLED,
-              .maxPayloadLength = 16 * 1024,
+              .maxPayloadLength = 160 * 1024,
               .idleTimeout = 1000,
               /* Handlers */
               .open =
                 [](auto* ws) {
-                  DEB("websocket open" << ws);
+                  INFO("websocket open " << ws);
                   // create message session
                   auto msg_session = std::make_shared<MsgSession>(ws);
                   static_cast<PerSocketData*>(ws->getUserData())->msg_session =
@@ -162,6 +183,8 @@ main(const int, const char**)
                 [](auto* ws, std::string_view message, uWS::OpCode opCode) {
                   auto& msg_session =
                     static_cast<PerSocketData*>(ws->getUserData())->msg_session;
+
+                  DEB("message");
 
                   if (opCode != uWS::TEXT) {
                     ERROR("Invalid websocket opcode");
@@ -196,6 +219,18 @@ main(const int, const char**)
                       else
                       {
                         DEB("Received " << v.GetString());
+                        //echo
+                        msg_session->enqueue_msg(document);
+                        msg_session->enqueue_msg(document);
+                        msg_session->enqueue_msg(document);
+                        msg_session->enqueue_msg(document);
+                        msg_session->enqueue_msg(document);
+                        msg_session->enqueue_msg(document);
+                        msg_session->enqueue_msg(document);
+                        msg_session->enqueue_msg(document);
+                        msg_session->enqueue_msg(document);
+                        msg_session->enqueue_msg(document);
+                        msg_session->enqueue_msg(document);
                         msg_session->enqueue_msg(document);
                       }
                       // handlers[(*document)["event"].GetString()](ws,

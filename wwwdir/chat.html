@@ -1,58 +1,76 @@
 <!DOCTYPE HTML>
 <html>
-  <head>
-    <style>
-    </style>
-    <script type="text/javascript">
-      function send(object)
-      {
-         console.log("Sending ", object);
+
+<head>
+   <style>
+   </style>
+   <script type="text/javascript">
+      function send(object) {
+         // console.log("Sending ", object);
          ws.send(JSON.stringify(object));
       }
 
-      function open( )
-      {
-         if ( "WebSocket" in window )
-         {
-            ws = new WebSocket( "ws://localhost:3000/ws" );
+      sendcount = 0;
+      recvcount = 0;
+      last_time=0;
 
-            ws.onopen = function( )
-            {
-               console.log("Connected");
-               ws.send("rommel");
-               send(1);
-               send({});
-               send({'event':1});
-               send({'event':'testevent', 'geert':1});
+
+      setInterval(function () {
+         d=new Date();
+         diff=d-last_time;
+
+         document.getElementById('stats').textContent="send,recv /s "+sendcount*1000/diff+" "+ recvcount*1000/diff;
+         sendcount = 0;
+         recvcount = 0;
+         last_time=d;
+
+
+      }, 1000);
+
+
+      setInterval(function () {
+         for (i = 0; i < 1000; i++) {
+            sendcount++;
+            send({ 'event': 'testevent', 'geert': 1 });
+         }
+      }, 1000);
+
+      function open() {
+         if ("WebSocket" in window) {
+            ws = new WebSocket("ws://localhost:3000/ws");
+
+            ws.onopen = function () {
+
 
             };
 
-            ws.onmessage = function( evt )
-            {
-               console.log("Receive: ", evt.data)
+            ws.onmessage = function (evt) {
+               // console.log("Receive: ", evt.data)
+               recvcount++;
             };
 
-            ws.onclose = function( evt )
-            {
+            ws.onclose = function (evt) {
                console.log("Closed ", evt.code);
-               setTimeout(open,1000);
+               setTimeout(open, 1000);
             };
 
-            ws.onerror = function( evt )
-            {
+            ws.onerror = function (evt) {
                console.log("error");
             };
 
          }
-         else
-         {
-            alert( "WebSockets NOT supported by your Browser!" );
+         else {
+            alert("WebSockets NOT supported by your Browser!");
          }
       }
 
       open();
-    </script>
-  </head>
-  <body>
-  </body>
+   </script>
+</head>
+
+<body>
+
+   <div id='stats'></div>
+</body>
+
 </html>

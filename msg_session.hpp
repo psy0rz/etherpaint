@@ -66,18 +66,19 @@ public:
     if (ws == nullptr)
       return;
 
-    // TODO corking if there is more than one message in the queue!
-    while (!msg_queue.empty() && !ws->getBufferedAmount()) {
-      auto msg = msg_queue.back();
-      msg_queue.pop_back();
+    ws->cork([this]() {
+      while (!msg_queue.empty() && !ws->getBufferedAmount()) {
+        auto msg = msg_queue.back();
+        msg_queue.pop_back();
 
-      rapidjson::StringBuffer serialized_msg;
-      rapidjson::Writer<rapidjson::StringBuffer> writer(serialized_msg);
-      msg->Accept(writer);
+        rapidjson::StringBuffer serialized_msg;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(serialized_msg);
+        msg->Accept(writer);
 
-      if (!ws->send(serialized_msg.GetString(), uWS::TEXT, false))
-        return;
-    }
+        if (!ws->send(serialized_msg.GetString(), uWS::TEXT, false))
+          return;
+      }
+    });
   }
 
   // enqueue message for this websocket, will inform websocket thread to start
@@ -95,7 +96,7 @@ public:
         [msg_session = shared_from_this()]() { msg_session->send_queue(); });
     }
 
-    msg_queue.push_back(msg);
+    msg_queue.push_front(msg);
   }
 
   void enqueue_error(std::string error)

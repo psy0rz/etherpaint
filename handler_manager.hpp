@@ -36,9 +36,9 @@ struct register_handler
   }
 };
 
-// register_handler kut("kut", [](auto * a, auto b) {
-//   cout << "kut\n\n";
-//   return;
-// });
+register_handler kut("kut", [](auto * a, auto b) {
+  
+  return;
+});
 
 #endif

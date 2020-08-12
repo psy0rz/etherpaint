@@ -1,4 +1,4 @@
-using namespace std;
+// using namespace std;
 
 #include "log.hpp"
 #include <cstdlib>
@@ -19,20 +19,27 @@ using namespace std;
 // NOTE: uwebsockets can only be used from the correct thread. so be carefull
 // and defer stuff to websocket thread when needed.
 
-class MsgSession : std::enable_shared_from_this<MsgSession>
+class MsgSession : public std::enable_shared_from_this<MsgSession>
 {
 private:
   uWS::WebSocket<ENABLE_SSL, true>* ws;
   uWS::Loop* loop;
-  std::deque<shared_ptr<msg_type>> msg_queue;
+  std::deque<std::shared_ptr<msg_type>> msg_queue;
   std::mutex msg_queue_mutex;
 
 public:
+  // std::shared_ptr<MsgSession> getptr() {
+  //       return shared_from_this();
+  //   }
   // called when ws is closed.
   // the session might be referenced to for a while by other threads or and
   // objects.
   // (called from ws thread)
-  void closed() { ws = nullptr; }
+  void closed()
+  {
+    std::lock_guard<std::mutex> lock(msg_queue_mutex);
+    ws = nullptr;
+  }
 
   // (called from ws thread)
   MsgSession(uWS::WebSocket<ENABLE_SSL, true>* ws)
@@ -47,9 +54,6 @@ public:
 
   // called from any thread (whoever releases the last smart_ptr)
   ~MsgSession() { DEB("Closed msg session"); }
-
-  // called from ? thread
-  bool is_closed() { return (ws == nullptr); }
 
   // serialize and send all queued messages until backpressure has build up.
   // when backpressure is down/changed this will be called again.
@@ -77,31 +81,29 @@ public:
   }
 
   // enqueue message for this websocket, will inform websocket thread to start
-  // sending if it isn't already. (called from any thread)
-  void enqueue_msg(shared_ptr<msg_type> msg)
+  // sending if it isn't already.
+  // (called from any thread)
+  void enqueue_msg(std::shared_ptr<msg_type> msg)
   {
     std::lock_guard<std::mutex> lock(msg_queue_mutex);
 
     // if queue was empty, ws will never call send_queue(), so make it call it
     if (msg_queue.empty()) {
       // notify websocket thread to start sending
-      auto msg_session = shared_from_this();
-      loop->defer([msg_session]() { msg_session->send_queue(); });
+      // auto msg_session(shared_from_this());
+      loop->defer(
+        [msg_session = shared_from_this()]() { msg_session->send_queue(); });
     }
 
     msg_queue.push_back(msg);
   }
+
+  void enqueue_error(std::string error)
+  {
+    auto msg = new_event("error");
+
+    (*msg)["pars"].AddMember("description", error, msg->GetAllocator());
+
+    enqueue_msg(msg);
+  }
 };
-
-// static const string charset =
-// "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"; static
-// uniform_int_distribution<> selector(0, charset.length()-1);
-
-// auto seed = static_cast<unsigned
-// int>(chrono::high_resolution_clock::now().time_since_epoch().count());
-// static mt19937 generator(seed);
-
-// for (int index = 0; index < 8; index++)
-// {
-//     m_id += charset.at(selector(generator));
-// }

@@ -2,110 +2,46 @@
 <html>
   <head>
     <style>
-      html, body {
-        margin: 0;
-      }
-
-      ul {
-        list-style: none;
-      }
-
-      li {
-         text-align: left;
-      }
-
-      input {
-        width: 40%;
-        height: 40px;
-        line-height: 40px;
-        margin-bottom: 10px;
-      }
-
-      a {
-        margin: 10px;
-      }
-
-      .disabled {
-        color: #000;
-        pointer-events: none;
-      }
-
-      #controls {
-        width: 100%;
-        bottom: 10%;
-        position: absolute;
-        text-align: center;
-      }
     </style>
     <script type="text/javascript">
-      function on_return_submit( evt )
+      function send(object)
       {
-         if ( window.restbed.ws === null || window.restbed.ws.readyState !== window.restbed.ws.OPEN )
-         {
-            return;
-         }
-
-         if( evt && evt.keyCode == 13 )
-         {
-            var message = document.getElementById( "message" );
-            window.restbed.ws.send( message.value );
-
-            message.value = "";
-         }
-      }
-
-      function toggle_control_access( )
-      {
-         var open = document.getElementById( "open" );
-         open.disabled = !open.disabled;
-
-         var message = document.getElementById( "message" );
-         message.disabled = !message.disabled;
-
-         var close = document.getElementById( "close" );
-         close.className = ( close.className === "disabled" ) ? "" : "disabled";
-      }
-
-      function add_message( message )
-      {
-         var li = document.createElement( "li" );
-         li.appendChild( document.createTextNode( "> " + message ) );
-
-         var ul = document.getElementById( "messages" );
-         ul.appendChild( li );
+         console.log("Sending ", object);
+         ws.send(JSON.stringify(object));
       }
 
       function open( )
       {
          if ( "WebSocket" in window )
          {
-            var ws = new WebSocket( "ws://localhost:3000/ws" );
+            ws = new WebSocket( "ws://localhost:3000/ws" );
 
             ws.onopen = function( )
             {
-               add_message( "Established connection." );
+               console.log("Connected");
+               send(1);
+               send({});
+               send({'event':1});
+               send({'event':'kkdikeeventg'});
 
-               toggle_control_access( );
             };
 
             ws.onmessage = function( evt )
             {
-               add_message( evt.data );
+               console.log("Receive: ", evt.data)
             };
 
             ws.onclose = function( evt )
             {
-               add_message( "Connection closed with RFC6455 code " + evt.code + "." );
-
-               toggle_control_access( );
+               console.log("Closed ", evt.code);
+               setTimeout(open,1000);
             };
 
             ws.onerror = function( evt )
             {
-               add_message( "Error: socket connection interrupted." );
+               console.log("error");
             };
 
-            window.restbed.ws = ws;
          }
          else
          {
@@ -113,27 +49,9 @@
          }
       }
 
-      function close( )
-      {
-         window.restbed.ws.close( );
-      }
-
-      ( function( )
-      {
-         window.restbed = { ws: null };
-      } )( );
+      open();
     </script>
   </head>
   <body>
-     <div>
-       <ul id="messages"></ul>
-       <div id="controls">
-         <input id="message" type="text" onKeyPress="return on_return_submit( event )" disabled/>
-         <div>
-           <a id="open" href="javascript:open( )">Open Chat</a>
-           <a id="close" href="javascript:close( )" class="disabled">Close Chat</a>
-         <div>
-       </div>
-     </div>
   </body>
 </html>

@@ -34,6 +34,7 @@
  */
 
 #define ENABLE_SSL false
+#define RAPIDJSON_HAS_STDSTRING 1
 
 #include <chrono>
 #include <cstdlib>
@@ -109,20 +110,13 @@
 // 	});
 // }
 
-using namespace uWS;
+// using namespace uWS;
 
 FileCacher file_cacher("../wwwdir");
 
-int itarget = 123;
-
-class geert
-{
-public:
-  ~geert() { DEB("GEERT DOOD"); };
-};
 struct PerSocketData
 {
-  shared_ptr<MsgSession> msg_session;
+  std::shared_ptr<MsgSession> msg_session;
 };
 
 int
@@ -138,7 +132,8 @@ main(const int, const char**)
                                         .passphrase = "1234" })
           .get("/*",
                [](auto* res, auto* req) {
-                 auto file = file_cacher.get(string(req->getUrl()));
+                 DEB("get " << req->getUrl())
+                 auto file = file_cacher.get(std::string(req->getUrl()));
 
                  if (file == file_cacher.m_cached_files.end()) {
                    res->writeStatus("404");
@@ -158,42 +153,55 @@ main(const int, const char**)
                 [](auto* ws) {
                   DEB("websocket open" << ws);
                   // create message session
+                  auto msg_session = std::make_shared<MsgSession>(ws);
                   static_cast<PerSocketData*>(ws->getUserData())->msg_session =
-                    make_shared<MsgSession>(ws);
+                    msg_session;
                 },
               // received websocket message
               .message =
                 [](auto* ws, std::string_view message, uWS::OpCode opCode) {
+                  auto& msg_session =
+                    static_cast<PerSocketData*>(ws->getUserData())->msg_session;
+
                   if (opCode != uWS::TEXT) {
                     ERROR("Invalid websocket opcode");
                     return;
                   }
 
-                  // DEB("bla ="
-                  // << static_cast<PerSocketData*>(ws->getUserData())->a);
-
                   // parse json string
-                  auto document = make_shared<rapidjson::Document>();
+                  auto document = std::make_shared<rapidjson::Document>();
                   document->Parse(reinterpret_cast<const char*>(message.data()),
                                   message.size());
                   if (document->HasParseError()) {
-                    stringstream error_text;
+                    std::stringstream error_text;
                     error_text
-                      << "Parse error at offset " << document->GetErrorOffset()
-                      << ": "
+                      << "JSON parse error at offset "
+                      << document->GetErrorOffset() << ": "
                       << rapidjson::GetParseError_En(document->GetParseError());
-                    ERROR(error_text.str());
 
-                    // TODO: send error back to client
+                    msg_session->enqueue_error(error_text.str());
+
                   } else {
-                    // call handler
-
-                    static_cast<PerSocketData*>(ws->getUserData())->msg_session;
-                    DEB("chus");
+                    if (!document->IsObject())
+                      msg_session->enqueue_error(
+                        "JSON error: Message is not an object.");
+                    else if (!document->HasMember("event"))
+                      msg_session->enqueue_error(
+                        "JSON error: Message doesn't have key 'event'.");
+                    else {
+                      rapidjson::Value& v = (*document)["event"];
+                      if (!v.IsString())
+                        msg_session->enqueue_error(
+                          "JSON error: Key 'event' isnt a string.");
+                      else
+                      {
+                        DEB("OK" << v.GetString());
+                      }
+                      // handlers[(*document)["event"].GetString()](ws,
+                      // document);
+                    }
                   }
                 },
-              //    ws->send(message, opCode);
-              //    DEB("websocket message" << ws); },
               .drain =
                 [](auto* ws) {
                   // buffered amount changed, check if we have some more queued

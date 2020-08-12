@@ -16,7 +16,7 @@
 #include <WebSocket.h>
 
 typedef std::function<void(uWS::WebSocket<ENABLE_SSL, true>* ws,
-                           shared_ptr<msg_type> document)>
+                           std::shared_ptr<msg_type> document)>
   handler_type;
 
 std::map<const char*, handler_type> handlers;
@@ -28,7 +28,7 @@ struct register_handler
   register_handler(char const* name, handler_type handler)
   {
     if (handlers.find(name) != handlers.end()) {
-      stringstream msg;
+      std::stringstream msg;
       msg << "Handler '" << name << "' already registered.";
       throw(program_error(msg.str()));
     }

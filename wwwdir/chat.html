@@ -85,7 +85,7 @@
 
             document.getElementById('log').innerHTML = "";
             log('Opening socket');
-            ws = new WebSocket("ws://" + location.host + "/ws");
+            ws = new WebSocket("wss://" + location.host + "/ws");
 
             ws.onopen = function () {
                log('Connected');

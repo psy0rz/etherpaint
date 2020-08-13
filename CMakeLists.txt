@@ -42,7 +42,8 @@ set(LIBUSOCKETS ${CMAKE_SOURCE_DIR}/lib/uWebSockets/uSockets/uSockets.a)
 add_custom_target(
     usockets
     BYPRODUCTS ${LIBUSOCKETS}
-    COMMAND make -j1
+    # COMMAND WITH_WOLFSSL=1 WITH_LIBUV=1 make -j1 
+    COMMAND WITH_OPENSSL=1 make -j1 
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/lib/uWebSockets/uSockets
 )
 
@@ -77,7 +78,7 @@ include_directories(
 # target_link_libraries(${PROJECT_NAME} PRIVATE ${EXTERNAL_PROJECTS_INSTALL_PREFIX}/lib/librestbed.a)
 
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBUSOCKETS} z)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBUSOCKETS} z ssl crypto)
 # set_property(TARGET usockets PROPERTY INTERPROCEDURAL_OPTIMIZATION True)
 
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)

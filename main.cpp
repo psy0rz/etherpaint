@@ -50,7 +50,7 @@ Transfer/sec:      2.97GB
 
 */
 
-#define ENABLE_SSL false
+#define ENABLE_SSL true
 #define RAPIDJSON_HAS_STDSTRING 1
 
 #include <chrono>
@@ -96,9 +96,9 @@ main(const int, const char**)
   std::transform(
     threads.begin(), threads.end(), threads.begin(), [](std::thread* t) {
       return new std::thread([]() {
-        uWS::TemplatedApp<ENABLE_SSL>({ .key_file_name = "../misc/key.pem",
-                                        .cert_file_name = "../misc/cert.pem",
-                                        .passphrase = "1234" })
+        uWS::TemplatedApp<ENABLE_SSL>({ .key_file_name = "/home/psy/key.pem",
+                                        .cert_file_name = "/home/psy/cert.pem",
+                                        .passphrase = "" })
           .get("/*",
                [](auto* res, auto* req) {
                  DEB("get " << req->getUrl())
@@ -214,6 +214,6 @@ main(const int, const char**)
 
   std::for_each(
     threads.begin(), threads.end(), [](std::thread* t) { t->join(); });
-
+  ERROR("FAILED to listen");
   return EXIT_SUCCESS;
 }

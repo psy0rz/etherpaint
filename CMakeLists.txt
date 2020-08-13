@@ -50,7 +50,8 @@ add_custom_target(
 file(GLOB sources *.cpp)
 MESSAGE(STATUS "Detected source files: ${sources}")
 
-add_executable(${PROJECT_NAME}  ${sources})
+add_executable(${PROJECT_NAME} ${sources})
+
 set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_STANDARD 20
     CXX_STANDARD_REQUIRED YES
@@ -65,6 +66,7 @@ add_dependencies(${PROJECT_NAME} usockets)
 #find_package(restbed REQUIRED)
 include_directories(
     # ${EXTERNAL_PROJECTS_INSTALL_PREFIX}/include
+    ${CMAKE_SOURCE_DIR}
     ${RAPIDJSON_INCLUDE_DIR}
     ${CMAKE_SOURCE_DIR}/lib/uWebSockets/src
     ${CMAKE_SOURCE_DIR}/lib/uWebSockets/uSockets/src

@@ -74,60 +74,12 @@ Transfer/sec:      2.97GB
 #include <rapidjson/writer.h>
 
 #include "filecache.hpp"
+
 #include "handler_manager.hpp"
 #include "log.hpp"
 #include "msg_session.hpp"
 
-// using namespace rapidjson;
-
-// using namespace std;
-// using namespace restbed;
-// using namespace std::chrono;
-
-// MsgSessionManager msg_session_manager;
-
-// //handle incomming message via /send
-// void handle_send(const shared_ptr<Session> session)
-// {
-// 	const auto request = session->get_request();
-
-// 	size_t content_length = request->get_header("Content-Length", 0);
-
-// 	session->fetch(content_length, [request](const shared_ptr<Session>
-// session, const Bytes &body) {
-// 		// fprintf(stdout, "RAW %.*s\n", (int)body.size(), body.data());
-
-// 		auto document = make_shared<Document>();
-// 		//note: can perhaps prevent a copy by using
-// document->ParseInsitu 		document->Parse(reinterpret_cast<const
-// char
-// *>(body.data()), body.size());
-
-// 		if (document->HasParseError())
-// 		{
-// 			stringstream error_text;
-// 			error_text << "Parse error at offset " <<
-// document->GetErrorOffset() << ": " <<
-// GetParseError_En(document->GetParseError()) << "\n";
-
-// 			yield_text(*session, INTERNAL_SERVER_ERROR,
-// error_text.str());
-// 		}
-// 		else
-// 		{
-// 			//convert test
-// 			// StringBuffer buffer;
-// 			// Writer<StringBuffer> writer(buffer);
-// 			// document->Accept(writer);
-// 			// DEB("stringified " << buffer.GetString());
-
-// 			yield_text(*session, OK);
-
-// 		}
-// 	});
-// }
-
-// using namespace uWS;
+#include "plugin_config.hpp"
 
 FileCacher file_cacher("../wwwdir");
 
@@ -168,7 +120,7 @@ main(const int, const char**)
               /* Handlers */
               .open =
                 [](auto* ws) {
-                  INFO("websocket open " << ws);
+                  DEB("websocket open from IP " << ws->getRemoteAddressAsText());
                   // create message session
                   auto msg_session = std::make_shared<MsgSession>(ws);
                   static_cast<PerSocketData*>(ws->getUserData())->msg_session =
@@ -213,14 +165,14 @@ main(const int, const char**)
                       else {
                         try {
 
-                          //eventually call THE handler
-                          handlers[event_str.GetString()](ws, document);
+                          // eventually call THE handler
+                          auto handler_i = handlers.find(event_str.GetString());
+                          if (handler_i == handlers.end()) {
+                            DEB("Handler not found: " << event_str.GetString());
+                            msg_session->enqueue_error("Handler not found");
+                          } else
+                            handlers[event_str.GetString()](msg_session, document);
 
-                        } catch (std::bad_function_call e) {
-                          // handler not found
-                          DEB("Ignoring handler not found exception: "
-                              << event_str.GetString());
-                              msg_session->enqueue_error("Handler not found");
                         } catch (std::exception e) {
                           ERROR("Exception while handling "
                                 << event_str.GetString() << ": " << e.what());
@@ -243,7 +195,7 @@ main(const int, const char**)
               .pong = [](auto* ws) { DEB("websocket pong" << ws); },
               .close =
                 [](auto* ws, int code, std::string_view message) {
-                  DEB("websocket close" << ws);
+                  // DEB("websocket close" << ws);
                   static_cast<PerSocketData*>(ws->getUserData())
                     ->msg_session->closed();
                 } })

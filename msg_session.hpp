@@ -1,4 +1,6 @@
-// using namespace std;
+#ifndef MSG_SESSION_HPP
+#define MSG_SESSION_HPP
+
 
 #include "log.hpp"
 #include <cstdlib>
@@ -49,11 +51,14 @@ public:
     // Store loop for the current thread. (the one thats belongs to this ws)
     this->loop = uWS::Loop::get();
 
-    DEB("Created new msg session");
+    // DEB("Created new msg session");
   }
 
   // called from any thread (whoever releases the last smart_ptr)
-  ~MsgSession() { DEB("Closed msg session"); }
+  ~MsgSession() { 
+    // DEB("Closed msg session"); 
+    ;
+    }
 
   // serialize and send all queued messages until backpressure has build up.
   // when backpressure is down/changed this will be called again.
@@ -84,7 +89,7 @@ public:
   // enqueue message for this websocket, will inform websocket thread to start
   // sending if it isn't already.
   // (called from any thread)
-  void enqueue_msg(std::shared_ptr<msg_type> msg)
+  void enqueue(std::shared_ptr<msg_type> msg)
   {
     std::lock_guard<std::mutex> lock(msg_queue_mutex);
 
@@ -105,6 +110,8 @@ public:
 
     (*msg)["pars"].AddMember("description", error, msg->GetAllocator());
 
-    enqueue_msg(msg);
+    enqueue(msg);
   }
 };
+
+#endif

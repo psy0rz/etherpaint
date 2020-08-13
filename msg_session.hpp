@@ -1,7 +1,6 @@
 #ifndef MSG_SESSION_HPP
 #define MSG_SESSION_HPP
 
-
 #include "log.hpp"
 #include <cstdlib>
 #include <deque>
@@ -55,10 +54,11 @@ public:
   }
 
   // called from any thread (whoever releases the last smart_ptr)
-  ~MsgSession() { 
-    // DEB("Closed msg session"); 
+  ~MsgSession()
+  {
+    // DEB("Closed msg session");
     ;
-    }
+  }
 
   // serialize and send all queued messages until backpressure has build up.
   // when backpressure is down/changed this will be called again.
@@ -71,6 +71,7 @@ public:
     if (ws == nullptr)
       return;
 
+    // int before = msg_queue.size();
     ws->cork([this]() {
       while (!msg_queue.empty() && !ws->getBufferedAmount()) {
         auto msg = msg_queue.back();
@@ -80,10 +81,15 @@ public:
         rapidjson::Writer<rapidjson::StringBuffer> writer(serialized_msg);
         msg->Accept(writer);
 
-        if (!ws->send(serialized_msg.GetString(), uWS::TEXT, false))
-          return;
+        if (!ws->send(serialized_msg.GetString(), uWS::TEXT, true))
+          break;
       }
+
     });
+    if (msg_queue.size()!=0)
+    {
+      DEB("got backpresure, messages left in queue: " << msg_queue.size());
+    }
   }
 
   // enqueue message for this websocket, will inform websocket thread to start

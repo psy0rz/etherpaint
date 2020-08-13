@@ -114,9 +114,10 @@ main(const int, const char**)
                })
           .ws<PerSocketData>(
             "/ws",
-            { .compression = uWS::DISABLED,
-              .maxPayloadLength = 160 * 1024,
+            { .compression = uWS::SHARED_COMPRESSOR,
+              .maxPayloadLength =  1024,
               .idleTimeout = 1000,
+              .maxBackpressure = 0,
               /* Handlers */
               .open =
                 [](auto* ws) {
@@ -188,6 +189,7 @@ main(const int, const char**)
                 [](auto* ws) {
                   // buffered amount changed, check if we have some more queued
                   // messages that can be send
+                  DEB("backpressure drained");
                   static_cast<PerSocketData*>(ws->getUserData())
                     ->msg_session->send_queue();
                 },

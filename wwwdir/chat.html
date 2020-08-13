@@ -32,6 +32,8 @@
             min ${min_time} mS 
             max ${max_time} mS 
             avg ${avg_time} mS 
+            lost ${loss} messages
+            last id ${id}
             
             `;
 
@@ -51,13 +53,27 @@
       //    }
       // }, 1000);
 
-      function ping() {
-         send({ 'event': 'echo', 'starttime': (new Date() * 1) });
+      function ping(msg) {
+  
+         if (msg === undefined) {
+            msg = {
+               'event': 'echo', 'starttime': (new Date() * 1),
+               'list': [],
+               'id': id,
+            }
+         }
+         else
+         {
+            msg.starttime=(new Date() * 1);
+            msg.id=id;
+            // msg.list.push("1");
+         }
+         id=id+1;
+         send(msg);
       }
 
       function addping(amount) {
-         for (i=0;i<amount;i++)
-         {
+         for (i = 0; i < amount; i++) {
             ping();
             pings++;
          }
@@ -67,7 +83,7 @@
       function open() {
          if ("WebSocket" in window) {
 
-            document.getElementById('log').innerHTML="";
+            document.getElementById('log').innerHTML = "";
             log('Opening socket');
             ws = new WebSocket("ws://" + location.host + "/ws");
 
@@ -77,7 +93,10 @@
                max_time = 0;
                avg_time = 0;
                pings = 0;
-               addping(1000);
+               last_id=-1;
+               loss=0;
+               id=0;
+               addping(1);
             };
 
             ws.onmessage = function (evt) {
@@ -93,18 +112,23 @@
 
                recvcount++;
 
+               loss=loss+(msg.id-last_id)-1;
+               last_id=msg.id;
 
 
-               ping();
+               ping(msg);
+
             };
 
             ws.onclose = function (evt) {
+               console.log(evt);
                log('Disconnected');
                setTimeout(open, 1000);
             };
 
             ws.onerror = function (evt) {
-               log('Error');
+               console.log(evt);
+               log('Error', evt);
             };
 
             log('Connecting...');

@@ -50,7 +50,7 @@ Transfer/sec:      2.97GB
 
 */
 
-#define ENABLE_SSL true
+#define ENABLE_SSL false
 #define RAPIDJSON_HAS_STDSTRING 1
 
 #include <chrono>
@@ -114,14 +114,16 @@ main(const int, const char**)
                })
           .ws<PerSocketData>(
             "/ws",
-            { .compression = uWS::SHARED_COMPRESSOR,
-              .maxPayloadLength =  1024,
+            { //  .compression = uWS::SHARED_COMPRESSOR,
+              .compression = uWS::DISABLED,
+              .maxPayloadLength = 1024,
               .idleTimeout = 1000,
               .maxBackpressure = 0,
               /* Handlers */
               .open =
                 [](auto* ws) {
-                  DEB("websocket open from IP " << ws->getRemoteAddressAsText());
+                  DEB("websocket open from IP "
+                      << ws->getRemoteAddressAsText());
                   // create message session
                   auto msg_session = std::make_shared<MsgSession>(ws);
                   static_cast<PerSocketData*>(ws->getUserData())->msg_session =
@@ -172,7 +174,8 @@ main(const int, const char**)
                             DEB("Handler not found: " << event_str.GetString());
                             msg_session->enqueue_error("Handler not found");
                           } else
-                            handlers[event_str.GetString()](msg_session, document);
+                            handlers[event_str.GetString()](msg_session,
+                                                            document);
 
                         } catch (std::exception e) {
                           ERROR("Exception while handling "
@@ -189,9 +192,12 @@ main(const int, const char**)
                 [](auto* ws) {
                   // buffered amount changed, check if we have some more queued
                   // messages that can be send
-                  DEB("backpressure drained");
-                  static_cast<PerSocketData*>(ws->getUserData())
-                    ->msg_session->send_queue();
+                  if (ws->getBufferedAmount() == 0) {
+                    DEB("backpressure gone, sending queue");
+
+                    static_cast<PerSocketData*>(ws->getUserData())
+                      ->msg_session->send_queue();
+                  }
                 },
               .ping = [](auto* ws) { DEB("websocket ping" << ws); },
               .pong = [](auto* ws) { DEB("websocket pong" << ws); },
@@ -211,6 +217,23 @@ main(const int, const char**)
           .run();
       });
     });
+
+  while (1) {
+    if (lastsess != nullptr) {
+      lastsess->enqueue_error(
+        "dummydatadummydatadummydatadummydatadummydatadummydatadummydatadummyda"
+        "tadummydatadummydatadummydatadummydatadummydatadummydatadummydatadummy"
+        "datadummydatadummydatadummydatadummydatadummydatadummydatadummydatadum"
+        "mydatadummydatadummydatadummydatadummydatadummydatadummydatadummydatad"
+        "ummydatadummydatadummydatadummydatadummydatadummydatadummydatadummydat"
+        "adummydatadummydatadummydatadummydatadummydatadummydatadummydatadummyd"
+        "atadummydatadummydatadummydatadummydatadummydatadummydatadummydatadumm"
+        "ydatadummydatadummydatadummydatadummydatadummydatadummydatadummydatadu"
+        "mmydatadummydatadummydatadummydatadummydatadummydatadummydatadummydata"
+        "dummydata");
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+  }
 
   std::for_each(
     threads.begin(), threads.end(), [](std::thread* t) { t->join(); });

@@ -1,7 +1,23 @@
 
+// class test 
+// {
+//   public:
+//   test()
+//   {
+//     ERROR("che");
+
+//     std::thread([]() {
+    
+//   }
+
+// } testi;
+
+  std::shared_ptr<MsgSession> lastsess;
 //just echo the message back
 register_handler echo("echo", [](auto msg_session, auto msg) {
-  msg_session->enqueue(msg);
+  DEB("ECH");
+  lastsess=msg_session;
+  // msg_session->enqueue(msg);
 });
 
 

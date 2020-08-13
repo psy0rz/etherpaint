@@ -74,6 +74,9 @@ public:
     // int before = msg_queue.size();
     ws->cork([this]() {
       while (!msg_queue.empty() && !ws->getBufferedAmount()) {
+        static int i=0;
+        i++;
+        DEB("send " << i << " q=" << msg_queue.size());
         auto msg = msg_queue.back();
         msg_queue.pop_back();
 

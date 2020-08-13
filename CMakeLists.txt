@@ -43,7 +43,8 @@ add_custom_target(
     usockets
     BYPRODUCTS ${LIBUSOCKETS}
     # COMMAND WITH_WOLFSSL=1 WITH_LIBUV=1 make -j1 
-    COMMAND WITH_OPENSSL=1 make -j1 
+    # COMMAND WITH_OPENSSL=1 CC=${CMAKE_C_COMPILER} AR=${CMAKE_C_COMPILER_AR}  make -j1 
+    COMMAND WITH_OPENSSL=1 CC=${CMAKE_C_COMPILER} AR=${CMAKE_C_COMPILER_AR}  make -j1 
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/lib/uWebSockets/uSockets
 )
 
@@ -54,7 +55,7 @@ MESSAGE(STATUS "Detected source files: ${sources}")
 add_executable(${PROJECT_NAME} ${sources})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
-    CXX_STANDARD 20
+    CXX_STANDARD 17
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO
     )
@@ -77,6 +78,7 @@ include_directories(
 #target_link_libraries(${PROJECT_NAME} PRIVATE restbed)
 # target_link_libraries(${PROJECT_NAME} PRIVATE ${EXTERNAL_PROJECTS_INSTALL_PREFIX}/lib/librestbed.a)
 
+link_libraries(stdc++fs)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBUSOCKETS} z ssl crypto)
 # set_property(TARGET usockets PROPERTY INTERPROCEDURAL_OPTIMIZATION True)

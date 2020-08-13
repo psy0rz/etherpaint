@@ -28,7 +28,7 @@
          document.getElementById('stats').textContent = `
             in flight: ${pings} pings
             send/s ${sendcount * 1000 / diff}
-            recv/s ${sendcount * 1000 / diff} 
+            recv/s ${recvcount * 1000 / diff} 
             min ${min_time} mS 
             max ${max_time} mS 
             avg ${avg_time} mS 
@@ -54,7 +54,7 @@
       // }, 1000);
 
       function ping(msg) {
-  
+
          if (msg === undefined) {
             msg = {
                'event': 'echo', 'starttime': (new Date() * 1),
@@ -62,13 +62,12 @@
                'id': id,
             }
          }
-         else
-         {
-            msg.starttime=(new Date() * 1);
-            msg.id=id;
+         else {
+            msg.starttime = (new Date() * 1);
+            msg.id = id;
             // msg.list.push("1");
          }
-         id=id+1;
+         id = id + 1;
          send(msg);
       }
 
@@ -85,7 +84,12 @@
 
             document.getElementById('log').innerHTML = "";
             log('Opening socket');
-            ws = new WebSocket("wss://" + location.host + "/ws");
+            if (location.protocol == 'http:') {
+               ws = new WebSocket("ws://" + location.host + "/ws")
+            }
+            else {
+               ws = new WebSocket("wss://" + location.host + "/ws");
+            }
 
             ws.onopen = function () {
                log('Connected');
@@ -93,15 +97,19 @@
                max_time = 0;
                avg_time = 0;
                pings = 0;
-               last_id=-1;
-               loss=0;
-               id=0;
+               last_id = -1;
+               loss = 0;
+               id = 0;
                addping(1);
             };
 
             ws.onmessage = function (evt) {
+               recvcount++;
+
                // console.log("Receive: ", evt.data)
                msg = JSON.parse(evt.data);
+               if (msg.starttime)
+               {
                diff = (new Date()) - msg.starttime;
                if (diff > max_time)
                   max_time = diff;
@@ -110,13 +118,12 @@
 
                avg_time = avg_time * 0.999 + diff * 0.001;
 
-               recvcount++;
 
-               loss=loss+(msg.id-last_id)-1;
-               last_id=msg.id;
-
-
-               ping(msg);
+               loss = loss + (msg.id - last_id) - 1;
+               last_id = msg.id;
+               };
+               //echo back again
+               // ping(msg);
 
             };
 

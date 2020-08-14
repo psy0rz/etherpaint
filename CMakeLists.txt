@@ -33,20 +33,8 @@ include(ExternalProject)
 # # add_dependencies(${PROJECT_NAME} externalRestbed)
 # endif()
 
-############################# build rapid json
-include("${CMAKE_SOURCE_DIR}/rapidjson.cmake")
 
 
-############################# build usockets
-set(LIBUSOCKETS ${CMAKE_SOURCE_DIR}/lib/uWebSockets/uSockets/uSockets.a)
-add_custom_target(
-    usockets
-    BYPRODUCTS ${LIBUSOCKETS}
-    # COMMAND WITH_WOLFSSL=1 WITH_LIBUV=1 make -j1 
-    # COMMAND WITH_OPENSSL=1 CC=${CMAKE_C_COMPILER} AR=${CMAKE_C_COMPILER_AR}  make -j1 
-    COMMAND WITH_OPENSSL=1 CC=${CMAKE_C_COMPILER} AR=${CMAKE_C_COMPILER_AR}  make -j1 
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/lib/uWebSockets/uSockets
-)
 
 ############################ main project
 file(GLOB sources *.cpp)
@@ -61,9 +49,26 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     )
 
 # add_dependencies(${PROJECT_NAME} externalRestbed)
-add_dependencies(${PROJECT_NAME} rapidjson)
+
+############################# build usockets
+set(LIBUSOCKETS ${CMAKE_SOURCE_DIR}/lib/uWebSockets/uSockets/uSockets.a)
+add_custom_target(
+    usockets
+    BYPRODUCTS ${LIBUSOCKETS}
+    # COMMAND WITH_WOLFSSL=1 WITH_LIBUV=1 make -j1 
+    # COMMAND WITH_OPENSSL=1 CC=${CMAKE_C_COMPILER} AR=${CMAKE_C_COMPILER_AR}  make -j1 
+    COMMAND WITH_OPENSSL=1 CC=${CMAKE_C_COMPILER} AR=${CMAKE_C_COMPILER_AR}  make -j1 
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/lib/uWebSockets/uSockets
+)
 add_dependencies(${PROJECT_NAME} usockets)
 
+############################# build rapid json
+include("${CMAKE_SOURCE_DIR}/rapidjson.cmake")
+add_dependencies(${PROJECT_NAME} rapidjson)
+
+############################# flatbuffers
+include("${CMAKE_SOURCE_DIR}/flatbuffers.cmake")
+add_dependencies(${PROJECT_NAME} flatbuffers)
 
 #find_package(restbed REQUIRED)
 include_directories(

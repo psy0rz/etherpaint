@@ -6,35 +6,6 @@ set(EXTERNAL_PROJECTS_PREFIX ${CMAKE_BINARY_DIR}/external-projects)
 set(EXTERNAL_PROJECTS_INSTALL_PREFIX ${EXTERNAL_PROJECTS_PREFIX}/installed)
 include(ExternalProject)
 
-# ##################### fetch/build restbed
-# if(EXISTS "${EXTERNAL_PROJECTS_INSTALL_PREFIX}/lib/librestbed.a")
-#     message(AUTHOR_INFO "Not rebuilding librestbed. Delete ${EXTERNAL_PROJECTS_INSTALL_PREFIX}/lib/librestbed.a if you want to rebuild. You should now be able to build the project.")
-# else()
-
-#     ExternalProject_Add(externalRestbed
-#         PREFIX "${EXTERNAL_PROJECTS_PREFIX}"
-#         GIT_REPOSITORY "https://github.com/Corvusoft/restbed.git"
-#         GIT_TAG "4.7"
-#         UPDATE_DISCONNECTED true
-#         CMAKE_ARGS 
-#             -DCMAKE_INSTALL_PREFIX=${EXTERNAL_PROJECTS_INSTALL_PREFIX}
-#             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
-#             -DBUILD_SSL=OFF
-#             -DBUILD_TESTS=OFF
-#         )
-#     # if(NOT EXISTS "${EXTERNAL_PROJECTS_INSTALL_PREFIX}/include")
-#     #     # Happens on first CMake run.
-#     #     # Can't continue because the below `find_package(REQUIRED)` will fail.
-#     #     # Build all external project targets then rerun CMake and build the project target.
-#     message(AUTHOR_WARNING "Build all external projects then rerun cmake.")
-#     return()
-#     # endif()
-
-# # add_dependencies(${PROJECT_NAME} externalRestbed)
-# endif()
-
-
-
 
 ############################ main project
 file(GLOB sources *.cpp)
@@ -79,8 +50,8 @@ add_custom_command(
     BYPRODUCTS ${CMAKE_SOURCE_DIR}/messages_generated.h
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     DEPENDS ${CMAKE_SOURCE_DIR}/messages.fbs 
-    COMMENT "Generating flatbuffers header file"
-    COMMAND ${FLATC} --cpp ${CMAKE_SOURCE_DIR}/messages.fbs 
+    COMMENT "Generating message_generated from messages.fbs."
+    COMMAND ${FLATC} --cpp ${CMAKE_SOURCE_DIR}/messages.fbs
 )
 # add_dependencies(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/messages_generated.h )
 set_property(SOURCE main.cpp APPEND PROPERTY OBJECT_DEPENDS ${CMAKE_SOURCE_DIR}/messages_generated.h)

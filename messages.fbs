@@ -1,33 +1,78 @@
-// Example IDL file for our monster's schema.
 namespace paper;
-// enum Color:byte { Red = 0, Green, Blue = 2 }
+
+//define the events here
 union Event { 
-    Create,
-    Update,
-    Delete
-} 
-// struct Vec3 {
-//   x:float;
-//   y:float;
-//   z:float;
-// }
+    CursorEvent,
+    ObjectUpdateEvent,
+    ObjectAddPointsEvent,
+    ObjectDeleteEvent,
+    UserEvent,
+}
+
+//one websocket received message has multiple events
 table Message {
-  event:Event;
+  events:[Event];
 }
 
-//create comment
-table Create {
-  type:string; //blaat
-  damage:short;
+//info about a user (todo: add color/icon etc)
+table UserEvent
+{
+  uid: uint32;
+  name: string;
 }
 
-table Update {
-  type:string;
-  damage:short;
+//cursor position of a user
+struct  CursorEvent
+{
+  x: int32;
+  y: int32;
+  uid: uint32;
 }
-table Delete {
-  type:string;
-  damage:short;
+
+enum ObjectType:byte
+{
+  Line,
+  PolyLine,
+  Rectangle,
+  Circle,
 }
+
+struct Point
+{
+  x: uint16;
+  y: uint16;
+}
+
+struct Color
+{
+  r: uint8;
+  g: uint8;
+  b: uint8;
+}
+
+//update/create new object.
+table ObjectUpdateEvent
+{
+  id: uint32=0; //0=new, let server decide
+  type: ObjectType;
+  color: Color;
+  points: [Point];
+}
+
+
+
+//add more points to an object
+table ObjectAddPointsEvent
+{
+  id: uint32;
+  points: [Point];
+}
+
+//delete object
+table ObjectDeleteEvent
+{
+  id: uint32;
+}
+
 
 root_type Message;

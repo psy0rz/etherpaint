@@ -13,5 +13,6 @@ ExternalProject_Add(
     UPDATE_COMMAND ""
 )
 
-ExternalProject_Get_Property(flatbuffers BINARY_DIR)
+ExternalProject_Get_Property(flatbuffers BINARY_DIR SOURCE_DIR)
 set(FLATC ${BINARY_DIR}/flatc)
+set(FLATBUFFERS_INCLUDE_DIR ${SOURCE_DIR}/include)

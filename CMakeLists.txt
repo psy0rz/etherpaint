@@ -52,29 +52,46 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 
 ############################# build usockets
 set(LIBUSOCKETS ${CMAKE_SOURCE_DIR}/lib/uWebSockets/uSockets/uSockets.a)
-add_custom_target(
-    usockets
-    BYPRODUCTS ${LIBUSOCKETS}
+add_custom_command(
+    COMMENT "Compiling usockets"
+    OUTPUT ${LIBUSOCKETS}
     # COMMAND WITH_WOLFSSL=1 WITH_LIBUV=1 make -j1 
     # COMMAND WITH_OPENSSL=1 CC=${CMAKE_C_COMPILER} AR=${CMAKE_C_COMPILER_AR}  make -j1 
+    DEPENDS ${CMAKE_SOURCE_DIR}/lib/uWebSockets/uSockets
     COMMAND WITH_OPENSSL=1 CC=${CMAKE_C_COMPILER} AR=${CMAKE_C_COMPILER_AR}  make -j1 
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/lib/uWebSockets/uSockets
 )
-add_dependencies(${PROJECT_NAME} usockets)
+#add_dependencies(${PROJECT_NAME} usockets)
+set_property(SOURCE main.cpp APPEND PROPERTY OBJECT_DEPENDS ${LIBUSOCKETS})
 
 ############################# build rapid json
 include("${CMAKE_SOURCE_DIR}/rapidjson.cmake")
 add_dependencies(${PROJECT_NAME} rapidjson)
 
-############################# flatbuffers
+############################# build flatbuffers flatc compiler
 include("${CMAKE_SOURCE_DIR}/flatbuffers.cmake")
 add_dependencies(${PROJECT_NAME} flatbuffers)
+
+
+############################# flatc compile .fbs file
+add_custom_command(
+    OUTPUT ${CMAKE_SOURCE_DIR}/messages_generated.h
+    BYPRODUCTS ${CMAKE_SOURCE_DIR}/messages_generated.h
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    DEPENDS ${CMAKE_SOURCE_DIR}/messages.fbs 
+    COMMENT "Generating flatbuffers header file"
+    COMMAND ${FLATC} --cpp ${CMAKE_SOURCE_DIR}/messages.fbs 
+)
+# add_dependencies(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/messages_generated.h )
+set_property(SOURCE main.cpp APPEND PROPERTY OBJECT_DEPENDS ${CMAKE_SOURCE_DIR}/messages_generated.h)
+
 
 #find_package(restbed REQUIRED)
 include_directories(
     # ${EXTERNAL_PROJECTS_INSTALL_PREFIX}/include
     ${CMAKE_SOURCE_DIR}
     ${RAPIDJSON_INCLUDE_DIR}
+    ${FLATBUFFERS_INCLUDE_DIR}
     ${CMAKE_SOURCE_DIR}/lib/uWebSockets/src
     ${CMAKE_SOURCE_DIR}/lib/uWebSockets/uSockets/src
     )

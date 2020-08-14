@@ -1,0 +1,33 @@
+// Example IDL file for our monster's schema.
+namespace paper;
+// enum Color:byte { Red = 0, Green, Blue = 2 }
+union Event { 
+    Create,
+    Update,
+    Delete
+} 
+// struct Vec3 {
+//   x:float;
+//   y:float;
+//   z:float;
+// }
+table Message {
+  event:Event;
+}
+
+//create comment
+table Create {
+  type:string; //blaat
+  damage:short;
+}
+
+table Update {
+  type:string;
+  damage:short;
+}
+table Delete {
+  type:string;
+  damage:short;
+}
+
+root_type Message;

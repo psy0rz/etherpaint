@@ -11,47 +11,62 @@ namespace paper {
 struct Message;
 struct MessageBuilder;
 
-struct Create;
-struct CreateBuilder;
+struct UserEvent;
+struct UserEventBuilder;
 
-struct Update;
-struct UpdateBuilder;
+struct CursorEvent;
 
-struct Delete;
-struct DeleteBuilder;
+struct Point;
+
+struct Color;
+
+struct ObjectUpdateEvent;
+struct ObjectUpdateEventBuilder;
+
+struct ObjectAddPointsEvent;
+struct ObjectAddPointsEventBuilder;
+
+struct ObjectDeleteEvent;
+struct ObjectDeleteEventBuilder;
 
 enum Event {
   Event_NONE = 0,
-  Event_Create = 1,
-  Event_Update = 2,
-  Event_Delete = 3,
+  Event_CursorEvent = 1,
+  Event_ObjectUpdateEvent = 2,
+  Event_ObjectAddPointsEvent = 3,
+  Event_ObjectDeleteEvent = 4,
+  Event_UserEvent = 5,
   Event_MIN = Event_NONE,
-  Event_MAX = Event_Delete
+  Event_MAX = Event_UserEvent
 };
 
-inline const Event (&EnumValuesEvent())[4] {
+inline const Event (&EnumValuesEvent())[6] {
   static const Event values[] = {
     Event_NONE,
-    Event_Create,
-    Event_Update,
-    Event_Delete
+    Event_CursorEvent,
+    Event_ObjectUpdateEvent,
+    Event_ObjectAddPointsEvent,
+    Event_ObjectDeleteEvent,
+    Event_UserEvent
   };
   return values;
 }
 
 inline const char * const *EnumNamesEvent() {
-  static const char * const names[5] = {
+  static const char * const names[7] = {
     "NONE",
-    "Create",
-    "Update",
-    "Delete",
+    "CursorEvent",
+    "ObjectUpdateEvent",
+    "ObjectAddPointsEvent",
+    "ObjectDeleteEvent",
+    "UserEvent",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameEvent(Event e) {
-  if (flatbuffers::IsOutRange(e, Event_NONE, Event_Delete)) return "";
+  if (flatbuffers::IsOutRange(e, Event_NONE, Event_UserEvent)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesEvent()[index];
 }
@@ -60,73 +75,173 @@ template<typename T> struct EventTraits {
   static const Event enum_value = Event_NONE;
 };
 
-template<> struct EventTraits<paper::Create> {
-  static const Event enum_value = Event_Create;
+template<> struct EventTraits<paper::CursorEvent> {
+  static const Event enum_value = Event_CursorEvent;
 };
 
-template<> struct EventTraits<paper::Update> {
-  static const Event enum_value = Event_Update;
+template<> struct EventTraits<paper::ObjectUpdateEvent> {
+  static const Event enum_value = Event_ObjectUpdateEvent;
 };
 
-template<> struct EventTraits<paper::Delete> {
-  static const Event enum_value = Event_Delete;
+template<> struct EventTraits<paper::ObjectAddPointsEvent> {
+  static const Event enum_value = Event_ObjectAddPointsEvent;
+};
+
+template<> struct EventTraits<paper::ObjectDeleteEvent> {
+  static const Event enum_value = Event_ObjectDeleteEvent;
+};
+
+template<> struct EventTraits<paper::UserEvent> {
+  static const Event enum_value = Event_UserEvent;
 };
 
 bool VerifyEvent(flatbuffers::Verifier &verifier, const void *obj, Event type);
 bool VerifyEventVector(flatbuffers::Verifier &verifier, const flatbuffers::Vector<flatbuffers::Offset<void>> *values, const flatbuffers::Vector<uint8_t> *types);
 
+enum ObjectType {
+  ObjectType_Line = 0,
+  ObjectType_PolyLine = 1,
+  ObjectType_Rectangle = 2,
+  ObjectType_Circle = 3,
+  ObjectType_MIN = ObjectType_Line,
+  ObjectType_MAX = ObjectType_Circle
+};
+
+inline const ObjectType (&EnumValuesObjectType())[4] {
+  static const ObjectType values[] = {
+    ObjectType_Line,
+    ObjectType_PolyLine,
+    ObjectType_Rectangle,
+    ObjectType_Circle
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesObjectType() {
+  static const char * const names[5] = {
+    "Line",
+    "PolyLine",
+    "Rectangle",
+    "Circle",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameObjectType(ObjectType e) {
+  if (flatbuffers::IsOutRange(e, ObjectType_Line, ObjectType_Circle)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesObjectType()[index];
+}
+
+FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) CursorEvent FLATBUFFERS_FINAL_CLASS {
+ private:
+  int32_t x_;
+  int32_t y_;
+  uint32_t uid_;
+
+ public:
+  CursorEvent() {
+    memset(static_cast<void *>(this), 0, sizeof(CursorEvent));
+  }
+  CursorEvent(int32_t _x, int32_t _y, uint32_t _uid)
+      : x_(flatbuffers::EndianScalar(_x)),
+        y_(flatbuffers::EndianScalar(_y)),
+        uid_(flatbuffers::EndianScalar(_uid)) {
+  }
+  int32_t x() const {
+    return flatbuffers::EndianScalar(x_);
+  }
+  int32_t y() const {
+    return flatbuffers::EndianScalar(y_);
+  }
+  uint32_t uid() const {
+    return flatbuffers::EndianScalar(uid_);
+  }
+};
+FLATBUFFERS_STRUCT_END(CursorEvent, 12);
+
+FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(2) Point FLATBUFFERS_FINAL_CLASS {
+ private:
+  uint16_t x_;
+  uint16_t y_;
+
+ public:
+  Point() {
+    memset(static_cast<void *>(this), 0, sizeof(Point));
+  }
+  Point(uint16_t _x, uint16_t _y)
+      : x_(flatbuffers::EndianScalar(_x)),
+        y_(flatbuffers::EndianScalar(_y)) {
+  }
+  uint16_t x() const {
+    return flatbuffers::EndianScalar(x_);
+  }
+  uint16_t y() const {
+    return flatbuffers::EndianScalar(y_);
+  }
+};
+FLATBUFFERS_STRUCT_END(Point, 4);
+
+FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(1) Color FLATBUFFERS_FINAL_CLASS {
+ private:
+  uint8_t r_;
+  uint8_t g_;
+  uint8_t b_;
+
+ public:
+  Color() {
+    memset(static_cast<void *>(this), 0, sizeof(Color));
+  }
+  Color(uint8_t _r, uint8_t _g, uint8_t _b)
+      : r_(flatbuffers::EndianScalar(_r)),
+        g_(flatbuffers::EndianScalar(_g)),
+        b_(flatbuffers::EndianScalar(_b)) {
+  }
+  uint8_t r() const {
+    return flatbuffers::EndianScalar(r_);
+  }
+  uint8_t g() const {
+    return flatbuffers::EndianScalar(g_);
+  }
+  uint8_t b() const {
+    return flatbuffers::EndianScalar(b_);
+  }
+};
+FLATBUFFERS_STRUCT_END(Color, 3);
+
 struct Message FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   typedef MessageBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_EVENT_TYPE = 4,
-    VT_EVENT = 6
+    VT_EVENTS_TYPE = 4,
+    VT_EVENTS = 6
   };
-  paper::Event event_type() const {
-    return static_cast<paper::Event>(GetField<uint8_t>(VT_EVENT_TYPE, 0));
+  const flatbuffers::Vector<uint8_t> *events_type() const {
+    return GetPointer<const flatbuffers::Vector<uint8_t> *>(VT_EVENTS_TYPE);
   }
-  const void *event() const {
-    return GetPointer<const void *>(VT_EVENT);
-  }
-  template<typename T> const T *event_as() const;
-  const paper::Create *event_as_Create() const {
-    return event_type() == paper::Event_Create ? static_cast<const paper::Create *>(event()) : nullptr;
-  }
-  const paper::Update *event_as_Update() const {
-    return event_type() == paper::Event_Update ? static_cast<const paper::Update *>(event()) : nullptr;
-  }
-  const paper::Delete *event_as_Delete() const {
-    return event_type() == paper::Event_Delete ? static_cast<const paper::Delete *>(event()) : nullptr;
+  const flatbuffers::Vector<flatbuffers::Offset<void>> *events() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<void>> *>(VT_EVENTS);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<uint8_t>(verifier, VT_EVENT_TYPE) &&
-           VerifyOffset(verifier, VT_EVENT) &&
-           VerifyEvent(verifier, event(), event_type()) &&
+           VerifyOffset(verifier, VT_EVENTS_TYPE) &&
+           verifier.VerifyVector(events_type()) &&
+           VerifyOffset(verifier, VT_EVENTS) &&
+           verifier.VerifyVector(events()) &&
+           VerifyEventVector(verifier, events(), events_type()) &&
            verifier.EndTable();
   }
 };
-
-template<> inline const paper::Create *Message::event_as<paper::Create>() const {
-  return event_as_Create();
-}
-
-template<> inline const paper::Update *Message::event_as<paper::Update>() const {
-  return event_as_Update();
-}
-
-template<> inline const paper::Delete *Message::event_as<paper::Delete>() const {
-  return event_as_Delete();
-}
 
 struct MessageBuilder {
   typedef Message Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
-  void add_event_type(paper::Event event_type) {
-    fbb_.AddElement<uint8_t>(Message::VT_EVENT_TYPE, static_cast<uint8_t>(event_type), 0);
+  void add_events_type(flatbuffers::Offset<flatbuffers::Vector<uint8_t>> events_type) {
+    fbb_.AddOffset(Message::VT_EVENTS_TYPE, events_type);
   }
-  void add_event(flatbuffers::Offset<void> event) {
-    fbb_.AddOffset(Message::VT_EVENT, event);
+  void add_events(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<void>>> events) {
+    fbb_.AddOffset(Message::VT_EVENTS, events);
   }
   explicit MessageBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -142,204 +257,282 @@ struct MessageBuilder {
 
 inline flatbuffers::Offset<Message> CreateMessage(
     flatbuffers::FlatBufferBuilder &_fbb,
-    paper::Event event_type = paper::Event_NONE,
-    flatbuffers::Offset<void> event = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<uint8_t>> events_type = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<void>>> events = 0) {
   MessageBuilder builder_(_fbb);
-  builder_.add_event(event);
-  builder_.add_event_type(event_type);
+  builder_.add_events(events);
+  builder_.add_events_type(events_type);
   return builder_.Finish();
 }
 
-struct Create FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
-  typedef CreateBuilder Builder;
+inline flatbuffers::Offset<Message> CreateMessageDirect(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    const std::vector<uint8_t> *events_type = nullptr,
+    const std::vector<flatbuffers::Offset<void>> *events = nullptr) {
+  auto events_type__ = events_type ? _fbb.CreateVector<uint8_t>(*events_type) : 0;
+  auto events__ = events ? _fbb.CreateVector<flatbuffers::Offset<void>>(*events) : 0;
+  return paper::CreateMessage(
+      _fbb,
+      events_type__,
+      events__);
+}
+
+struct UserEvent FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef UserEventBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_TYPE = 4,
-    VT_DAMAGE = 6
+    VT_UID = 4,
+    VT_NAME = 6
   };
-  const flatbuffers::String *type() const {
-    return GetPointer<const flatbuffers::String *>(VT_TYPE);
+  uint32_t uid() const {
+    return GetField<uint32_t>(VT_UID, 0);
   }
-  int16_t damage() const {
-    return GetField<int16_t>(VT_DAMAGE, 0);
+  const flatbuffers::String *name() const {
+    return GetPointer<const flatbuffers::String *>(VT_NAME);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_TYPE) &&
-           verifier.VerifyString(type()) &&
-           VerifyField<int16_t>(verifier, VT_DAMAGE) &&
+           VerifyField<uint32_t>(verifier, VT_UID) &&
+           VerifyOffset(verifier, VT_NAME) &&
+           verifier.VerifyString(name()) &&
            verifier.EndTable();
   }
 };
 
-struct CreateBuilder {
-  typedef Create Table;
+struct UserEventBuilder {
+  typedef UserEvent Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
-  void add_type(flatbuffers::Offset<flatbuffers::String> type) {
-    fbb_.AddOffset(Create::VT_TYPE, type);
+  void add_uid(uint32_t uid) {
+    fbb_.AddElement<uint32_t>(UserEvent::VT_UID, uid, 0);
   }
-  void add_damage(int16_t damage) {
-    fbb_.AddElement<int16_t>(Create::VT_DAMAGE, damage, 0);
+  void add_name(flatbuffers::Offset<flatbuffers::String> name) {
+    fbb_.AddOffset(UserEvent::VT_NAME, name);
   }
-  explicit CreateBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit UserEventBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  CreateBuilder &operator=(const CreateBuilder &);
-  flatbuffers::Offset<Create> Finish() {
+  UserEventBuilder &operator=(const UserEventBuilder &);
+  flatbuffers::Offset<UserEvent> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<Create>(end);
+    auto o = flatbuffers::Offset<UserEvent>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<Create> CreateCreate(
+inline flatbuffers::Offset<UserEvent> CreateUserEvent(
     flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::String> type = 0,
-    int16_t damage = 0) {
-  CreateBuilder builder_(_fbb);
-  builder_.add_type(type);
-  builder_.add_damage(damage);
+    uint32_t uid = 0,
+    flatbuffers::Offset<flatbuffers::String> name = 0) {
+  UserEventBuilder builder_(_fbb);
+  builder_.add_name(name);
+  builder_.add_uid(uid);
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<Create> CreateCreateDirect(
+inline flatbuffers::Offset<UserEvent> CreateUserEventDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
-    const char *type = nullptr,
-    int16_t damage = 0) {
-  auto type__ = type ? _fbb.CreateString(type) : 0;
-  return paper::CreateCreate(
+    uint32_t uid = 0,
+    const char *name = nullptr) {
+  auto name__ = name ? _fbb.CreateString(name) : 0;
+  return paper::CreateUserEvent(
       _fbb,
-      type__,
-      damage);
+      uid,
+      name__);
 }
 
-struct Update FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
-  typedef UpdateBuilder Builder;
+struct ObjectUpdateEvent FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef ObjectUpdateEventBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_TYPE = 4,
-    VT_DAMAGE = 6
+    VT_ID = 4,
+    VT_TYPE = 6,
+    VT_COLOR = 8,
+    VT_POINTS = 10
   };
-  const flatbuffers::String *type() const {
-    return GetPointer<const flatbuffers::String *>(VT_TYPE);
+  uint32_t id() const {
+    return GetField<uint32_t>(VT_ID, 0);
   }
-  int16_t damage() const {
-    return GetField<int16_t>(VT_DAMAGE, 0);
+  paper::ObjectType type() const {
+    return static_cast<paper::ObjectType>(GetField<int8_t>(VT_TYPE, 0));
+  }
+  const paper::Color *color() const {
+    return GetStruct<const paper::Color *>(VT_COLOR);
+  }
+  const flatbuffers::Vector<const paper::Point *> *points() const {
+    return GetPointer<const flatbuffers::Vector<const paper::Point *> *>(VT_POINTS);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_TYPE) &&
-           verifier.VerifyString(type()) &&
-           VerifyField<int16_t>(verifier, VT_DAMAGE) &&
+           VerifyField<uint32_t>(verifier, VT_ID) &&
+           VerifyField<int8_t>(verifier, VT_TYPE) &&
+           VerifyField<paper::Color>(verifier, VT_COLOR) &&
+           VerifyOffset(verifier, VT_POINTS) &&
+           verifier.VerifyVector(points()) &&
            verifier.EndTable();
   }
 };
 
-struct UpdateBuilder {
-  typedef Update Table;
+struct ObjectUpdateEventBuilder {
+  typedef ObjectUpdateEvent Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
-  void add_type(flatbuffers::Offset<flatbuffers::String> type) {
-    fbb_.AddOffset(Update::VT_TYPE, type);
+  void add_id(uint32_t id) {
+    fbb_.AddElement<uint32_t>(ObjectUpdateEvent::VT_ID, id, 0);
   }
-  void add_damage(int16_t damage) {
-    fbb_.AddElement<int16_t>(Update::VT_DAMAGE, damage, 0);
+  void add_type(paper::ObjectType type) {
+    fbb_.AddElement<int8_t>(ObjectUpdateEvent::VT_TYPE, static_cast<int8_t>(type), 0);
   }
-  explicit UpdateBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  void add_color(const paper::Color *color) {
+    fbb_.AddStruct(ObjectUpdateEvent::VT_COLOR, color);
+  }
+  void add_points(flatbuffers::Offset<flatbuffers::Vector<const paper::Point *>> points) {
+    fbb_.AddOffset(ObjectUpdateEvent::VT_POINTS, points);
+  }
+  explicit ObjectUpdateEventBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  UpdateBuilder &operator=(const UpdateBuilder &);
-  flatbuffers::Offset<Update> Finish() {
+  ObjectUpdateEventBuilder &operator=(const ObjectUpdateEventBuilder &);
+  flatbuffers::Offset<ObjectUpdateEvent> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<Update>(end);
+    auto o = flatbuffers::Offset<ObjectUpdateEvent>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<Update> CreateUpdate(
+inline flatbuffers::Offset<ObjectUpdateEvent> CreateObjectUpdateEvent(
     flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::String> type = 0,
-    int16_t damage = 0) {
-  UpdateBuilder builder_(_fbb);
+    uint32_t id = 0,
+    paper::ObjectType type = paper::ObjectType_Line,
+    const paper::Color *color = 0,
+    flatbuffers::Offset<flatbuffers::Vector<const paper::Point *>> points = 0) {
+  ObjectUpdateEventBuilder builder_(_fbb);
+  builder_.add_points(points);
+  builder_.add_color(color);
+  builder_.add_id(id);
   builder_.add_type(type);
-  builder_.add_damage(damage);
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<Update> CreateUpdateDirect(
+inline flatbuffers::Offset<ObjectUpdateEvent> CreateObjectUpdateEventDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
-    const char *type = nullptr,
-    int16_t damage = 0) {
-  auto type__ = type ? _fbb.CreateString(type) : 0;
-  return paper::CreateUpdate(
+    uint32_t id = 0,
+    paper::ObjectType type = paper::ObjectType_Line,
+    const paper::Color *color = 0,
+    const std::vector<paper::Point> *points = nullptr) {
+  auto points__ = points ? _fbb.CreateVectorOfStructs<paper::Point>(*points) : 0;
+  return paper::CreateObjectUpdateEvent(
       _fbb,
-      type__,
-      damage);
+      id,
+      type,
+      color,
+      points__);
 }
 
-struct Delete FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
-  typedef DeleteBuilder Builder;
+struct ObjectAddPointsEvent FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef ObjectAddPointsEventBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_TYPE = 4,
-    VT_DAMAGE = 6
+    VT_ID = 4,
+    VT_POINTS = 6
   };
-  const flatbuffers::String *type() const {
-    return GetPointer<const flatbuffers::String *>(VT_TYPE);
+  uint32_t id() const {
+    return GetField<uint32_t>(VT_ID, 0);
   }
-  int16_t damage() const {
-    return GetField<int16_t>(VT_DAMAGE, 0);
+  const flatbuffers::Vector<const paper::Point *> *points() const {
+    return GetPointer<const flatbuffers::Vector<const paper::Point *> *>(VT_POINTS);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_TYPE) &&
-           verifier.VerifyString(type()) &&
-           VerifyField<int16_t>(verifier, VT_DAMAGE) &&
+           VerifyField<uint32_t>(verifier, VT_ID) &&
+           VerifyOffset(verifier, VT_POINTS) &&
+           verifier.VerifyVector(points()) &&
            verifier.EndTable();
   }
 };
 
-struct DeleteBuilder {
-  typedef Delete Table;
+struct ObjectAddPointsEventBuilder {
+  typedef ObjectAddPointsEvent Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
-  void add_type(flatbuffers::Offset<flatbuffers::String> type) {
-    fbb_.AddOffset(Delete::VT_TYPE, type);
+  void add_id(uint32_t id) {
+    fbb_.AddElement<uint32_t>(ObjectAddPointsEvent::VT_ID, id, 0);
   }
-  void add_damage(int16_t damage) {
-    fbb_.AddElement<int16_t>(Delete::VT_DAMAGE, damage, 0);
+  void add_points(flatbuffers::Offset<flatbuffers::Vector<const paper::Point *>> points) {
+    fbb_.AddOffset(ObjectAddPointsEvent::VT_POINTS, points);
   }
-  explicit DeleteBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit ObjectAddPointsEventBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  DeleteBuilder &operator=(const DeleteBuilder &);
-  flatbuffers::Offset<Delete> Finish() {
+  ObjectAddPointsEventBuilder &operator=(const ObjectAddPointsEventBuilder &);
+  flatbuffers::Offset<ObjectAddPointsEvent> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<Delete>(end);
+    auto o = flatbuffers::Offset<ObjectAddPointsEvent>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<Delete> CreateDelete(
+inline flatbuffers::Offset<ObjectAddPointsEvent> CreateObjectAddPointsEvent(
     flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::String> type = 0,
-    int16_t damage = 0) {
-  DeleteBuilder builder_(_fbb);
-  builder_.add_type(type);
-  builder_.add_damage(damage);
+    uint32_t id = 0,
+    flatbuffers::Offset<flatbuffers::Vector<const paper::Point *>> points = 0) {
+  ObjectAddPointsEventBuilder builder_(_fbb);
+  builder_.add_points(points);
+  builder_.add_id(id);
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<Delete> CreateDeleteDirect(
+inline flatbuffers::Offset<ObjectAddPointsEvent> CreateObjectAddPointsEventDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
-    const char *type = nullptr,
-    int16_t damage = 0) {
-  auto type__ = type ? _fbb.CreateString(type) : 0;
-  return paper::CreateDelete(
+    uint32_t id = 0,
+    const std::vector<paper::Point> *points = nullptr) {
+  auto points__ = points ? _fbb.CreateVectorOfStructs<paper::Point>(*points) : 0;
+  return paper::CreateObjectAddPointsEvent(
       _fbb,
-      type__,
-      damage);
+      id,
+      points__);
+}
+
+struct ObjectDeleteEvent FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef ObjectDeleteEventBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ID = 4
+  };
+  uint32_t id() const {
+    return GetField<uint32_t>(VT_ID, 0);
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_ID) &&
+           verifier.EndTable();
+  }
+};
+
+struct ObjectDeleteEventBuilder {
+  typedef ObjectDeleteEvent Table;
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_id(uint32_t id) {
+    fbb_.AddElement<uint32_t>(ObjectDeleteEvent::VT_ID, id, 0);
+  }
+  explicit ObjectDeleteEventBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ObjectDeleteEventBuilder &operator=(const ObjectDeleteEventBuilder &);
+  flatbuffers::Offset<ObjectDeleteEvent> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<ObjectDeleteEvent>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<ObjectDeleteEvent> CreateObjectDeleteEvent(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t id = 0) {
+  ObjectDeleteEventBuilder builder_(_fbb);
+  builder_.add_id(id);
+  return builder_.Finish();
 }
 
 inline bool VerifyEvent(flatbuffers::Verifier &verifier, const void *obj, Event type) {
@@ -347,16 +540,23 @@ inline bool VerifyEvent(flatbuffers::Verifier &verifier, const void *obj, Event 
     case Event_NONE: {
       return true;
     }
-    case Event_Create: {
-      auto ptr = reinterpret_cast<const paper::Create *>(obj);
+    case Event_CursorEvent: {
+      return verifier.Verify<paper::CursorEvent>(static_cast<const uint8_t *>(obj), 0);
+    }
+    case Event_ObjectUpdateEvent: {
+      auto ptr = reinterpret_cast<const paper::ObjectUpdateEvent *>(obj);
       return verifier.VerifyTable(ptr);
     }
-    case Event_Update: {
-      auto ptr = reinterpret_cast<const paper::Update *>(obj);
+    case Event_ObjectAddPointsEvent: {
+      auto ptr = reinterpret_cast<const paper::ObjectAddPointsEvent *>(obj);
       return verifier.VerifyTable(ptr);
     }
-    case Event_Delete: {
-      auto ptr = reinterpret_cast<const paper::Delete *>(obj);
+    case Event_ObjectDeleteEvent: {
+      auto ptr = reinterpret_cast<const paper::ObjectDeleteEvent *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case Event_UserEvent: {
+      auto ptr = reinterpret_cast<const paper::UserEvent *>(obj);
       return verifier.VerifyTable(ptr);
     }
     default: return true;

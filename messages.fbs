@@ -13,7 +13,7 @@ union Event {
 table Message {
   events:[Event];
 }
-
+      
 //info about a user (todo: add color/icon etc)
 table UserEvent
 {
@@ -59,7 +59,7 @@ table ObjectUpdateEvent
   points: [Point];
 }
 
-
+ 
 
 //add more points to an object
 table ObjectAddPointsEvent

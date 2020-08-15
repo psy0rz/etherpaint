@@ -44,17 +44,29 @@ include("${CMAKE_SOURCE_DIR}/flatbuffers.cmake")
 add_dependencies(${PROJECT_NAME} flatbuffers)
 
 
-############################# flatc compile .fbs file
+############################# flatc compile .fbs to .h
 add_custom_command(
     OUTPUT ${CMAKE_SOURCE_DIR}/messages_generated.h
     BYPRODUCTS ${CMAKE_SOURCE_DIR}/messages_generated.h
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     DEPENDS ${CMAKE_SOURCE_DIR}/messages.fbs 
-    COMMENT "Generating message_generated from messages.fbs."
+    COMMENT "Generating messages_generated.h from messages.fbs."
     COMMAND ${FLATC} --cpp ${CMAKE_SOURCE_DIR}/messages.fbs
 )
 # add_dependencies(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/messages_generated.h )
 set_property(SOURCE main.cpp APPEND PROPERTY OBJECT_DEPENDS ${CMAKE_SOURCE_DIR}/messages_generated.h)
+
+############################# flatc compile .fbs to .js
+add_custom_command(
+    OUTPUT ${CMAKE_SOURCE_DIR}/wwwdir/messages_generated.js
+    BYPRODUCTS ${CMAKE_SOURCE_DIR}/wwwdir/messages_generated.js
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    DEPENDS ${CMAKE_SOURCE_DIR}/messages.fbs 
+    COMMENT "Generating messages_generated.js from messages.fbs."
+    COMMAND ${FLATC}  -o wwwdir --js ${CMAKE_SOURCE_DIR}/messages.fbs
+)
+set_property(SOURCE main.cpp APPEND PROPERTY OBJECT_DEPENDS ${CMAKE_SOURCE_DIR}/wwwdir/messages_generated.js)
+
 
 
 #find_package(restbed REQUIRED)

@@ -142,20 +142,36 @@ main(const int, const char**)
                     return;
                   }
 
+                  DEB("MSG");
                   //todo: stream of messages in one websocket message
                   if (!event::VerifyEvent(flatbuffers::Verifier(message_buffer.data(), message_buffer.length())))
                   {
                     ERROR("Corrupt flatbuffer received.");
                     return;
                   }
+                  DEB("VERIFYOK");
 
 
                   auto message = event::GetMessage(message_buffer.data());
                   auto event_type=message->event_type();
 
+                  if (event_type<0 || event_type>event::Event_MAX)
+                  {
+                    ERROR("Invalid event type: " << event_type);
+                    return;
+                  }
+
+                DEB("HANDCHECK" << event_type);
+                  if (handlers[event_type]==nullptr)
+                  {
+                    ERROR("Handler not set: " << event::EnumNameEvent(event_type));
+                    return;
+                  }
+
                   {
                     try {
-
+DEB("HAND");
+                        
                         handlers[event_type](msg_session, message);
 
                     } catch (std::exception e) {

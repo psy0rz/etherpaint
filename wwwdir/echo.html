@@ -1,0 +1,182 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <style>
+    </style>
+    <script src="flatbuffers.js"></script>
+    <script src="messages_generated.js"></script>
+
+    <script type="text/javascript">
+        function send(object) {
+            // console.log("Sending ", object);
+            ws.send(JSON.stringify(object));
+            sendcount++;
+        }
+
+        sendcount = 0;
+        recvcount = 0;
+        last_time = 0;
+
+        function log(txt) {
+            e = document.createElement('div');
+            e.textContent = txt;
+            document.getElementById('log').appendChild(e);
+        }
+
+        setInterval(function () {
+            d = new Date();
+            diff = d - last_time;
+
+            document.getElementById('stats').textContent = `
+            in flight: ${pings} pings
+            send/s ${sendcount * 1000 / diff}
+            recv/s ${recvcount * 1000 / diff} 
+            min ${min_time} mS 
+            max ${max_time} mS 
+            avg ${avg_time} mS 
+            lost ${loss} messages
+            last id ${id}
+            
+            `;
+
+
+            sendcount = 0;
+            recvcount = 0;
+            last_time = d;
+
+
+        }, 1000);
+
+
+        // setInterval(function () {
+        //    for (i = 0; i < 10; i++) {
+        //       sendcount++;
+        //       send({ 'event': 'echo', 'geert': 1 });
+        //    }
+        // }, 1000);
+
+        function ping(msg) {
+
+            //  if (msg === undefined) {
+            //     msg = {
+            //        'event': 'echo', 'starttime': (new Date() * 1),
+            //        'list': [],
+            //        'id': id,
+            //     }
+            //  }
+            //  else {
+            //     msg.starttime = (new Date() * 1);
+            //     msg.id = id;
+            //     // msg.list.push("1");
+            //  }
+            //  id = id + 1;
+            var builder = new flatbuffers.Builder(1024);
+            builder.finish(
+                event.Message.createMessage(
+                    builder,
+                    event.Event.Echo,
+                    event.Echo.createEcho(
+                        builder,
+                        123,
+                        456,
+                        builder.createString("payloadddd")
+                    )
+                )
+            );
+            console.log("size ", builder.asUint8Array().length);
+            ws.send(builder.asUint8Array());
+        }
+
+        function addping(amount) {
+            for (i = 0; i < amount; i++) {
+                ping();
+                pings++;
+            }
+
+        }
+
+        function open() {
+            if ("WebSocket" in window) {
+
+                document.getElementById('log').innerHTML = "";
+                log('Opening socket');
+                if (location.protocol == 'http:') {
+                    ws = new WebSocket("ws://" + location.host + "/ws")
+                }
+                else {
+                    ws = new WebSocket("wss://" + location.host + "/ws");
+                }
+
+                ws.onopen = function () {
+                    log('Connected');
+                    min_time = 10000;
+                    max_time = 0;
+                    avg_time = 0;
+                    pings = 0;
+                    last_id = -1;
+                    loss = 0;
+                    id = 0;
+                    addping(1);
+                };
+
+                ws.onmessage = function (evt) {
+                    recvcount++;
+
+                    // console.log("Receive: ", evt.data)
+                    msg = JSON.parse(evt.data);
+                    if (msg.starttime) {
+                        diff = (new Date()) - msg.starttime;
+                        if (diff > max_time)
+                            max_time = diff;
+                        if (diff < min_time)
+                            min_time = diff;
+
+                        avg_time = avg_time * 0.999 + diff * 0.001;
+
+
+                        loss = loss + (msg.id - last_id) - 1;
+                        last_id = msg.id;
+                    };
+                    //echo back again
+                    // ping(msg);
+
+                };
+
+                ws.onclose = function (evt) {
+                    console.log(evt);
+                    log('Disconnected');
+                    setTimeout(open, 1000);
+                };
+
+                ws.onerror = function (evt) {
+                    console.log(evt);
+                    log('Error', evt);
+                };
+
+                log('Connecting...');
+            }
+            else {
+                alert("WebSockets NOT supported by your Browser!");
+            }
+        }
+
+        setTimeout(open, 100);
+    </script>
+</head>
+
+<body>
+
+    <h1>Stats</h1>
+    <pre id='stats'></pre>
+
+
+    <button onclick='addping(1); '>Add ping</button>
+    <button onclick='addping(1000);'>Add 1000 pings</button>
+
+    <h1>Log</h1>
+    <div id='log'></div>
+
+</body>
+
+</html>

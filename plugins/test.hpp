@@ -20,8 +20,8 @@
 //   // msg_session->enqueue(msg);
 // });
 
-register_handler echo(event::Event_CursorEvent, [](auto msg_session, auto msg) {
-  DEB("ECH");
+register_handler echo(event::Event_Echo, [](auto msg_session, auto msg) {
+  DEB("ECHoooo");
   // msg_session->enqueue(msg);
 });
 

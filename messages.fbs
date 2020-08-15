@@ -7,18 +7,28 @@ union Event {
     ObjectAddPointsEvent,
     ObjectDeleteEvent,
     UserEvent,
+    Echo,
 }
 
 table Message {
   event: Event;
 }
       
+table Echo
+{
+  id: uint32;
+  time: uint32;
+  payload: string;
+}
+
+
 //info about a user (todo: add color/icon etc)
 table UserEvent
 {
   uid: uint32;
   name: string;
 }
+
 
 //cursor position of a user
 struct  CursorEvent

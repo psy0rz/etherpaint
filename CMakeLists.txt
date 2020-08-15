@@ -63,7 +63,7 @@ add_custom_command(
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     DEPENDS ${CMAKE_SOURCE_DIR}/messages.fbs 
     COMMENT "Generating messages_generated.js from messages.fbs."
-    COMMAND ${FLATC}  -o wwwdir --js ${CMAKE_SOURCE_DIR}/messages.fbs
+    COMMAND ${FLATC}  -o wwwdir --js  ${CMAKE_SOURCE_DIR}/messages.fbs
 )
 set_property(SOURCE main.cpp APPEND PROPERTY OBJECT_DEPENDS ${CMAKE_SOURCE_DIR}/wwwdir/messages_generated.js)
 

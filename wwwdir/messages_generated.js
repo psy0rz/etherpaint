@@ -15,7 +15,8 @@ event.Event = {
   ObjectUpdateEvent: 2,
   ObjectAddPointsEvent: 3,
   ObjectDeleteEvent: 4,
-  UserEvent: 5
+  UserEvent: 5,
+  Echo: 6
 };
 
 /**
@@ -27,7 +28,8 @@ event.EventName = {
   '2': 'ObjectUpdateEvent',
   '3': 'ObjectAddPointsEvent',
   '4': 'ObjectDeleteEvent',
-  '5': 'UserEvent'
+  '5': 'UserEvent',
+  '6': 'Echo'
 };
 
 /**
@@ -171,6 +173,131 @@ event.Message.createMessage = function(builder, eventType, eventOffset) {
   event.Message.addEventType(builder, eventType);
   event.Message.addEvent(builder, eventOffset);
   return event.Message.endMessage(builder);
+}
+
+/**
+ * @constructor
+ */
+event.Echo = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {event.Echo}
+ */
+event.Echo.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {event.Echo=} obj
+ * @returns {event.Echo}
+ */
+event.Echo.getRootAsEcho = function(bb, obj) {
+  return (obj || new event.Echo).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {event.Echo=} obj
+ * @returns {event.Echo}
+ */
+event.Echo.getSizePrefixedRootAsEcho = function(bb, obj) {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new event.Echo).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns {number}
+ */
+event.Echo.prototype.id = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.readUint32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+event.Echo.prototype.time = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.readUint32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array|null}
+ */
+event.Echo.prototype.payload = function(optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 8);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+event.Echo.startEcho = function(builder) {
+  builder.startObject(3);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} id
+ */
+event.Echo.addId = function(builder, id) {
+  builder.addFieldInt32(0, id, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} time
+ */
+event.Echo.addTime = function(builder, time) {
+  builder.addFieldInt32(1, time, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} payloadOffset
+ */
+event.Echo.addPayload = function(builder, payloadOffset) {
+  builder.addFieldOffset(2, payloadOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+event.Echo.endEcho = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} id
+ * @param {number} time
+ * @param {flatbuffers.Offset} payloadOffset
+ * @returns {flatbuffers.Offset}
+ */
+event.Echo.createEcho = function(builder, id, time, payloadOffset) {
+  event.Echo.startEcho(builder);
+  event.Echo.addId(builder, id);
+  event.Echo.addTime(builder, time);
+  event.Echo.addPayload(builder, payloadOffset);
+  return event.Echo.endEcho(builder);
 }
 
 /**

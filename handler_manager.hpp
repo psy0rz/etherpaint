@@ -19,7 +19,7 @@ typedef std::function<void(std::shared_ptr<MsgSession> & msg_session,
                            const event::Message * message)>
   handler_type;
 
-handler_type handlers[event::Event_MAX];
+handler_type handlers[event::Event_MAX+1];
 
 // Thanks to hkaiser@#boost for helping me with the automatic handler
 // registration:

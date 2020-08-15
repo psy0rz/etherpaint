@@ -11,6 +11,9 @@ namespace event {
 struct Message;
 struct MessageBuilder;
 
+struct Echo;
+struct EchoBuilder;
+
 struct UserEvent;
 struct UserEventBuilder;
 
@@ -36,37 +39,40 @@ enum Event {
   Event_ObjectAddPointsEvent = 3,
   Event_ObjectDeleteEvent = 4,
   Event_UserEvent = 5,
+  Event_Echo = 6,
   Event_MIN = Event_NONE,
-  Event_MAX = Event_UserEvent
+  Event_MAX = Event_Echo
 };
 
-inline const Event (&EnumValuesEvent())[6] {
+inline const Event (&EnumValuesEvent())[7] {
   static const Event values[] = {
     Event_NONE,
     Event_CursorEvent,
     Event_ObjectUpdateEvent,
     Event_ObjectAddPointsEvent,
     Event_ObjectDeleteEvent,
-    Event_UserEvent
+    Event_UserEvent,
+    Event_Echo
   };
   return values;
 }
 
 inline const char * const *EnumNamesEvent() {
-  static const char * const names[7] = {
+  static const char * const names[8] = {
     "NONE",
     "CursorEvent",
     "ObjectUpdateEvent",
     "ObjectAddPointsEvent",
     "ObjectDeleteEvent",
     "UserEvent",
+    "Echo",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameEvent(Event e) {
-  if (flatbuffers::IsOutRange(e, Event_NONE, Event_UserEvent)) return "";
+  if (flatbuffers::IsOutRange(e, Event_NONE, Event_Echo)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesEvent()[index];
 }
@@ -93,6 +99,10 @@ template<> struct EventTraits<event::ObjectDeleteEvent> {
 
 template<> struct EventTraits<event::UserEvent> {
   static const Event enum_value = Event_UserEvent;
+};
+
+template<> struct EventTraits<event::Echo> {
+  static const Event enum_value = Event_Echo;
 };
 
 bool VerifyEvent(flatbuffers::Verifier &verifier, const void *obj, Event type);
@@ -238,6 +248,9 @@ struct Message FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const event::UserEvent *event_as_UserEvent() const {
     return event_type() == event::Event_UserEvent ? static_cast<const event::UserEvent *>(event()) : nullptr;
   }
+  const event::Echo *event_as_Echo() const {
+    return event_type() == event::Event_Echo ? static_cast<const event::Echo *>(event()) : nullptr;
+  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint8_t>(verifier, VT_EVENT_TYPE) &&
@@ -265,6 +278,10 @@ template<> inline const event::ObjectDeleteEvent *Message::event_as<event::Objec
 
 template<> inline const event::UserEvent *Message::event_as<event::UserEvent>() const {
   return event_as_UserEvent();
+}
+
+template<> inline const event::Echo *Message::event_as<event::Echo>() const {
+  return event_as_Echo();
 }
 
 struct MessageBuilder {
@@ -297,6 +314,82 @@ inline flatbuffers::Offset<Message> CreateMessage(
   builder_.add_event(event);
   builder_.add_event_type(event_type);
   return builder_.Finish();
+}
+
+struct Echo FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef EchoBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ID = 4,
+    VT_TIME = 6,
+    VT_PAYLOAD = 8
+  };
+  uint32_t id() const {
+    return GetField<uint32_t>(VT_ID, 0);
+  }
+  uint32_t time() const {
+    return GetField<uint32_t>(VT_TIME, 0);
+  }
+  const flatbuffers::String *payload() const {
+    return GetPointer<const flatbuffers::String *>(VT_PAYLOAD);
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_ID) &&
+           VerifyField<uint32_t>(verifier, VT_TIME) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyString(payload()) &&
+           verifier.EndTable();
+  }
+};
+
+struct EchoBuilder {
+  typedef Echo Table;
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_id(uint32_t id) {
+    fbb_.AddElement<uint32_t>(Echo::VT_ID, id, 0);
+  }
+  void add_time(uint32_t time) {
+    fbb_.AddElement<uint32_t>(Echo::VT_TIME, time, 0);
+  }
+  void add_payload(flatbuffers::Offset<flatbuffers::String> payload) {
+    fbb_.AddOffset(Echo::VT_PAYLOAD, payload);
+  }
+  explicit EchoBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  EchoBuilder &operator=(const EchoBuilder &);
+  flatbuffers::Offset<Echo> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<Echo>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<Echo> CreateEcho(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t id = 0,
+    uint32_t time = 0,
+    flatbuffers::Offset<flatbuffers::String> payload = 0) {
+  EchoBuilder builder_(_fbb);
+  builder_.add_payload(payload);
+  builder_.add_time(time);
+  builder_.add_id(id);
+  return builder_.Finish();
+}
+
+inline flatbuffers::Offset<Echo> CreateEchoDirect(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t id = 0,
+    uint32_t time = 0,
+    const char *payload = nullptr) {
+  auto payload__ = payload ? _fbb.CreateString(payload) : 0;
+  return event::CreateEcho(
+      _fbb,
+      id,
+      time,
+      payload__);
 }
 
 struct UserEvent FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
@@ -579,6 +672,10 @@ inline bool VerifyEvent(flatbuffers::Verifier &verifier, const void *obj, Event 
     }
     case Event_UserEvent: {
       auto ptr = reinterpret_cast<const event::UserEvent *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case Event_Echo: {
+      auto ptr = reinterpret_cast<const event::Echo *>(obj);
       return verifier.VerifyTable(ptr);
     }
     default: return true;

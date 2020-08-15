@@ -81,6 +81,8 @@ Transfer/sec:      2.97GB
 
 #include "plugin_config.hpp"
 
+#include "messages_generated.h"
+
 FileCacher file_cacher("../wwwdir");
 
 struct PerSocketData
@@ -131,60 +133,37 @@ main(const int, const char**)
                 },
               // received websocket message
               .message =
-                [](auto* ws, std::string_view message, uWS::OpCode opCode) {
+                [](auto* ws, std::string_view message_buffer, uWS::OpCode opCode) {
                   auto& msg_session =
                     static_cast<PerSocketData*>(ws->getUserData())->msg_session;
 
-                  if (opCode != uWS::TEXT) {
-                    ERROR("Invalid websocket opcode");
+                  if (opCode != uWS::BINARY) {
+                    ERROR("Received invalid websocket opcode");
                     return;
                   }
 
-                  // parse json string
-                  auto document = std::make_shared<rapidjson::Document>();
-                  document->Parse(reinterpret_cast<const char*>(message.data()),
-                                  message.size());
-                  if (document->HasParseError()) {
-                    std::stringstream error_text;
-                    error_text
-                      << "JSON parse error at offset "
-                      << document->GetErrorOffset() << ": "
-                      << rapidjson::GetParseError_En(document->GetParseError());
+                  //todo: stream of messages in one websocket message
+                  if (!event::VerifyEvent(flatbuffers::Verifier(message_buffer.data(), message_buffer.length())))
+                  {
+                    ERROR("Corrupt flatbuffer received.");
+                    return;
+                  }
 
-                    msg_session->enqueue_error(error_text.str());
 
-                  } else {
-                    if (!document->IsObject())
-                      msg_session->enqueue_error(
-                        "Message error: Message is not an object.");
-                    else if (!document->HasMember("event"))
-                      msg_session->enqueue_error(
-                        "Message error: Message doesn't have key 'event'.");
-                    else {
-                      rapidjson::Value& event_str = (*document)["event"];
-                      if (!event_str.IsString())
-                        msg_session->enqueue_error(
-                          "Message error: Key 'event' isnt a string.");
-                      else {
-                        try {
+                  auto message = event::GetMessage(message_buffer.data());
+                  auto event_type=message->event_type();
 
-                          // eventually call THE handler
-                          auto handler_i = handlers.find(event_str.GetString());
-                          if (handler_i == handlers.end()) {
-                            DEB("Handler not found: " << event_str.GetString());
-                            msg_session->enqueue_error("Handler not found");
-                          } else
-                            handlers[event_str.GetString()](msg_session,
-                                                            document);
+                  {
+                    try {
 
-                        } catch (std::exception e) {
-                          ERROR("Exception while handling "
-                                << event_str.GetString() << ": " << e.what());
+                        handlers[event_type](msg_session, message);
+
+                    } catch (std::exception e) {
+                      ERROR("Exception while handling " << event::EnumNameEvent(event_type)
+                                                        << ": " << e.what());
 #ifndef NDEBUG
-                          throw;
+                      throw;
 #endif
-                        }
-                      }
                     }
                   }
                 },

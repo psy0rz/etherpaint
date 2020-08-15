@@ -4,12 +4,12 @@
  * @const
  * @namespace
  */
-var paper = paper || {};
+var event = event || {};
 
 /**
  * @enum {number}
  */
-paper.Event = {
+event.Event = {
   NONE: 0,
   CursorEvent: 1,
   ObjectUpdateEvent: 2,
@@ -21,7 +21,7 @@ paper.Event = {
 /**
  * @enum {string}
  */
-paper.EventName = {
+event.EventName = {
   '0': 'NONE',
   '1': 'CursorEvent',
   '2': 'ObjectUpdateEvent',
@@ -33,7 +33,7 @@ paper.EventName = {
 /**
  * @enum {number}
  */
-paper.ObjectType = {
+event.ObjectType = {
   Line: 0,
   PolyLine: 1,
   Rectangle: 2,
@@ -43,7 +43,7 @@ paper.ObjectType = {
 /**
  * @enum {string}
  */
-paper.ObjectTypeName = {
+event.ObjectTypeName = {
   '0': 'Line',
   '1': 'PolyLine',
   '2': 'Rectangle',
@@ -53,7 +53,7 @@ paper.ObjectTypeName = {
 /**
  * @constructor
  */
-paper.Message = function() {
+event.Message = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -68,9 +68,9 @@ paper.Message = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {paper.Message}
+ * @returns {event.Message}
  */
-paper.Message.prototype.__init = function(i, bb) {
+event.Message.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -78,136 +78,68 @@ paper.Message.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {paper.Message=} obj
- * @returns {paper.Message}
+ * @param {event.Message=} obj
+ * @returns {event.Message}
  */
-paper.Message.getRootAsMessage = function(bb, obj) {
-  return (obj || new paper.Message).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+event.Message.getRootAsMessage = function(bb, obj) {
+  return (obj || new event.Message).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {paper.Message=} obj
- * @returns {paper.Message}
+ * @param {event.Message=} obj
+ * @returns {event.Message}
  */
-paper.Message.getSizePrefixedRootAsMessage = function(bb, obj) {
+event.Message.getSizePrefixedRootAsMessage = function(bb, obj) {
   bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-  return (obj || new paper.Message).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+  return (obj || new event.Message).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
- * @param {number} index
- * @returns {paper.Event}
+ * @returns {event.Event}
  */
-paper.Message.prototype.eventsType = function(index) {
+event.Message.prototype.eventType = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? /** @type {paper.Event} */ (this.bb.readUint8(this.bb.__vector(this.bb_pos + offset) + index)) : /** @type {paper.Event} */ (0);
+  return offset ? /** @type {event.Event} */ (this.bb.readUint8(this.bb_pos + offset)) : event.Event.NONE;
 };
 
 /**
- * @returns {number}
- */
-paper.Message.prototype.eventsTypeLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-};
-
-/**
- * @returns {Uint8Array}
- */
-paper.Message.prototype.eventsTypeArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? new Uint8Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
-};
-
-/**
- * @param {number} index
- * @param {flatbuffers.Table=} obj
+ * @param {flatbuffers.Table} obj
  * @returns {?flatbuffers.Table}
  */
-paper.Message.prototype.events = function(index, obj) {
+event.Message.prototype.event = function(obj) {
   var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? this.bb.__union(obj, this.bb.__vector(this.bb_pos + offset) + index * 4) : null;
-};
-
-/**
- * @returns {number}
- */
-paper.Message.prototype.eventsLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+  return offset ? this.bb.__union(obj, this.bb_pos + offset) : null;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-paper.Message.startMessage = function(builder) {
+event.Message.startMessage = function(builder) {
   builder.startObject(2);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} eventsTypeOffset
+ * @param {event.Event} eventType
  */
-paper.Message.addEventsType = function(builder, eventsTypeOffset) {
-  builder.addFieldOffset(0, eventsTypeOffset, 0);
+event.Message.addEventType = function(builder, eventType) {
+  builder.addFieldInt8(0, eventType, event.Event.NONE);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {Array.<paper.Event>} data
- * @returns {flatbuffers.Offset}
+ * @param {flatbuffers.Offset} eventOffset
  */
-paper.Message.createEventsTypeVector = function(builder, data) {
-  builder.startVector(1, data.length, 1);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addInt8(data[i]);
-  }
-  return builder.endVector();
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} numElems
- */
-paper.Message.startEventsTypeVector = function(builder, numElems) {
-  builder.startVector(1, numElems, 1);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} eventsOffset
- */
-paper.Message.addEvents = function(builder, eventsOffset) {
-  builder.addFieldOffset(1, eventsOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {Array.<flatbuffers.Offset>} data
- * @returns {flatbuffers.Offset}
- */
-paper.Message.createEventsVector = function(builder, data) {
-  builder.startVector(4, data.length, 4);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addOffset(data[i]);
-  }
-  return builder.endVector();
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} numElems
- */
-paper.Message.startEventsVector = function(builder, numElems) {
-  builder.startVector(4, numElems, 4);
+event.Message.addEvent = function(builder, eventOffset) {
+  builder.addFieldOffset(1, eventOffset, 0);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-paper.Message.endMessage = function(builder) {
+event.Message.endMessage = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -216,7 +148,7 @@ paper.Message.endMessage = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} offset
  */
-paper.Message.finishMessageBuffer = function(builder, offset) {
+event.Message.finishMessageBuffer = function(builder, offset) {
   builder.finish(offset);
 };
 
@@ -224,27 +156,27 @@ paper.Message.finishMessageBuffer = function(builder, offset) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} offset
  */
-paper.Message.finishSizePrefixedMessageBuffer = function(builder, offset) {
+event.Message.finishSizePrefixedMessageBuffer = function(builder, offset) {
   builder.finish(offset, undefined, true);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} eventsTypeOffset
- * @param {flatbuffers.Offset} eventsOffset
+ * @param {event.Event} eventType
+ * @param {flatbuffers.Offset} eventOffset
  * @returns {flatbuffers.Offset}
  */
-paper.Message.createMessage = function(builder, eventsTypeOffset, eventsOffset) {
-  paper.Message.startMessage(builder);
-  paper.Message.addEventsType(builder, eventsTypeOffset);
-  paper.Message.addEvents(builder, eventsOffset);
-  return paper.Message.endMessage(builder);
+event.Message.createMessage = function(builder, eventType, eventOffset) {
+  event.Message.startMessage(builder);
+  event.Message.addEventType(builder, eventType);
+  event.Message.addEvent(builder, eventOffset);
+  return event.Message.endMessage(builder);
 }
 
 /**
  * @constructor
  */
-paper.UserEvent = function() {
+event.UserEvent = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -259,9 +191,9 @@ paper.UserEvent = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {paper.UserEvent}
+ * @returns {event.UserEvent}
  */
-paper.UserEvent.prototype.__init = function(i, bb) {
+event.UserEvent.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -269,27 +201,27 @@ paper.UserEvent.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {paper.UserEvent=} obj
- * @returns {paper.UserEvent}
+ * @param {event.UserEvent=} obj
+ * @returns {event.UserEvent}
  */
-paper.UserEvent.getRootAsUserEvent = function(bb, obj) {
-  return (obj || new paper.UserEvent).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+event.UserEvent.getRootAsUserEvent = function(bb, obj) {
+  return (obj || new event.UserEvent).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {paper.UserEvent=} obj
- * @returns {paper.UserEvent}
+ * @param {event.UserEvent=} obj
+ * @returns {event.UserEvent}
  */
-paper.UserEvent.getSizePrefixedRootAsUserEvent = function(bb, obj) {
+event.UserEvent.getSizePrefixedRootAsUserEvent = function(bb, obj) {
   bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-  return (obj || new paper.UserEvent).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+  return (obj || new event.UserEvent).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @returns {number}
  */
-paper.UserEvent.prototype.uid = function() {
+event.UserEvent.prototype.uid = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readUint32(this.bb_pos + offset) : 0;
 };
@@ -298,7 +230,7 @@ paper.UserEvent.prototype.uid = function() {
  * @param {flatbuffers.Encoding=} optionalEncoding
  * @returns {string|Uint8Array|null}
  */
-paper.UserEvent.prototype.name = function(optionalEncoding) {
+event.UserEvent.prototype.name = function(optionalEncoding) {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
 };
@@ -306,7 +238,7 @@ paper.UserEvent.prototype.name = function(optionalEncoding) {
 /**
  * @param {flatbuffers.Builder} builder
  */
-paper.UserEvent.startUserEvent = function(builder) {
+event.UserEvent.startUserEvent = function(builder) {
   builder.startObject(2);
 };
 
@@ -314,7 +246,7 @@ paper.UserEvent.startUserEvent = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {number} uid
  */
-paper.UserEvent.addUid = function(builder, uid) {
+event.UserEvent.addUid = function(builder, uid) {
   builder.addFieldInt32(0, uid, 0);
 };
 
@@ -322,7 +254,7 @@ paper.UserEvent.addUid = function(builder, uid) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} nameOffset
  */
-paper.UserEvent.addName = function(builder, nameOffset) {
+event.UserEvent.addName = function(builder, nameOffset) {
   builder.addFieldOffset(1, nameOffset, 0);
 };
 
@@ -330,7 +262,7 @@ paper.UserEvent.addName = function(builder, nameOffset) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-paper.UserEvent.endUserEvent = function(builder) {
+event.UserEvent.endUserEvent = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -341,17 +273,17 @@ paper.UserEvent.endUserEvent = function(builder) {
  * @param {flatbuffers.Offset} nameOffset
  * @returns {flatbuffers.Offset}
  */
-paper.UserEvent.createUserEvent = function(builder, uid, nameOffset) {
-  paper.UserEvent.startUserEvent(builder);
-  paper.UserEvent.addUid(builder, uid);
-  paper.UserEvent.addName(builder, nameOffset);
-  return paper.UserEvent.endUserEvent(builder);
+event.UserEvent.createUserEvent = function(builder, uid, nameOffset) {
+  event.UserEvent.startUserEvent(builder);
+  event.UserEvent.addUid(builder, uid);
+  event.UserEvent.addName(builder, nameOffset);
+  return event.UserEvent.endUserEvent(builder);
 }
 
 /**
  * @constructor
  */
-paper.CursorEvent = function() {
+event.CursorEvent = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -366,9 +298,9 @@ paper.CursorEvent = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {paper.CursorEvent}
+ * @returns {event.CursorEvent}
  */
-paper.CursorEvent.prototype.__init = function(i, bb) {
+event.CursorEvent.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -377,21 +309,21 @@ paper.CursorEvent.prototype.__init = function(i, bb) {
 /**
  * @returns {number}
  */
-paper.CursorEvent.prototype.x = function() {
+event.CursorEvent.prototype.x = function() {
   return this.bb.readInt32(this.bb_pos);
 };
 
 /**
  * @returns {number}
  */
-paper.CursorEvent.prototype.y = function() {
+event.CursorEvent.prototype.y = function() {
   return this.bb.readInt32(this.bb_pos + 4);
 };
 
 /**
  * @returns {number}
  */
-paper.CursorEvent.prototype.uid = function() {
+event.CursorEvent.prototype.uid = function() {
   return this.bb.readUint32(this.bb_pos + 8);
 };
 
@@ -402,7 +334,7 @@ paper.CursorEvent.prototype.uid = function() {
  * @param {number} uid
  * @returns {flatbuffers.Offset}
  */
-paper.CursorEvent.createCursorEvent = function(builder, x, y, uid) {
+event.CursorEvent.createCursorEvent = function(builder, x, y, uid) {
   builder.prep(4, 12);
   builder.writeInt32(uid);
   builder.writeInt32(y);
@@ -413,7 +345,7 @@ paper.CursorEvent.createCursorEvent = function(builder, x, y, uid) {
 /**
  * @constructor
  */
-paper.Point = function() {
+event.Point = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -428,9 +360,9 @@ paper.Point = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {paper.Point}
+ * @returns {event.Point}
  */
-paper.Point.prototype.__init = function(i, bb) {
+event.Point.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -439,14 +371,14 @@ paper.Point.prototype.__init = function(i, bb) {
 /**
  * @returns {number}
  */
-paper.Point.prototype.x = function() {
+event.Point.prototype.x = function() {
   return this.bb.readUint16(this.bb_pos);
 };
 
 /**
  * @returns {number}
  */
-paper.Point.prototype.y = function() {
+event.Point.prototype.y = function() {
   return this.bb.readUint16(this.bb_pos + 2);
 };
 
@@ -456,7 +388,7 @@ paper.Point.prototype.y = function() {
  * @param {number} y
  * @returns {flatbuffers.Offset}
  */
-paper.Point.createPoint = function(builder, x, y) {
+event.Point.createPoint = function(builder, x, y) {
   builder.prep(2, 4);
   builder.writeInt16(y);
   builder.writeInt16(x);
@@ -466,7 +398,7 @@ paper.Point.createPoint = function(builder, x, y) {
 /**
  * @constructor
  */
-paper.Color = function() {
+event.Color = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -481,9 +413,9 @@ paper.Color = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {paper.Color}
+ * @returns {event.Color}
  */
-paper.Color.prototype.__init = function(i, bb) {
+event.Color.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -492,21 +424,21 @@ paper.Color.prototype.__init = function(i, bb) {
 /**
  * @returns {number}
  */
-paper.Color.prototype.r = function() {
+event.Color.prototype.r = function() {
   return this.bb.readUint8(this.bb_pos);
 };
 
 /**
  * @returns {number}
  */
-paper.Color.prototype.g = function() {
+event.Color.prototype.g = function() {
   return this.bb.readUint8(this.bb_pos + 1);
 };
 
 /**
  * @returns {number}
  */
-paper.Color.prototype.b = function() {
+event.Color.prototype.b = function() {
   return this.bb.readUint8(this.bb_pos + 2);
 };
 
@@ -517,7 +449,7 @@ paper.Color.prototype.b = function() {
  * @param {number} b
  * @returns {flatbuffers.Offset}
  */
-paper.Color.createColor = function(builder, r, g, b) {
+event.Color.createColor = function(builder, r, g, b) {
   builder.prep(1, 3);
   builder.writeInt8(b);
   builder.writeInt8(g);
@@ -528,7 +460,7 @@ paper.Color.createColor = function(builder, r, g, b) {
 /**
  * @constructor
  */
-paper.ObjectUpdateEvent = function() {
+event.ObjectUpdateEvent = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -543,9 +475,9 @@ paper.ObjectUpdateEvent = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {paper.ObjectUpdateEvent}
+ * @returns {event.ObjectUpdateEvent}
  */
-paper.ObjectUpdateEvent.prototype.__init = function(i, bb) {
+event.ObjectUpdateEvent.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -553,62 +485,62 @@ paper.ObjectUpdateEvent.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {paper.ObjectUpdateEvent=} obj
- * @returns {paper.ObjectUpdateEvent}
+ * @param {event.ObjectUpdateEvent=} obj
+ * @returns {event.ObjectUpdateEvent}
  */
-paper.ObjectUpdateEvent.getRootAsObjectUpdateEvent = function(bb, obj) {
-  return (obj || new paper.ObjectUpdateEvent).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+event.ObjectUpdateEvent.getRootAsObjectUpdateEvent = function(bb, obj) {
+  return (obj || new event.ObjectUpdateEvent).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {paper.ObjectUpdateEvent=} obj
- * @returns {paper.ObjectUpdateEvent}
+ * @param {event.ObjectUpdateEvent=} obj
+ * @returns {event.ObjectUpdateEvent}
  */
-paper.ObjectUpdateEvent.getSizePrefixedRootAsObjectUpdateEvent = function(bb, obj) {
+event.ObjectUpdateEvent.getSizePrefixedRootAsObjectUpdateEvent = function(bb, obj) {
   bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-  return (obj || new paper.ObjectUpdateEvent).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+  return (obj || new event.ObjectUpdateEvent).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @returns {number}
  */
-paper.ObjectUpdateEvent.prototype.id = function() {
+event.ObjectUpdateEvent.prototype.id = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readUint32(this.bb_pos + offset) : 0;
 };
 
 /**
- * @returns {paper.ObjectType}
+ * @returns {event.ObjectType}
  */
-paper.ObjectUpdateEvent.prototype.type = function() {
+event.ObjectUpdateEvent.prototype.type = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? /** @type {paper.ObjectType} */ (this.bb.readInt8(this.bb_pos + offset)) : paper.ObjectType.Line;
+  return offset ? /** @type {event.ObjectType} */ (this.bb.readInt8(this.bb_pos + offset)) : event.ObjectType.Line;
 };
 
 /**
- * @param {paper.Color=} obj
- * @returns {paper.Color|null}
+ * @param {event.Color=} obj
+ * @returns {event.Color|null}
  */
-paper.ObjectUpdateEvent.prototype.color = function(obj) {
+event.ObjectUpdateEvent.prototype.color = function(obj) {
   var offset = this.bb.__offset(this.bb_pos, 8);
-  return offset ? (obj || new paper.Color).__init(this.bb_pos + offset, this.bb) : null;
+  return offset ? (obj || new event.Color).__init(this.bb_pos + offset, this.bb) : null;
 };
 
 /**
  * @param {number} index
- * @param {paper.Point=} obj
- * @returns {paper.Point}
+ * @param {event.Point=} obj
+ * @returns {event.Point}
  */
-paper.ObjectUpdateEvent.prototype.points = function(index, obj) {
+event.ObjectUpdateEvent.prototype.points = function(index, obj) {
   var offset = this.bb.__offset(this.bb_pos, 10);
-  return offset ? (obj || new paper.Point).__init(this.bb.__vector(this.bb_pos + offset) + index * 4, this.bb) : null;
+  return offset ? (obj || new event.Point).__init(this.bb.__vector(this.bb_pos + offset) + index * 4, this.bb) : null;
 };
 
 /**
  * @returns {number}
  */
-paper.ObjectUpdateEvent.prototype.pointsLength = function() {
+event.ObjectUpdateEvent.prototype.pointsLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 10);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -616,7 +548,7 @@ paper.ObjectUpdateEvent.prototype.pointsLength = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-paper.ObjectUpdateEvent.startObjectUpdateEvent = function(builder) {
+event.ObjectUpdateEvent.startObjectUpdateEvent = function(builder) {
   builder.startObject(4);
 };
 
@@ -624,23 +556,23 @@ paper.ObjectUpdateEvent.startObjectUpdateEvent = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {number} id
  */
-paper.ObjectUpdateEvent.addId = function(builder, id) {
+event.ObjectUpdateEvent.addId = function(builder, id) {
   builder.addFieldInt32(0, id, 0);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {paper.ObjectType} type
+ * @param {event.ObjectType} type
  */
-paper.ObjectUpdateEvent.addType = function(builder, type) {
-  builder.addFieldInt8(1, type, paper.ObjectType.Line);
+event.ObjectUpdateEvent.addType = function(builder, type) {
+  builder.addFieldInt8(1, type, event.ObjectType.Line);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} colorOffset
  */
-paper.ObjectUpdateEvent.addColor = function(builder, colorOffset) {
+event.ObjectUpdateEvent.addColor = function(builder, colorOffset) {
   builder.addFieldStruct(2, colorOffset, 0);
 };
 
@@ -648,7 +580,7 @@ paper.ObjectUpdateEvent.addColor = function(builder, colorOffset) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} pointsOffset
  */
-paper.ObjectUpdateEvent.addPoints = function(builder, pointsOffset) {
+event.ObjectUpdateEvent.addPoints = function(builder, pointsOffset) {
   builder.addFieldOffset(3, pointsOffset, 0);
 };
 
@@ -656,7 +588,7 @@ paper.ObjectUpdateEvent.addPoints = function(builder, pointsOffset) {
  * @param {flatbuffers.Builder} builder
  * @param {number} numElems
  */
-paper.ObjectUpdateEvent.startPointsVector = function(builder, numElems) {
+event.ObjectUpdateEvent.startPointsVector = function(builder, numElems) {
   builder.startVector(4, numElems, 2);
 };
 
@@ -664,7 +596,7 @@ paper.ObjectUpdateEvent.startPointsVector = function(builder, numElems) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-paper.ObjectUpdateEvent.endObjectUpdateEvent = function(builder) {
+event.ObjectUpdateEvent.endObjectUpdateEvent = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -672,24 +604,24 @@ paper.ObjectUpdateEvent.endObjectUpdateEvent = function(builder) {
 /**
  * @param {flatbuffers.Builder} builder
  * @param {number} id
- * @param {paper.ObjectType} type
+ * @param {event.ObjectType} type
  * @param {flatbuffers.Offset} colorOffset
  * @param {flatbuffers.Offset} pointsOffset
  * @returns {flatbuffers.Offset}
  */
-paper.ObjectUpdateEvent.createObjectUpdateEvent = function(builder, id, type, colorOffset, pointsOffset) {
-  paper.ObjectUpdateEvent.startObjectUpdateEvent(builder);
-  paper.ObjectUpdateEvent.addId(builder, id);
-  paper.ObjectUpdateEvent.addType(builder, type);
-  paper.ObjectUpdateEvent.addColor(builder, colorOffset);
-  paper.ObjectUpdateEvent.addPoints(builder, pointsOffset);
-  return paper.ObjectUpdateEvent.endObjectUpdateEvent(builder);
+event.ObjectUpdateEvent.createObjectUpdateEvent = function(builder, id, type, colorOffset, pointsOffset) {
+  event.ObjectUpdateEvent.startObjectUpdateEvent(builder);
+  event.ObjectUpdateEvent.addId(builder, id);
+  event.ObjectUpdateEvent.addType(builder, type);
+  event.ObjectUpdateEvent.addColor(builder, colorOffset);
+  event.ObjectUpdateEvent.addPoints(builder, pointsOffset);
+  return event.ObjectUpdateEvent.endObjectUpdateEvent(builder);
 }
 
 /**
  * @constructor
  */
-paper.ObjectAddPointsEvent = function() {
+event.ObjectAddPointsEvent = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -704,9 +636,9 @@ paper.ObjectAddPointsEvent = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {paper.ObjectAddPointsEvent}
+ * @returns {event.ObjectAddPointsEvent}
  */
-paper.ObjectAddPointsEvent.prototype.__init = function(i, bb) {
+event.ObjectAddPointsEvent.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -714,45 +646,45 @@ paper.ObjectAddPointsEvent.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {paper.ObjectAddPointsEvent=} obj
- * @returns {paper.ObjectAddPointsEvent}
+ * @param {event.ObjectAddPointsEvent=} obj
+ * @returns {event.ObjectAddPointsEvent}
  */
-paper.ObjectAddPointsEvent.getRootAsObjectAddPointsEvent = function(bb, obj) {
-  return (obj || new paper.ObjectAddPointsEvent).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+event.ObjectAddPointsEvent.getRootAsObjectAddPointsEvent = function(bb, obj) {
+  return (obj || new event.ObjectAddPointsEvent).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {paper.ObjectAddPointsEvent=} obj
- * @returns {paper.ObjectAddPointsEvent}
+ * @param {event.ObjectAddPointsEvent=} obj
+ * @returns {event.ObjectAddPointsEvent}
  */
-paper.ObjectAddPointsEvent.getSizePrefixedRootAsObjectAddPointsEvent = function(bb, obj) {
+event.ObjectAddPointsEvent.getSizePrefixedRootAsObjectAddPointsEvent = function(bb, obj) {
   bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-  return (obj || new paper.ObjectAddPointsEvent).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+  return (obj || new event.ObjectAddPointsEvent).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @returns {number}
  */
-paper.ObjectAddPointsEvent.prototype.id = function() {
+event.ObjectAddPointsEvent.prototype.id = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readUint32(this.bb_pos + offset) : 0;
 };
 
 /**
  * @param {number} index
- * @param {paper.Point=} obj
- * @returns {paper.Point}
+ * @param {event.Point=} obj
+ * @returns {event.Point}
  */
-paper.ObjectAddPointsEvent.prototype.points = function(index, obj) {
+event.ObjectAddPointsEvent.prototype.points = function(index, obj) {
   var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? (obj || new paper.Point).__init(this.bb.__vector(this.bb_pos + offset) + index * 4, this.bb) : null;
+  return offset ? (obj || new event.Point).__init(this.bb.__vector(this.bb_pos + offset) + index * 4, this.bb) : null;
 };
 
 /**
  * @returns {number}
  */
-paper.ObjectAddPointsEvent.prototype.pointsLength = function() {
+event.ObjectAddPointsEvent.prototype.pointsLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -760,7 +692,7 @@ paper.ObjectAddPointsEvent.prototype.pointsLength = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-paper.ObjectAddPointsEvent.startObjectAddPointsEvent = function(builder) {
+event.ObjectAddPointsEvent.startObjectAddPointsEvent = function(builder) {
   builder.startObject(2);
 };
 
@@ -768,7 +700,7 @@ paper.ObjectAddPointsEvent.startObjectAddPointsEvent = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {number} id
  */
-paper.ObjectAddPointsEvent.addId = function(builder, id) {
+event.ObjectAddPointsEvent.addId = function(builder, id) {
   builder.addFieldInt32(0, id, 0);
 };
 
@@ -776,7 +708,7 @@ paper.ObjectAddPointsEvent.addId = function(builder, id) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} pointsOffset
  */
-paper.ObjectAddPointsEvent.addPoints = function(builder, pointsOffset) {
+event.ObjectAddPointsEvent.addPoints = function(builder, pointsOffset) {
   builder.addFieldOffset(1, pointsOffset, 0);
 };
 
@@ -784,7 +716,7 @@ paper.ObjectAddPointsEvent.addPoints = function(builder, pointsOffset) {
  * @param {flatbuffers.Builder} builder
  * @param {number} numElems
  */
-paper.ObjectAddPointsEvent.startPointsVector = function(builder, numElems) {
+event.ObjectAddPointsEvent.startPointsVector = function(builder, numElems) {
   builder.startVector(4, numElems, 2);
 };
 
@@ -792,7 +724,7 @@ paper.ObjectAddPointsEvent.startPointsVector = function(builder, numElems) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-paper.ObjectAddPointsEvent.endObjectAddPointsEvent = function(builder) {
+event.ObjectAddPointsEvent.endObjectAddPointsEvent = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -803,17 +735,17 @@ paper.ObjectAddPointsEvent.endObjectAddPointsEvent = function(builder) {
  * @param {flatbuffers.Offset} pointsOffset
  * @returns {flatbuffers.Offset}
  */
-paper.ObjectAddPointsEvent.createObjectAddPointsEvent = function(builder, id, pointsOffset) {
-  paper.ObjectAddPointsEvent.startObjectAddPointsEvent(builder);
-  paper.ObjectAddPointsEvent.addId(builder, id);
-  paper.ObjectAddPointsEvent.addPoints(builder, pointsOffset);
-  return paper.ObjectAddPointsEvent.endObjectAddPointsEvent(builder);
+event.ObjectAddPointsEvent.createObjectAddPointsEvent = function(builder, id, pointsOffset) {
+  event.ObjectAddPointsEvent.startObjectAddPointsEvent(builder);
+  event.ObjectAddPointsEvent.addId(builder, id);
+  event.ObjectAddPointsEvent.addPoints(builder, pointsOffset);
+  return event.ObjectAddPointsEvent.endObjectAddPointsEvent(builder);
 }
 
 /**
  * @constructor
  */
-paper.ObjectDeleteEvent = function() {
+event.ObjectDeleteEvent = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -828,9 +760,9 @@ paper.ObjectDeleteEvent = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {paper.ObjectDeleteEvent}
+ * @returns {event.ObjectDeleteEvent}
  */
-paper.ObjectDeleteEvent.prototype.__init = function(i, bb) {
+event.ObjectDeleteEvent.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -838,27 +770,27 @@ paper.ObjectDeleteEvent.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {paper.ObjectDeleteEvent=} obj
- * @returns {paper.ObjectDeleteEvent}
+ * @param {event.ObjectDeleteEvent=} obj
+ * @returns {event.ObjectDeleteEvent}
  */
-paper.ObjectDeleteEvent.getRootAsObjectDeleteEvent = function(bb, obj) {
-  return (obj || new paper.ObjectDeleteEvent).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+event.ObjectDeleteEvent.getRootAsObjectDeleteEvent = function(bb, obj) {
+  return (obj || new event.ObjectDeleteEvent).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {paper.ObjectDeleteEvent=} obj
- * @returns {paper.ObjectDeleteEvent}
+ * @param {event.ObjectDeleteEvent=} obj
+ * @returns {event.ObjectDeleteEvent}
  */
-paper.ObjectDeleteEvent.getSizePrefixedRootAsObjectDeleteEvent = function(bb, obj) {
+event.ObjectDeleteEvent.getSizePrefixedRootAsObjectDeleteEvent = function(bb, obj) {
   bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-  return (obj || new paper.ObjectDeleteEvent).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+  return (obj || new event.ObjectDeleteEvent).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @returns {number}
  */
-paper.ObjectDeleteEvent.prototype.id = function() {
+event.ObjectDeleteEvent.prototype.id = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readUint32(this.bb_pos + offset) : 0;
 };
@@ -866,7 +798,7 @@ paper.ObjectDeleteEvent.prototype.id = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-paper.ObjectDeleteEvent.startObjectDeleteEvent = function(builder) {
+event.ObjectDeleteEvent.startObjectDeleteEvent = function(builder) {
   builder.startObject(1);
 };
 
@@ -874,7 +806,7 @@ paper.ObjectDeleteEvent.startObjectDeleteEvent = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {number} id
  */
-paper.ObjectDeleteEvent.addId = function(builder, id) {
+event.ObjectDeleteEvent.addId = function(builder, id) {
   builder.addFieldInt32(0, id, 0);
 };
 
@@ -882,7 +814,7 @@ paper.ObjectDeleteEvent.addId = function(builder, id) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-paper.ObjectDeleteEvent.endObjectDeleteEvent = function(builder) {
+event.ObjectDeleteEvent.endObjectDeleteEvent = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -892,11 +824,11 @@ paper.ObjectDeleteEvent.endObjectDeleteEvent = function(builder) {
  * @param {number} id
  * @returns {flatbuffers.Offset}
  */
-paper.ObjectDeleteEvent.createObjectDeleteEvent = function(builder, id) {
-  paper.ObjectDeleteEvent.startObjectDeleteEvent(builder);
-  paper.ObjectDeleteEvent.addId(builder, id);
-  return paper.ObjectDeleteEvent.endObjectDeleteEvent(builder);
+event.ObjectDeleteEvent.createObjectDeleteEvent = function(builder, id) {
+  event.ObjectDeleteEvent.startObjectDeleteEvent(builder);
+  event.ObjectDeleteEvent.addId(builder, id);
+  return event.ObjectDeleteEvent.endObjectDeleteEvent(builder);
 }
 
 // Exports for Node.js and RequireJS
-this.paper = paper;
+this.event = event;

@@ -1,4 +1,4 @@
-namespace paper;
+namespace event;
 
 //define the events here
 union Event { 
@@ -9,9 +9,8 @@ union Event {
     UserEvent,
 }
 
-//one websocket received message has multiple events
 table Message {
-  events:[Event];
+  event: Event;
 }
       
 //info about a user (todo: add color/icon etc)

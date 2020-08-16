@@ -79,9 +79,10 @@ Transfer/sec:      2.97GB
 #include "log.hpp"
 #include "msg_session.hpp"
 
+#include "messages_generated.h"
+
 #include "plugin_config.hpp"
 
-#include "messages_generated.h"
 
 FileCacher file_cacher("../wwwdir");
 
@@ -142,14 +143,12 @@ main(const int, const char**)
                     return;
                   }
 
-                  DEB("MSG");
                   //todo: stream of messages in one websocket message
                   if (!event::VerifyEvent(flatbuffers::Verifier(message_buffer.data(), message_buffer.length())))
                   {
                     ERROR("Corrupt flatbuffer received.");
                     return;
                   }
-                  DEB("VERIFYOK");
 
 
                   auto message = event::GetMessage(message_buffer.data());
@@ -161,7 +160,6 @@ main(const int, const char**)
                     return;
                   }
 
-                DEB("HANDCHECK" << event_type);
                   if (handlers[event_type]==nullptr)
                   {
                     ERROR("Handler not set: " << event::EnumNameEvent(event_type));
@@ -170,7 +168,6 @@ main(const int, const char**)
 
                   {
                     try {
-DEB("HAND");
                         
                         handlers[event_type](msg_session, message);
 

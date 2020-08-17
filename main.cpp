@@ -144,7 +144,8 @@ main(const int, const char**)
                   }
 
                   //todo: stream of messages in one websocket message
-                  if (!event::VerifyEvent(flatbuffers::Verifier(message_buffer.data(), message_buffer.length())))
+                  
+                  if (!event::VerifyMessageBuffer(flatbuffers::Verifier(message_buffer.data(), message_buffer.length())))
                   {
                     ERROR("Corrupt flatbuffer received.");
                     return;

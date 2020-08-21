@@ -3,31 +3,9 @@
  *
  * This framework is designed with performance and scalability in mind. All
  * design decisions are made accordingly:
- *  - I choose uwebsockets because its the fastest out here. (first did some
- * testing with restbed which is awesome as well)
- *  - I choose rapidjson because its the fastest AND it has a nice DOM API. (and
- * stable and secure as well, its created by the desginers of Weechat i think,
- * it has regression testing and 100% testing coverage)
- *  - We dont use regular cookies (for performance reasons, we send up to 25
- * POSTs per second)
- *  - Note that a "session" here is an active websocket from the server to
- * a javascript instance in the browser. Not to be confused with regular php
- * session stuff.
+ *  - I choose uwebsockets because its the fastest out here. (first did some  testing with restbed which is awesome as well)
+ *  - I switched to binary flatbuffers because of performance, and it still has a nice api. Also nice streaming support to store growing objects on the server. ( Tried rapidjson first: I choose rapidjson because its the fastest AND it has a nice DOM API. (and stable and secure as well, its created by the desginers of Weechat i think)
  *
- * The external message format (json) between browser and server:
- *  - Messages from/to server have the same format:
- *
- *    [ "eventname", data ]
- *  - Data can be any json compatible structure.
- *
- *  - As soon as this connection dies, the session becomes invalid and all is
- * lost. :)  (javascript stuff will nicely reconnect/resync)
- *
- * The internal message format (C++):
- *  - For performance reasons we stay as close to rapidjson as possible, so we
- * dont have to create extra copies or datastructures.
- *  - EventHandlers are called with references to the rapidjson document object.
- *  - Only after execution of all eventhandlers the object will be discarded.
  *
  *
  *
@@ -51,7 +29,6 @@ Transfer/sec:      2.97GB
 */
 
 #define ENABLE_SSL false
-#define RAPIDJSON_HAS_STDSTRING 1
 
 #include <chrono>
 #include <cstdlib>
@@ -67,11 +44,6 @@ Transfer/sec:      2.97GB
 #include <fstream>
 #include <iostream>
 #include <thread>
-
-#include <rapidjson/document.h>
-#include <rapidjson/error/en.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/writer.h>
 
 #include "filecache.hpp"
 
@@ -151,7 +123,6 @@ main(const int, const char**)
                     return;
                   }
 
-
                   auto message = event::GetMessage(message_buffer.data());
                   auto event_type=message->event_type();
 
@@ -185,6 +156,7 @@ main(const int, const char**)
                 [](auto* ws) {
                   // buffered amount changed, check if we have some more queued
                   // messages that can be send
+                  //TODO: optimize/test. not wait until its completely empty?
                   if (ws->getBufferedAmount() == 0) {
                     DEB("backpressure gone, sending queue");
 

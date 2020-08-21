@@ -35,9 +35,7 @@ add_custom_command(
 #add_dependencies(${PROJECT_NAME} usockets)
 set_property(SOURCE main.cpp APPEND PROPERTY OBJECT_DEPENDS ${LIBUSOCKETS})
 
-############################# build rapid json
-include("${CMAKE_SOURCE_DIR}/rapidjson.cmake")
-add_dependencies(${PROJECT_NAME} rapidjson)
+
 
 ############################# build flatbuffers flatc compiler
 include("${CMAKE_SOURCE_DIR}/flatbuffers.cmake")
@@ -73,7 +71,6 @@ set_property(SOURCE main.cpp APPEND PROPERTY OBJECT_DEPENDS ${CMAKE_SOURCE_DIR}/
 include_directories(
     # ${EXTERNAL_PROJECTS_INSTALL_PREFIX}/include
     ${CMAKE_SOURCE_DIR}
-    ${RAPIDJSON_INCLUDE_DIR}
     ${FLATBUFFERS_INCLUDE_DIR}
     ${CMAKE_SOURCE_DIR}/lib/uWebSockets/src
     ${CMAKE_SOURCE_DIR}/lib/uWebSockets/uSockets/src

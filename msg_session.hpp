@@ -16,8 +16,6 @@
 
 #include "msg.hpp"
 
-// rapidjson
-// #include "rapidjson/stringbuffer.h"
 #include "messages_generated.h"
 
 // NOTE: uwebsockets can only be used from the correct thread. so be carefull

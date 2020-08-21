@@ -27,13 +27,13 @@ struct register_handler
 {
   register_handler(enum event::EventUnion event, handler_type handler)
   {
-    // if (handlers.find(name) != handlers.end()) {
-    //   std::stringstream msg;
-    //   msg << "Handler '" << name << "' already registered.";
-    //   throw(program_error(msg.str()));
-    // }
+    if (handlers[event]!=nullptr) {
+      std::stringstream msg;
+      msg << "Handler '" << event::EnumNameEventUnion(event) << "' nr=" << event << " already registered.";
+      throw(program_error(msg.str()));
+    }
     handlers[event] = handler;
-    INFO("Registered handler " << event);
+    INFO("Registered handler " <<  event::EnumNameEventUnion(event));
   };
 };
 

@@ -10,6 +10,7 @@
  * server. ( Tried rapidjson first: I choose rapidjson because its the fastest
  * AND it has a nice DOM API. (and stable and secure as well, its created by the
  * desginers of Weechat i think)
+ * - Seastar is also an interesting event framework to look at, but it doesnt have websockets yet, and it seems overkill: uses polling, so always uses 100% cpu, and build to use with dedicated 10Gb hardware.
  *
  *
  *

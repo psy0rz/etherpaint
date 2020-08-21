@@ -79,7 +79,7 @@ public:
       while (!msg_queue.empty() && !ws->getBufferedAmount()) {
         static int i = 0;
         i++;
-        DEB("send " << i << " q=" << msg_queue.size());
+        // DEB("send " << i << " q=" << msg_queue.size());
         auto & msg_serialized = msg_queue.back();
 
         std::string_view msg_view(reinterpret_cast<char *>(msg_serialized.GetBufferPointer()), msg_serialized.GetSize());
@@ -88,11 +88,11 @@ public:
 
         //check
      
-        auto message = event::GetMessage(msg_serialized.GetBufferPointer());
-        auto event_type=message->event_type();
-        DEB("SEND EVENT TYPE" << event_type);
-        auto kut=message->kut();
-        DEB("SEND kut" << kut);
+        // auto message = event::GetMessage(msg_serialized.GetBufferPointer());
+        // auto event_type=message->event_type();
+        // DEB("SEND EVENT TYPE" << event_type);
+        // auto kut=message->kut(); 
+        // DEB("SEND kut" << kut);
 
         msg_queue.pop_back();  //destroys flatbuffer
 

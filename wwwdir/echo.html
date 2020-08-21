@@ -124,13 +124,15 @@
 
                 ws.onmessage = function (evt) {
                     recvcount++;
-                    console.log("type ",typeof(evt.data));
-                    console.log("data ", evt.data);
                     buf = new flatbuffers.ByteBuffer(new Uint8Array(evt.data));
 
-                    msg=event.Message.getRootAsMessage(buf);
-                    // console.log(msg.eventType());
-                    console.log("kut =" , msg.kut());
+                    msg = event.Message.getRootAsMessage(buf);
+                    if (msg.eventType() == event.EventUnion.Echo)
+                    {
+                        console.log(",mpoi");
+                        ping();
+                    }
+         
 
                     // if (msg.starttime) {
                     //     diff = (new Date()) - msg.starttime;

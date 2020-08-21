@@ -20,11 +20,11 @@
 // });
 
 register_handler echo(event::EventUnion_Echo, [](auto msg_session, auto msg) {
-  DEB("ECHoooo");
+  // DEB("ECHoooo");
 
   auto echo = static_cast<const event::Echo*>(msg->event());
 
-  DEB("ontvangen " << echo->payload()->str() << " en kut " << msg->kut());
+  // DEB("ontvangen " << echo->payload()->str() << " en kut " << msg->kut());
 
   // msg_session->enqueue(msg);
   // static flatbuffers::FlatBufferBuilder builder(1024);
@@ -41,7 +41,7 @@ register_handler echo(event::EventUnion_Echo, [](auto msg_session, auto msg) {
     1111));
 
 
-  DEB("enq")
+  // DEB("enq")
 
   msg_session->enqueue(msg_serialized);
 

@@ -24,6 +24,14 @@
         "sstream": "cpp",
         "streambuf": "cpp",
         "utility": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "atomic": "cpp",
+        "chrono": "cpp",
+        "exception": "cpp",
+        "iterator": "cpp",
+        "iosfwd": "cpp",
+        "new": "cpp",
+        "ratio": "cpp",
+        "type_traits": "cpp"
     },
 }

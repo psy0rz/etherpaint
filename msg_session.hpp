@@ -14,8 +14,11 @@
 #include <Loop.h>
 #include <WebSocket.h>
 
+#include "msg.hpp"
+
 // rapidjson
-#include "rapidjson/stringbuffer.h"
+// #include "rapidjson/stringbuffer.h"
+#include "messages_generated.h"
 
 // NOTE: uwebsockets can only be used from the correct thread. so be carefull
 // and defer stuff to websocket thread when needed.
@@ -25,7 +28,7 @@ class MsgSession : public std::enable_shared_from_this<MsgSession>
 private:
   uWS::WebSocket<ENABLE_SSL, true>* ws;
   uWS::Loop* loop;
-  std::deque<std::shared_ptr<msg_type>> msg_queue;
+  std::deque<  msg_serialized_type > msg_queue;
   std::mutex msg_queue_mutex;
 
 public:
@@ -60,7 +63,7 @@ public:
     ;
   }
 
-  // serialize and send all queued messages until backpressure has build up.
+  // send queued messages until backpressure has build up.
   // when backpressure is down/changed this will be called again.
   //(called from ws thread)
   void send_queue()
@@ -74,23 +77,30 @@ public:
     // int before = msg_queue.size();
     ws->cork([this]() {
       while (!msg_queue.empty() && !ws->getBufferedAmount()) {
-        static int i=0;
+        static int i = 0;
         i++;
         DEB("send " << i << " q=" << msg_queue.size());
-        auto msg = msg_queue.back();
-        msg_queue.pop_back();
+        auto & msg_serialized = msg_queue.back();
 
-        rapidjson::StringBuffer serialized_msg;
-        rapidjson::Writer<rapidjson::StringBuffer> writer(serialized_msg);
-        msg->Accept(writer);
+        std::string_view msg_view(reinterpret_cast<char *>(msg_serialized.GetBufferPointer()), msg_serialized.GetSize());
 
-        if (!ws->send(serialized_msg.GetString(), uWS::TEXT, true))
+        auto ok=ws->send(msg_view, uWS::BINARY, true);
+
+        //check
+     
+        auto message = event::GetMessage(msg_serialized.GetBufferPointer());
+        auto event_type=message->event_type();
+        DEB("SEND EVENT TYPE" << event_type);
+        auto kut=message->kut();
+        DEB("SEND kut" << kut);
+
+        msg_queue.pop_back();  //destroys flatbuffer
+
+        if (!ok)
           break;
       }
-
     });
-    if (msg_queue.size()!=0)
-    {
+    if (msg_queue.size() != 0) {
       DEB("got backpresure, messages left in queue: " << msg_queue.size());
     }
   }
@@ -98,7 +108,7 @@ public:
   // enqueue message for this websocket, will inform websocket thread to start
   // sending if it isn't already.
   // (called from any thread)
-  void enqueue(std::shared_ptr<msg_type> msg)
+  void enqueue(msg_serialized_type & msg_serialized)
   {
     std::lock_guard<std::mutex> lock(msg_queue_mutex);
 
@@ -110,16 +120,16 @@ public:
         [msg_session = shared_from_this()]() { msg_session->send_queue(); });
     }
 
-    msg_queue.push_front(msg);
+    msg_queue.push_front(std::move(msg_serialized));
   }
 
   void enqueue_error(std::string error)
   {
-    auto msg = new_event("error");
+    // auto msg = new_event("error");
 
-    (*msg)["pars"].AddMember("description", error, msg->GetAllocator());
+    // (*msg)["pars"].AddMember("description", error, msg->GetAllocator());
 
-    enqueue(msg);
+    // enqueue(msg);
   }
 };
 

@@ -11,7 +11,7 @@
 
 // } testi;
 
-std::shared_ptr<MsgSession> lastsess;
+// std::shared_ptr<MsgSession> lastsess;
 // just echo the message back
 // register_handler echo("echo", [](auto msg_session, auto msg) {
 //   DEB("ECH");
@@ -19,16 +19,31 @@ std::shared_ptr<MsgSession> lastsess;
 //   // msg_session->enqueue(msg);
 // });
 
-register_handler echo(event::Event_Echo, [](auto msg_session, auto msg) {
+register_handler echo(event::EventUnion_Echo, [](auto msg_session, auto msg) {
   DEB("ECHoooo");
+
+  auto echo = static_cast<const event::Echo*>(msg->event());
+
+  DEB("ontvangen " << echo->payload()->str() << " en kut " << msg->kut());
+
   // msg_session->enqueue(msg);
-  static flatbuffers::FlatBufferBuilder builder(1024);
-  builder.Clear();
-  builder.Finish(event::CreateMessage(
-    builder,
-    event::Event::Event_Echo,
-    event::CreateEcho(builder, 123, 123, builder.CreateString("payload2"))
-      .Union()));
+  // static flatbuffers::FlatBufferBuilder builder(1024);
+  // auto new_msg=std::make_shared<msg_serialized_type>(200);
+  msg_serialized_type msg_serialized(200);
+
+  // msg_serialized->Clear();
+  msg_serialized.Finish(event::CreateMessage(
+    msg_serialized,
+    event::EventUnion_Echo,
+    event::CreateEcho(
+      msg_serialized, 123, 123, msg_serialized.CreateString("payload2"))
+      .Union(),
+    1111));
+
+
+  DEB("enq")
+
+  msg_session->enqueue(msg_serialized);
 
   // builder.Finish()
   //             builder.finish(

@@ -155,7 +155,7 @@ main(const int, const char**)
                   auto message = event::GetMessage(message_buffer.data());
                   auto event_type=message->event_type();
 
-                  if (event_type<0 || event_type>event::Event_MAX)
+                  if (event_type<0 || event_type>event::EventUnion_MAX)
                   {
                     ERROR("Invalid event type: " << event_type);
                     return;
@@ -163,7 +163,7 @@ main(const int, const char**)
 
                   if (handlers[event_type]==nullptr)
                   {
-                    ERROR("Handler not set: " << event::EnumNameEvent(event_type));
+                    ERROR("Handler not set: " << event::EnumNameEventUnion(event_type));
                     return;
                   }
 
@@ -173,7 +173,7 @@ main(const int, const char**)
                         handlers[event_type](msg_session, message);
 
                     } catch (std::exception e) {
-                      ERROR("Exception while handling " << event::EnumNameEvent(event_type)
+                      ERROR("Exception while handling " << event::EnumNameEventUnion(event_type)
                                                         << ": " << e.what());
 #ifndef NDEBUG
                       throw;
@@ -211,22 +211,22 @@ main(const int, const char**)
       });
     });
 
-  while (1) {
-    if (lastsess != nullptr) {
-      lastsess->enqueue_error(
-        "dummydatadummydatadummydatadummydatadummydatadummydatadummydatadummyda"
-        "tadummydatadummydatadummydatadummydatadummydatadummydatadummydatadummy"
-        "datadummydatadummydatadummydatadummydatadummydatadummydatadummydatadum"
-        "mydatadummydatadummydatadummydatadummydatadummydatadummydatadummydatad"
-        "ummydatadummydatadummydatadummydatadummydatadummydatadummydatadummydat"
-        "adummydatadummydatadummydatadummydatadummydatadummydatadummydatadummyd"
-        "atadummydatadummydatadummydatadummydatadummydatadummydatadummydatadumm"
-        "ydatadummydatadummydatadummydatadummydatadummydatadummydatadummydatadu"
-        "mmydatadummydatadummydatadummydatadummydatadummydatadummydatadummydata"
-        "dummydata");
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-  }
+  // while (1) {
+  //   if (lastsess != nullptr) {
+  //     lastsess->enqueue_error(
+  //       "dummydatadummydatadummydatadummydatadummydatadummydatadummydatadummyda"
+  //       "tadummydatadummydatadummydatadummydatadummydatadummydatadummydatadummy"
+  //       "datadummydatadummydatadummydatadummydatadummydatadummydatadummydatadum"
+  //       "mydatadummydatadummydatadummydatadummydatadummydatadummydatadummydatad"
+  //       "ummydatadummydatadummydatadummydatadummydatadummydatadummydatadummydat"
+  //       "adummydatadummydatadummydatadummydatadummydatadummydatadummydatadummyd"
+  //       "atadummydatadummydatadummydatadummydatadummydatadummydatadummydatadumm"
+  //       "ydatadummydatadummydatadummydatadummydatadummydatadummydatadummydatadu"
+  //       "mmydatadummydatadummydatadummydatadummydatadummydatadummydatadummydata"
+  //       "dummydata");
+  //   }
+  //   std::this_thread::sleep_for(std::chrono::milliseconds(1));
+  // }
 
   std::for_each(
     threads.begin(), threads.end(), [](std::thread* t) { t->join(); });

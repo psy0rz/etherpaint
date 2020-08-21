@@ -9,7 +9,7 @@ var event = event || {};
 /**
  * @enum {number}
  */
-event.Event = {
+event.EventUnion = {
   NONE: 0,
   CursorEvent: 1,
   ObjectUpdateEvent: 2,
@@ -22,7 +22,7 @@ event.Event = {
 /**
  * @enum {string}
  */
-event.EventName = {
+event.EventUnionName = {
   '0': 'NONE',
   '1': 'CursorEvent',
   '2': 'ObjectUpdateEvent',
@@ -98,11 +98,11 @@ event.Message.getSizePrefixedRootAsMessage = function(bb, obj) {
 };
 
 /**
- * @returns {event.Event}
+ * @returns {event.EventUnion}
  */
 event.Message.prototype.eventType = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? /** @type {event.Event} */ (this.bb.readUint8(this.bb_pos + offset)) : event.Event.NONE;
+  return offset ? /** @type {event.EventUnion} */ (this.bb.readUint8(this.bb_pos + offset)) : event.EventUnion.NONE;
 };
 
 /**
@@ -115,18 +115,26 @@ event.Message.prototype.event = function(obj) {
 };
 
 /**
- * @param {flatbuffers.Builder} builder
+ * @returns {number}
  */
-event.Message.startMessage = function(builder) {
-  builder.startObject(2);
+event.Message.prototype.kut = function() {
+  var offset = this.bb.__offset(this.bb_pos, 8);
+  return offset ? this.bb.readUint32(this.bb_pos + offset) : 123;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {event.Event} eventType
+ */
+event.Message.startMessage = function(builder) {
+  builder.startObject(3);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {event.EventUnion} eventType
  */
 event.Message.addEventType = function(builder, eventType) {
-  builder.addFieldInt8(0, eventType, event.Event.NONE);
+  builder.addFieldInt8(0, eventType, event.EventUnion.NONE);
 };
 
 /**
@@ -135,6 +143,14 @@ event.Message.addEventType = function(builder, eventType) {
  */
 event.Message.addEvent = function(builder, eventOffset) {
   builder.addFieldOffset(1, eventOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} kut
+ */
+event.Message.addKut = function(builder, kut) {
+  builder.addFieldInt32(2, kut, 123);
 };
 
 /**
@@ -164,14 +180,16 @@ event.Message.finishSizePrefixedMessageBuffer = function(builder, offset) {
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {event.Event} eventType
+ * @param {event.EventUnion} eventType
  * @param {flatbuffers.Offset} eventOffset
+ * @param {number} kut
  * @returns {flatbuffers.Offset}
  */
-event.Message.createMessage = function(builder, eventType, eventOffset) {
+event.Message.createMessage = function(builder, eventType, eventOffset, kut) {
   event.Message.startMessage(builder);
   event.Message.addEventType(builder, eventType);
   event.Message.addEvent(builder, eventOffset);
+  event.Message.addKut(builder, kut);
   return event.Message.endMessage(builder);
 }
 

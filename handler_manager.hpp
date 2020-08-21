@@ -16,16 +16,16 @@
 #include "messages_generated.h"
 
 typedef std::function<void(std::shared_ptr<MsgSession> & msg_session,
-                           const event::Message * message)>
+                           msg_type message)>
   handler_type;
 
-handler_type handlers[event::Event_MAX+1];
+handler_type handlers[event::EventUnion_MAX+1];
 
 // Thanks to hkaiser@#boost for helping me with the automatic handler
 // registration:
 struct register_handler
 {
-  register_handler(enum event::Event event, handler_type handler)
+  register_handler(enum event::EventUnion event, handler_type handler)
   {
     // if (handlers.find(name) != handlers.end()) {
     //   std::stringstream msg;

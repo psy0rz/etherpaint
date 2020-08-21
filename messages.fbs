@@ -8,6 +8,7 @@ union EventUnion {
     ObjectDeleteEvent,
     UserEvent,
     Echo,
+    Error,
 }
 
 table Message {
@@ -20,6 +21,11 @@ table Echo
   id: uint32;
   time: uint32;
   payload: string;
+}
+
+table Error
+{
+  description: string;
 }
 
 

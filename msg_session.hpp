@@ -26,7 +26,7 @@ class MsgSession : public std::enable_shared_from_this<MsgSession>
 private:
   uWS::WebSocket<ENABLE_SSL, true>* ws;
   uWS::Loop* loop;
-  std::deque<  msg_serialized_type > msg_queue;
+  std::deque<msg_serialized_type> msg_queue;
   std::mutex msg_queue_mutex;
 
 public:
@@ -78,21 +78,23 @@ public:
         static int i = 0;
         i++;
         // DEB("send " << i << " q=" << msg_queue.size());
-        auto & msg_serialized = msg_queue.back();
+        auto& msg_serialized = msg_queue.back();
 
-        std::string_view msg_view(reinterpret_cast<char *>(msg_serialized.GetBufferPointer()), msg_serialized.GetSize());
+        std::string_view msg_view(
+          reinterpret_cast<char*>(msg_serialized.GetBufferPointer()),
+          msg_serialized.GetSize());
 
-        auto ok=ws->send(msg_view, uWS::BINARY, true);
+        auto ok = ws->send(msg_view, uWS::BINARY, true);
 
-        //check
-     
+        // check
+
         // auto message = event::GetMessage(msg_serialized.GetBufferPointer());
         // auto event_type=message->event_type();
         // DEB("SEND EVENT TYPE" << event_type);
-        // auto kut=message->kut(); 
+        // auto kut=message->kut();
         // DEB("SEND kut" << kut);
 
-        msg_queue.pop_back();  //destroys flatbuffer
+        msg_queue.pop_back(); // destroys flatbuffer
 
         if (!ok)
           break;
@@ -106,7 +108,7 @@ public:
   // enqueue message for this websocket, will inform websocket thread to start
   // sending if it isn't already.
   // (called from any thread)
-  void enqueue(msg_serialized_type & msg_serialized)
+  void enqueue(msg_serialized_type& msg_serialized)
   {
     std::lock_guard<std::mutex> lock(msg_queue_mutex);
 
@@ -121,14 +123,20 @@ public:
     msg_queue.push_front(std::move(msg_serialized));
   }
 
-  void enqueue_error(std::string error)
+  // send error message
+  void enqueue_error(const std::string& description)
   {
-    // auto msg = new_event("error");
 
-    // (*msg)["pars"].AddMember("description", error, msg->GetAllocator());
+    msg_serialized_type msg_serialized(200);
+    msg_serialized.Finish(event::CreateMessage(
+      msg_serialized,
+      event::EventUnion_Error,
+      event::CreateError(
+        msg_serialized,
+        msg_serialized.CreateString(description))
+        .Union()));
 
-    // enqueue(msg);
+    enqueue(msg_serialized);
   }
 };
-
 #endif

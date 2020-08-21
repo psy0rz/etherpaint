@@ -76,7 +76,7 @@
             builder.finish(
                 event.Message.createMessage(
                     builder,
-                    event.EventUnion.Echo,
+                    event.EventUnion.Echo + 100,
                     event.Echo.createEcho(
                         builder,
                         id,
@@ -127,12 +127,16 @@
                     buf = new flatbuffers.ByteBuffer(new Uint8Array(evt.data));
 
                     msg = event.Message.getRootAsMessage(buf);
-                    if (msg.eventType() == event.EventUnion.Echo)
-                    {
-                        // console.log(",mpoi");
+                    if (msg.eventType() == event.EventUnion.Echo) {
                         ping();
                     }
-         
+                    else if (msg.eventType() == event.EventUnion.Error) {
+
+                        errorevent = msg.event(new event.Error());
+
+                        console.error(errorevent.description());
+                    }
+
 
                     // if (msg.starttime) {
                     //     diff = (new Date()) - msg.starttime;

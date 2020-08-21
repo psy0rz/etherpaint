@@ -3,8 +3,13 @@
  *
  * This framework is designed with performance and scalability in mind. All
  * design decisions are made accordingly:
- *  - I choose uwebsockets because its the fastest out here. (first did some  testing with restbed which is awesome as well)
- *  - I switched to binary flatbuffers because of performance, and it still has a nice api. Also nice streaming support to store growing objects on the server. ( Tried rapidjson first: I choose rapidjson because its the fastest AND it has a nice DOM API. (and stable and secure as well, its created by the desginers of Weechat i think)
+ *  - I choose uwebsockets because its the fastest out here. (first did some
+ * testing with restbed which is awesome as well)
+ *  - I switched to binary flatbuffers because of performance, and it still has
+ * a nice api. Also nice streaming support to store growing objects on the
+ * server. ( Tried rapidjson first: I choose rapidjson because its the fastest
+ * AND it has a nice DOM API. (and stable and secure as well, its created by the
+ * desginers of Weechat i think)
  *
  *
  *
@@ -54,7 +59,6 @@ Transfer/sec:      2.97GB
 #include "messages_generated.h"
 
 #include "plugin_config.hpp"
-
 
 FileCacher file_cacher("../wwwdir");
 
@@ -106,46 +110,52 @@ main(const int, const char**)
                 },
               // received websocket message
               .message =
-                [](auto* ws, std::string_view message_buffer, uWS::OpCode opCode) {
+                [](auto* ws,
+                   std::string_view message_buffer,
+                   uWS::OpCode opCode) {
                   auto& msg_session =
                     static_cast<PerSocketData*>(ws->getUserData())->msg_session;
 
                   if (opCode != uWS::BINARY) {
-                    ERROR("Received invalid websocket opcode");
+                    msg_session->enqueue_error(
+                      "Received invalid websocket opcode");
                     return;
                   }
 
-                  //todo: stream of messages in one websocket message
-                  
-                  if (!event::VerifyMessageBuffer(flatbuffers::Verifier(message_buffer.data(), message_buffer.length())))
-                  {
-                    ERROR("Corrupt flatbuffer received.");
+                  // todo: stream of messages in one websocket message
+
+                  if (!event::VerifyMessageBuffer(flatbuffers::Verifier(
+                        message_buffer.data(), message_buffer.length()))) {
+                    msg_session->enqueue_error("Corrupt flatbuffer received.");
                     return;
                   }
 
                   auto message = event::GetMessage(message_buffer.data());
-                  auto event_type=message->event_type();
+                  auto event_type = message->event_type();
 
-                  if (event_type<0 || event_type>event::EventUnion_MAX)
-                  {
-                    ERROR("Invalid event type: " << event_type);
-                    return;
-                  }
+                  if (event_type < 0 || event_type > event::EventUnion_MAX ||
+                      handlers[event_type] == nullptr) {
+                    std::stringstream desc;
+                    desc
+                      << "Invalid event type, no handler found for event_type="
+                      << event_type;
 
-                  if (handlers[event_type]==nullptr)
-                  {
-                    ERROR("Handler not set: " << event::EnumNameEventUnion(event_type));
+                    msg_session->enqueue_error(desc.str());
                     return;
                   }
 
                   {
                     try {
-                        
-                        handlers[event_type](msg_session, message);
+
+                      handlers[event_type](msg_session, message);
 
                     } catch (std::exception e) {
-                      ERROR("Exception while handling " << event::EnumNameEventUnion(event_type)
-                                                        << ": " << e.what());
+                      std::stringstream desc;
+                      desc << "Exception while handling "
+                           << event::EnumNameEventUnion(event_type) << ": "
+                           << e.what();
+                           msg_session->enqueue_error(desc.str());
+
 #ifndef NDEBUG
                       throw;
 #endif
@@ -156,7 +166,7 @@ main(const int, const char**)
                 [](auto* ws) {
                   // buffered amount changed, check if we have some more queued
                   // messages that can be send
-                  //TODO: optimize/test. not wait until its completely empty?
+                  // TODO: optimize/test. not wait until its completely empty?
                   if (ws->getBufferedAmount() == 0) {
                     DEB("backpressure gone, sending queue");
 

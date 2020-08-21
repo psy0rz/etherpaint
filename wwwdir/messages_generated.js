@@ -16,7 +16,8 @@ event.EventUnion = {
   ObjectAddPointsEvent: 3,
   ObjectDeleteEvent: 4,
   UserEvent: 5,
-  Echo: 6
+  Echo: 6,
+  Error: 7
 };
 
 /**
@@ -29,7 +30,8 @@ event.EventUnionName = {
   '3': 'ObjectAddPointsEvent',
   '4': 'ObjectDeleteEvent',
   '5': 'UserEvent',
-  '6': 'Echo'
+  '6': 'Echo',
+  '7': 'Error'
 };
 
 /**
@@ -316,6 +318,95 @@ event.Echo.createEcho = function(builder, id, time, payloadOffset) {
   event.Echo.addTime(builder, time);
   event.Echo.addPayload(builder, payloadOffset);
   return event.Echo.endEcho(builder);
+}
+
+/**
+ * @constructor
+ */
+event.Error = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {event.Error}
+ */
+event.Error.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {event.Error=} obj
+ * @returns {event.Error}
+ */
+event.Error.getRootAsError = function(bb, obj) {
+  return (obj || new event.Error).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {event.Error=} obj
+ * @returns {event.Error}
+ */
+event.Error.getSizePrefixedRootAsError = function(bb, obj) {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new event.Error).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array|null}
+ */
+event.Error.prototype.description = function(optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+event.Error.startError = function(builder) {
+  builder.startObject(1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} descriptionOffset
+ */
+event.Error.addDescription = function(builder, descriptionOffset) {
+  builder.addFieldOffset(0, descriptionOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+event.Error.endError = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} descriptionOffset
+ * @returns {flatbuffers.Offset}
+ */
+event.Error.createError = function(builder, descriptionOffset) {
+  event.Error.startError(builder);
+  event.Error.addDescription(builder, descriptionOffset);
+  return event.Error.endError(builder);
 }
 
 /**

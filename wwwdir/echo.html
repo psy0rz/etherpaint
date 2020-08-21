@@ -13,35 +13,35 @@
     <script>
 
 
-        // function ping(msg) {
+        function ping(msg) {
 
-        //     id = id + 1;
-        //     builder.clear();
-        //     builder.finish(
-        //         event.Message.createMessage(
-        //             builder,
-        //             event.EventUnion.Echo,
-        //             event.Echo.createEcho(
-        //                 builder,
-        //                 id,
-        //                 456,
-        //                 builder.createString("payloadddd")
-        //             ),
-        //             2222
-        //         )
-        //     );
-        //     ws.send(builder.asUint8Array());
-        // }
+            m.builder.clear();
+            m.builder.finish(
+                event.Message.createMessage(
+                    m.builder,
+                    event.EventUnion.Echo ,
+                    event.Echo.createEcho(
+                        m.builder,
+                        123,
+                        456,
+                        m.builder.createString("payloadddd")
+                    ),
+                    2222
+                )
+            );
+            m.send();
+        }
         m.start();
 
-        m.handlers[event.EventUnion.Error] = function (msg) {
-            console.log(msg);
+        m.handlers[event.EventUnion.Echo] = function (msg) {
+            // console.log(msg);
+            ping();
         }
 
 
-        m.handlers[event.EventUnion.Echo] = function (msg) {
+        m.handlers[event.EventUnion.Error] = function (msg) {
             error = msg.event(new event.Error());
-            console.error(error.description());
+            console.error("Server reports error: "+error.description());
         }
 
     </script>
@@ -54,7 +54,7 @@
     <pre id='stats'></pre>
 
 
-    <button onclick='addping(1); '>Add ping</button>
+    <button onclick='ping(1); '>Add ping</button>
     <button onclick='addping(1000);'>Add 1000 pings</button>
 
     <h1>Log</h1>

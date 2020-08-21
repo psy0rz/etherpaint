@@ -6,6 +6,13 @@ var m = {};
 //fixed builder we reuse every time we send a message
 m.builder = new flatbuffers.Builder(1);
 
+//sends current builder
+m.send = function()
+{
+    this.ws.send(this.builder.asUint8Array());
+}
+
+
 m.log = function (txt) {
     console.debug("messages.js: " + txt);
 }
@@ -43,8 +50,15 @@ m.restart = function () {
         var buf = new flatbuffers.ByteBuffer(new Uint8Array(evt.data));
         var msg = event.Message.getRootAsMessage(buf);
 
-        this.handlers[msg.eventType](msg);
-
+        var handler =m.handlers[msg.eventType()];
+        if (handler)
+        {
+            handler(msg);
+        }
+        else
+        {
+            m.log("Handler not found: "+ event.EventUnionName[msg.eventType()])
+        }
     };
 
     this.ws.onclose = function (evt) {
@@ -60,6 +74,3 @@ m.restart = function () {
 }
 
 m.start = m.restart;
-
-
-//setTimeout(open, 100);

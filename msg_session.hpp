@@ -15,8 +15,13 @@
 #include <WebSocket.h>
 
 #include "msg.hpp"
+// #include "shared_session.hpp"
 
 #include "messages_generated.h"
+
+class SharedSession;
+
+
 
 // NOTE: uwebsockets can only be used from the correct thread. so be carefull
 // and defer stuff to websocket thread when needed.
@@ -28,6 +33,7 @@ private:
   uWS::Loop* loop;
   std::deque<msg_serialized_type> msg_queue;
   std::mutex msg_queue_mutex;
+  std::shared_ptr<SharedSession> shared_session;
 
 public:
   // std::shared_ptr<MsgSession> getptr() {
@@ -111,6 +117,10 @@ public:
   void enqueue(msg_serialized_type& msg_serialized)
   {
     std::lock_guard<std::mutex> lock(msg_queue_mutex);
+
+    // ws was closed in the meantime
+    if (ws == nullptr)
+      return;
 
     // if queue was empty, ws will never call send_queue(), so make it call it
     if (msg_queue.empty()) {

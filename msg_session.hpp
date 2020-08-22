@@ -21,8 +21,6 @@
 
 class SharedSession;
 
-
-
 // NOTE: uwebsockets can only be used from the correct thread. so be carefull
 // and defer stuff to websocket thread when needed.
 
@@ -33,12 +31,28 @@ private:
   uWS::Loop* loop;
   std::deque<msg_serialized_type> msg_queue;
   std::mutex msg_queue_mutex;
+
+  // the session we have joined
   std::shared_ptr<SharedSession> shared_session;
 
 public:
-  // std::shared_ptr<MsgSession> getptr() {
-  //       return shared_from_this();
-  //   }
+  // join a shared session
+  void join(std::string id)
+  {
+    // auto join_shared_session=shared_sessions.find(id);
+
+    // //session doesnt exist?
+    // if (join_shared_session==shared_sessions.end() ||
+    // join_shared_session.second.expired())
+    // {
+    //   //create new shared session
+    //   shared_session=make_shared<SharedSession>();
+    //   shared_sessions[id]=shared_session;
+    // }
+
+    // shared_session=shared_sessions[id].join(shared_from_this);
+  }
+
   // called when ws is closed.
   // the session might be referenced to for a while by other threads or and
   // objects.
@@ -141,9 +155,8 @@ public:
     msg_serialized.Finish(event::CreateMessage(
       msg_serialized,
       event::EventUnion_Error,
-      event::CreateError(
-        msg_serialized,
-        msg_serialized.CreateString(description))
+      event::CreateError(msg_serialized,
+                         msg_serialized.CreateString(description))
         .Union()));
 
     enqueue(msg_serialized);

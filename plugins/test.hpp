@@ -2,9 +2,7 @@
 #include "shared_session.hpp"
 
 register_handler echo(event::EventUnion_Echo, [](auto msg_session, auto msg) {
-
-  auto echo=msg->event_as_Echo();
-
+  auto echo = msg->event_as_Echo();
 
   msg_serialized_type msg_serialized(200);
 
@@ -18,6 +16,4 @@ register_handler echo(event::EventUnion_Echo, [](auto msg_session, auto msg) {
     1111));
 
   msg_session->enqueue(msg_serialized);
-
 });
-

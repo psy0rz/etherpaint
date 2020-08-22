@@ -1,72 +1,60 @@
 
-#include <map>
-#include <mutex>
-#include <chrono>
-#include <string>
-#include <memory>
-#include <random>
-#include <cstdlib>
 #include "msg_session.hpp"
-
+#include <chrono>
+#include <cstdlib>
+#include <map>
+#include <memory>
+#include <mutex>
+#include <random>
+#include <string>
 
 class MsgSessionManager
 {
-    public:
-        MsgSessionManager( void ) : m_msg_sessions_lock( ),
-            m_msg_sessions( )
-        {
-            return;
-        }
-        
-        ~MsgSessionManager( void )
-        {
-            return;
-        }
-                
-        //create new MsgSession
-        shared_ptr<MsgSession> create( const shared_ptr<restbed::Session> & send_session)
-        {
-            auto msg_session=make_shared<MsgSession>(send_session);
+public:
+  MsgSessionManager(void)
+    : m_msg_sessions_lock()
+    , m_msg_sessions()
+  {
+    return;
+  }
 
-            {
-                unique_lock< mutex > lock( m_msg_sessions_lock );
+  ~MsgSessionManager(void) { return; }
 
-                m_msg_sessions[msg_session->m_id]=msg_session;
+  // create new MsgSession
+  shared_ptr<MsgSession> create(
+    const shared_ptr<restbed::Session>& send_session)
+  {
+    auto msg_session = make_shared<MsgSession>(send_session);
 
-            }            
+    {
+      unique_lock<mutex> lock(m_msg_sessions_lock);
 
-            return(msg_session);
-        }
-        
-        //find existing session (alsco prunes expired sessions)
-        shared_ptr<MsgSession> find( const string & id )
-        {
-            unique_lock< mutex > lock( m_msg_sessions_lock );
+      m_msg_sessions[msg_session->m_id] = msg_session;
+    }
 
-            
-            auto previous_session = m_msg_sessions.find( id );
-            if ( previous_session not_eq m_msg_sessions.end( ) )
-            {
-                //not closed?
-                if (!previous_session->second->expired())
-                {
-                    return(previous_session->second);
-                }
-            }
+    return (msg_session);
+  }
 
-            return(nullptr);
+  // find existing session (alsco prunes expired sessions)
+  shared_ptr<MsgSession> find(const string& id)
+  {
+    unique_lock<mutex> lock(m_msg_sessions_lock);
 
-        }
+    auto previous_session = m_msg_sessions.find(id);
+    if (previous_session not_eq m_msg_sessions.end()) {
+      // not closed?
+      if (!previous_session->second->expired()) {
+        return (previous_session->second);
+      }
+    }
 
-        void sendall()
-        {
+    return (nullptr);
+  }
 
-        }
-        
-        
-    private:
-        mutex m_msg_sessions_lock;
-        
-        map< string, shared_ptr< MsgSession > > m_msg_sessions;
+  void sendall() {}
+
+private:
+  mutex m_msg_sessions_lock;
+
+  map<string, shared_ptr<MsgSession>> m_msg_sessions;
 };
-

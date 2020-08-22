@@ -33,10 +33,10 @@
         }
         m.start();
 
-        m.handlers[event.EventUnion.Echo] = function (msg) {
-            // console.log(msg);
-            ping();
-        }
+        // m.handlers[event.EventUnion.Echo] = function (msg) {
+        //     // console.log(msg);
+        //     ping();
+        // }
 
 
         m.handlers[event.EventUnion.Error] = function (msg) {
@@ -44,6 +44,8 @@
             console.error("Server reports error: "+error.description());
         }
 
+
+        
     </script>
 
 </head>

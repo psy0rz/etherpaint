@@ -7,8 +7,7 @@ var m = {};
 m.builder = new flatbuffers.Builder(1);
 
 //sends current builder
-m.send = function()
-{
+m.send = function () {
     this.ws.send(this.builder.asUint8Array());
 }
 
@@ -50,25 +49,22 @@ m.restart = function () {
         var buf = new flatbuffers.ByteBuffer(new Uint8Array(evt.data));
         var msg = event.Message.getRootAsMessage(buf);
 
-        var handler =m.handlers[msg.eventType()];
-        if (handler)
-        {
+        var handler = m.handlers[msg.eventType()];
+        if (handler) {
             handler(msg);
         }
-        else
-        {
-            m.log("Handler not found: "+ event.EventUnionName[msg.eventType()])
+        else {
+            m.log("Handler not found: " + event.EventUnionName[msg.eventType()])
         }
+    };
+
+    this.ws.onerror = function (evt) {
+        m.log('Connection error');
     };
 
     this.ws.onclose = function (evt) {
         m.log('Disconnected, reconnecting.');
-        this.delayed_restart();
-    };
-
-    this.ws.onerror = function (evt) {
-        m.log('Error, reconnecting');
-        this.delayed_restart();
+        m.delayed_restart();
     };
 
 }

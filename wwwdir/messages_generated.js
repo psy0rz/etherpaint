@@ -11,13 +11,10 @@ var event = event || {};
  */
 event.EventUnion = {
   NONE: 0,
-  CursorEvent: 1,
-  ObjectUpdateEvent: 2,
-  ObjectAddPointsEvent: 3,
-  ObjectDeleteEvent: 4,
-  UserEvent: 5,
-  Echo: 6,
-  Error: 7
+  Echo: 1,
+  Error: 2,
+  Join: 3,
+  Leave: 4
 };
 
 /**
@@ -25,13 +22,10 @@ event.EventUnion = {
  */
 event.EventUnionName = {
   '0': 'NONE',
-  '1': 'CursorEvent',
-  '2': 'ObjectUpdateEvent',
-  '3': 'ObjectAddPointsEvent',
-  '4': 'ObjectDeleteEvent',
-  '5': 'UserEvent',
-  '6': 'Echo',
-  '7': 'Error'
+  '1': 'Echo',
+  '2': 'Error',
+  '3': 'Join',
+  '4': 'Leave'
 };
 
 /**
@@ -407,6 +401,165 @@ event.Error.createError = function(builder, descriptionOffset) {
   event.Error.startError(builder);
   event.Error.addDescription(builder, descriptionOffset);
   return event.Error.endError(builder);
+}
+
+/**
+ * @constructor
+ */
+event.Join = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {event.Join}
+ */
+event.Join.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {event.Join=} obj
+ * @returns {event.Join}
+ */
+event.Join.getRootAsJoin = function(bb, obj) {
+  return (obj || new event.Join).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {event.Join=} obj
+ * @returns {event.Join}
+ */
+event.Join.getSizePrefixedRootAsJoin = function(bb, obj) {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new event.Join).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array|null}
+ */
+event.Join.prototype.id = function(optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+event.Join.startJoin = function(builder) {
+  builder.startObject(1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} idOffset
+ */
+event.Join.addId = function(builder, idOffset) {
+  builder.addFieldOffset(0, idOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+event.Join.endJoin = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} idOffset
+ * @returns {flatbuffers.Offset}
+ */
+event.Join.createJoin = function(builder, idOffset) {
+  event.Join.startJoin(builder);
+  event.Join.addId(builder, idOffset);
+  return event.Join.endJoin(builder);
+}
+
+/**
+ * @constructor
+ */
+event.Leave = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {event.Leave}
+ */
+event.Leave.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {event.Leave=} obj
+ * @returns {event.Leave}
+ */
+event.Leave.getRootAsLeave = function(bb, obj) {
+  return (obj || new event.Leave).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {event.Leave=} obj
+ * @returns {event.Leave}
+ */
+event.Leave.getSizePrefixedRootAsLeave = function(bb, obj) {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new event.Leave).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+event.Leave.startLeave = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+event.Leave.endLeave = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+event.Leave.createLeave = function(builder) {
+  event.Leave.startLeave(builder);
+  return event.Leave.endLeave(builder);
 }
 
 /**

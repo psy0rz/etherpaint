@@ -17,6 +17,12 @@ struct EchoBuilder;
 struct Error;
 struct ErrorBuilder;
 
+struct Join;
+struct JoinBuilder;
+
+struct Leave;
+struct LeaveBuilder;
+
 struct UserEvent;
 struct UserEventBuilder;
 
@@ -41,6 +47,10 @@ inline const flatbuffers::TypeTable *EchoTypeTable();
 
 inline const flatbuffers::TypeTable *ErrorTypeTable();
 
+inline const flatbuffers::TypeTable *JoinTypeTable();
+
+inline const flatbuffers::TypeTable *LeaveTypeTable();
+
 inline const flatbuffers::TypeTable *UserEventTypeTable();
 
 inline const flatbuffers::TypeTable *CursorEventTypeTable();
@@ -57,48 +67,39 @@ inline const flatbuffers::TypeTable *ObjectDeleteEventTypeTable();
 
 enum EventUnion {
   EventUnion_NONE = 0,
-  EventUnion_CursorEvent = 1,
-  EventUnion_ObjectUpdateEvent = 2,
-  EventUnion_ObjectAddPointsEvent = 3,
-  EventUnion_ObjectDeleteEvent = 4,
-  EventUnion_UserEvent = 5,
-  EventUnion_Echo = 6,
-  EventUnion_Error = 7,
+  EventUnion_Echo = 1,
+  EventUnion_Error = 2,
+  EventUnion_Join = 3,
+  EventUnion_Leave = 4,
   EventUnion_MIN = EventUnion_NONE,
-  EventUnion_MAX = EventUnion_Error
+  EventUnion_MAX = EventUnion_Leave
 };
 
-inline const EventUnion (&EnumValuesEventUnion())[8] {
+inline const EventUnion (&EnumValuesEventUnion())[5] {
   static const EventUnion values[] = {
     EventUnion_NONE,
-    EventUnion_CursorEvent,
-    EventUnion_ObjectUpdateEvent,
-    EventUnion_ObjectAddPointsEvent,
-    EventUnion_ObjectDeleteEvent,
-    EventUnion_UserEvent,
     EventUnion_Echo,
-    EventUnion_Error
+    EventUnion_Error,
+    EventUnion_Join,
+    EventUnion_Leave
   };
   return values;
 }
 
 inline const char * const *EnumNamesEventUnion() {
-  static const char * const names[9] = {
+  static const char * const names[6] = {
     "NONE",
-    "CursorEvent",
-    "ObjectUpdateEvent",
-    "ObjectAddPointsEvent",
-    "ObjectDeleteEvent",
-    "UserEvent",
     "Echo",
     "Error",
+    "Join",
+    "Leave",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameEventUnion(EventUnion e) {
-  if (flatbuffers::IsOutRange(e, EventUnion_NONE, EventUnion_Error)) return "";
+  if (flatbuffers::IsOutRange(e, EventUnion_NONE, EventUnion_Leave)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesEventUnion()[index];
 }
@@ -107,32 +108,20 @@ template<typename T> struct EventUnionTraits {
   static const EventUnion enum_value = EventUnion_NONE;
 };
 
-template<> struct EventUnionTraits<event::CursorEvent> {
-  static const EventUnion enum_value = EventUnion_CursorEvent;
-};
-
-template<> struct EventUnionTraits<event::ObjectUpdateEvent> {
-  static const EventUnion enum_value = EventUnion_ObjectUpdateEvent;
-};
-
-template<> struct EventUnionTraits<event::ObjectAddPointsEvent> {
-  static const EventUnion enum_value = EventUnion_ObjectAddPointsEvent;
-};
-
-template<> struct EventUnionTraits<event::ObjectDeleteEvent> {
-  static const EventUnion enum_value = EventUnion_ObjectDeleteEvent;
-};
-
-template<> struct EventUnionTraits<event::UserEvent> {
-  static const EventUnion enum_value = EventUnion_UserEvent;
-};
-
 template<> struct EventUnionTraits<event::Echo> {
   static const EventUnion enum_value = EventUnion_Echo;
 };
 
 template<> struct EventUnionTraits<event::Error> {
   static const EventUnion enum_value = EventUnion_Error;
+};
+
+template<> struct EventUnionTraits<event::Join> {
+  static const EventUnion enum_value = EventUnion_Join;
+};
+
+template<> struct EventUnionTraits<event::Leave> {
+  static const EventUnion enum_value = EventUnion_Leave;
 };
 
 bool VerifyEventUnion(flatbuffers::Verifier &verifier, const void *obj, EventUnion type);
@@ -276,26 +265,17 @@ struct Message FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     return GetPointer<const void *>(VT_EVENT);
   }
   template<typename T> const T *event_as() const;
-  const event::CursorEvent *event_as_CursorEvent() const {
-    return event_type() == event::EventUnion_CursorEvent ? static_cast<const event::CursorEvent *>(event()) : nullptr;
-  }
-  const event::ObjectUpdateEvent *event_as_ObjectUpdateEvent() const {
-    return event_type() == event::EventUnion_ObjectUpdateEvent ? static_cast<const event::ObjectUpdateEvent *>(event()) : nullptr;
-  }
-  const event::ObjectAddPointsEvent *event_as_ObjectAddPointsEvent() const {
-    return event_type() == event::EventUnion_ObjectAddPointsEvent ? static_cast<const event::ObjectAddPointsEvent *>(event()) : nullptr;
-  }
-  const event::ObjectDeleteEvent *event_as_ObjectDeleteEvent() const {
-    return event_type() == event::EventUnion_ObjectDeleteEvent ? static_cast<const event::ObjectDeleteEvent *>(event()) : nullptr;
-  }
-  const event::UserEvent *event_as_UserEvent() const {
-    return event_type() == event::EventUnion_UserEvent ? static_cast<const event::UserEvent *>(event()) : nullptr;
-  }
   const event::Echo *event_as_Echo() const {
     return event_type() == event::EventUnion_Echo ? static_cast<const event::Echo *>(event()) : nullptr;
   }
   const event::Error *event_as_Error() const {
     return event_type() == event::EventUnion_Error ? static_cast<const event::Error *>(event()) : nullptr;
+  }
+  const event::Join *event_as_Join() const {
+    return event_type() == event::EventUnion_Join ? static_cast<const event::Join *>(event()) : nullptr;
+  }
+  const event::Leave *event_as_Leave() const {
+    return event_type() == event::EventUnion_Leave ? static_cast<const event::Leave *>(event()) : nullptr;
   }
   uint32_t kut() const {
     return GetField<uint32_t>(VT_KUT, 123);
@@ -310,32 +290,20 @@ struct Message FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   }
 };
 
-template<> inline const event::CursorEvent *Message::event_as<event::CursorEvent>() const {
-  return event_as_CursorEvent();
-}
-
-template<> inline const event::ObjectUpdateEvent *Message::event_as<event::ObjectUpdateEvent>() const {
-  return event_as_ObjectUpdateEvent();
-}
-
-template<> inline const event::ObjectAddPointsEvent *Message::event_as<event::ObjectAddPointsEvent>() const {
-  return event_as_ObjectAddPointsEvent();
-}
-
-template<> inline const event::ObjectDeleteEvent *Message::event_as<event::ObjectDeleteEvent>() const {
-  return event_as_ObjectDeleteEvent();
-}
-
-template<> inline const event::UserEvent *Message::event_as<event::UserEvent>() const {
-  return event_as_UserEvent();
-}
-
 template<> inline const event::Echo *Message::event_as<event::Echo>() const {
   return event_as_Echo();
 }
 
 template<> inline const event::Error *Message::event_as<event::Error>() const {
   return event_as_Error();
+}
+
+template<> inline const event::Join *Message::event_as<event::Join>() const {
+  return event_as_Join();
+}
+
+template<> inline const event::Leave *Message::event_as<event::Leave>() const {
+  return event_as_Leave();
 }
 
 struct MessageBuilder {
@@ -507,6 +475,94 @@ inline flatbuffers::Offset<Error> CreateErrorDirect(
   return event::CreateError(
       _fbb,
       description__);
+}
+
+struct Join FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef JoinBuilder Builder;
+  static const flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return JoinTypeTable();
+  }
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ID = 4
+  };
+  const flatbuffers::String *id() const {
+    return GetPointer<const flatbuffers::String *>(VT_ID);
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_ID) &&
+           verifier.VerifyString(id()) &&
+           verifier.EndTable();
+  }
+};
+
+struct JoinBuilder {
+  typedef Join Table;
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_id(flatbuffers::Offset<flatbuffers::String> id) {
+    fbb_.AddOffset(Join::VT_ID, id);
+  }
+  explicit JoinBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  JoinBuilder &operator=(const JoinBuilder &);
+  flatbuffers::Offset<Join> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<Join>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<Join> CreateJoin(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    flatbuffers::Offset<flatbuffers::String> id = 0) {
+  JoinBuilder builder_(_fbb);
+  builder_.add_id(id);
+  return builder_.Finish();
+}
+
+inline flatbuffers::Offset<Join> CreateJoinDirect(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    const char *id = nullptr) {
+  auto id__ = id ? _fbb.CreateString(id) : 0;
+  return event::CreateJoin(
+      _fbb,
+      id__);
+}
+
+struct Leave FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef LeaveBuilder Builder;
+  static const flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return LeaveTypeTable();
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           verifier.EndTable();
+  }
+};
+
+struct LeaveBuilder {
+  typedef Leave Table;
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  explicit LeaveBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  LeaveBuilder &operator=(const LeaveBuilder &);
+  flatbuffers::Offset<Leave> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<Leave>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<Leave> CreateLeave(
+    flatbuffers::FlatBufferBuilder &_fbb) {
+  LeaveBuilder builder_(_fbb);
+  return builder_.Finish();
 }
 
 struct UserEvent FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
@@ -784,31 +840,20 @@ inline bool VerifyEventUnion(flatbuffers::Verifier &verifier, const void *obj, E
     case EventUnion_NONE: {
       return true;
     }
-    case EventUnion_CursorEvent: {
-      return verifier.Verify<event::CursorEvent>(static_cast<const uint8_t *>(obj), 0);
-    }
-    case EventUnion_ObjectUpdateEvent: {
-      auto ptr = reinterpret_cast<const event::ObjectUpdateEvent *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
-    case EventUnion_ObjectAddPointsEvent: {
-      auto ptr = reinterpret_cast<const event::ObjectAddPointsEvent *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
-    case EventUnion_ObjectDeleteEvent: {
-      auto ptr = reinterpret_cast<const event::ObjectDeleteEvent *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
-    case EventUnion_UserEvent: {
-      auto ptr = reinterpret_cast<const event::UserEvent *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
     case EventUnion_Echo: {
       auto ptr = reinterpret_cast<const event::Echo *>(obj);
       return verifier.VerifyTable(ptr);
     }
     case EventUnion_Error: {
       auto ptr = reinterpret_cast<const event::Error *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case EventUnion_Join: {
+      auto ptr = reinterpret_cast<const event::Join *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case EventUnion_Leave: {
+      auto ptr = reinterpret_cast<const event::Leave *>(obj);
       return verifier.VerifyTable(ptr);
     }
     default: return true;
@@ -833,32 +878,23 @@ inline const flatbuffers::TypeTable *EventUnionTypeTable() {
     { flatbuffers::ET_SEQUENCE, 0, 0 },
     { flatbuffers::ET_SEQUENCE, 0, 1 },
     { flatbuffers::ET_SEQUENCE, 0, 2 },
-    { flatbuffers::ET_SEQUENCE, 0, 3 },
-    { flatbuffers::ET_SEQUENCE, 0, 4 },
-    { flatbuffers::ET_SEQUENCE, 0, 5 },
-    { flatbuffers::ET_SEQUENCE, 0, 6 }
+    { flatbuffers::ET_SEQUENCE, 0, 3 }
   };
   static const flatbuffers::TypeFunction type_refs[] = {
-    event::CursorEventTypeTable,
-    event::ObjectUpdateEventTypeTable,
-    event::ObjectAddPointsEventTypeTable,
-    event::ObjectDeleteEventTypeTable,
-    event::UserEventTypeTable,
     event::EchoTypeTable,
-    event::ErrorTypeTable
+    event::ErrorTypeTable,
+    event::JoinTypeTable,
+    event::LeaveTypeTable
   };
   static const char * const names[] = {
     "NONE",
-    "CursorEvent",
-    "ObjectUpdateEvent",
-    "ObjectAddPointsEvent",
-    "ObjectDeleteEvent",
-    "UserEvent",
     "Echo",
-    "Error"
+    "Error",
+    "Join",
+    "Leave"
   };
   static const flatbuffers::TypeTable tt = {
-    flatbuffers::ST_UNION, 8, type_codes, type_refs, nullptr, names
+    flatbuffers::ST_UNION, 5, type_codes, type_refs, nullptr, names
   };
   return &tt;
 }
@@ -931,6 +967,26 @@ inline const flatbuffers::TypeTable *ErrorTypeTable() {
   };
   static const flatbuffers::TypeTable tt = {
     flatbuffers::ST_TABLE, 1, type_codes, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
+inline const flatbuffers::TypeTable *JoinTypeTable() {
+  static const flatbuffers::TypeCode type_codes[] = {
+    { flatbuffers::ET_STRING, 0, -1 }
+  };
+  static const char * const names[] = {
+    "id"
+  };
+  static const flatbuffers::TypeTable tt = {
+    flatbuffers::ST_TABLE, 1, type_codes, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
+inline const flatbuffers::TypeTable *LeaveTypeTable() {
+  static const flatbuffers::TypeTable tt = {
+    flatbuffers::ST_TABLE, 0, nullptr, nullptr, nullptr, nullptr
   };
   return &tt;
 }

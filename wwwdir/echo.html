@@ -14,12 +14,11 @@
 
 
         function ping(msg) {
-
             m.builder.clear();
             m.builder.finish(
                 event.Message.createMessage(
                     m.builder,
-                    event.EventUnion.Echo ,
+                    event.EventUnion.Echo,
                     event.Echo.createEcho(
                         m.builder,
                         123,
@@ -31,6 +30,24 @@
             );
             m.send();
         }
+
+
+        function join(id) {
+            m.builder.clear();
+            m.builder.finish(
+                event.Message.createMessage(
+                    m.builder,
+                    event.EventUnion.Join,
+                    event.Join.createJoin(
+                        m.builder,
+                        m.builder.createString("test")
+                    ),
+                )
+            );
+            m.send();
+
+        }
+
         m.start();
 
         // m.handlers[event.EventUnion.Echo] = function (msg) {
@@ -41,11 +58,11 @@
 
         m.handlers[event.EventUnion.Error] = function (msg) {
             error = msg.event(new event.Error());
-            console.error("Server reports error: "+error.description());
+            console.error("Server reports error: " + error.description());
         }
 
 
-        
+
     </script>
 
 </head>

@@ -32,13 +32,16 @@ private:
   std::deque<msg_serialized_type> msg_queue;
   std::mutex msg_queue_mutex;
 
-  // the session we have joined
+  // the session we have currently joined (if any)
   std::shared_ptr<SharedSession> shared_session;
 
 public:
   // join a shared session
-  void join(std::string id)
+  void join(std::shared_ptr<SharedSession> shared_session)
   {
+    this->shared_session=shared_session;
+    shared_session->join(shared_from_this());
+
     // auto join_shared_session=shared_sessions.find(id);
 
     // //session doesnt exist?

@@ -17,3 +17,10 @@ register_handler echo(event::EventUnion_Echo, [](auto msg_session, auto msg) {
 
   msg_session->enqueue(msg_serialized);
 });
+
+register_handler join(event::EventUnion_Join, [](auto msg_session, auto msg) {
+  auto join = msg->event_as_Join();
+  
+  msg_session->join(SharedSession::get(join->id()->str()));
+
+});

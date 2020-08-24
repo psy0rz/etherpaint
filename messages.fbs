@@ -2,19 +2,17 @@ namespace event;
 
 //define the events here
 union EventUnion { 
-    CursorEvent,
-    ObjectUpdateEvent,
-    ObjectAddPointsEvent,
-    ObjectDeleteEvent,
-    UserEvent,
     Echo,
     Error,
+    Join,
+    Leave
 }
 
 table Message {
   event: EventUnion;
   kut: uint32=123;
 }
+
       
 table Echo
 {
@@ -29,6 +27,17 @@ table Error
 }
 
 
+table Join
+{
+  id: string;
+}
+
+table Leave
+{
+}
+
+
+//paper stuff
 //info about a user (todo: add color/icon etc)
 table UserEvent
 {

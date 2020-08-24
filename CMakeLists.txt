@@ -8,10 +8,10 @@ include(ExternalProject)
 
 
 ############################ main project
-file(GLOB sources *.cpp)
-MESSAGE(STATUS "Detected source files: ${sources}")
+#file(GLOB sources *.cpp)
+#MESSAGE(STATUS "Detected source files: ${sources}")
 
-add_executable(${PROJECT_NAME} ${sources})
+add_executable(${PROJECT_NAME} main.cpp msg_session.cpp config.h shared_session.cpp)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_STANDARD 17

@@ -34,7 +34,7 @@ Transfer/sec:      2.97GB
 
 */
 
-#define ENABLE_SSL false
+#include "config.h"
 
 #include <chrono>
 #include <cstdlib>
@@ -55,164 +55,163 @@ Transfer/sec:      2.97GB
 
 #include "handler_manager.hpp"
 #include "log.hpp"
-#include "msg_session.hpp"
+#include "msg_session.h"
 
+#include "flatbuffers/flatbuffers.h"
 #include "messages_generated.h"
 
 #include "plugin_config.hpp"
 
 FileCacher file_cacher("../wwwdir");
 
-struct PerSocketData
-{
-  std::shared_ptr<MsgSession> msg_session;
+struct PerSocketData {
+    std::shared_ptr<MsgSession> msg_session;
 };
 
 int
-main(const int, const char**)
-{
-  std::vector<std::thread*> threads(std::thread::hardware_concurrency());
+main(const int, const char **) {
+    std::vector<std::thread *> threads(std::thread::hardware_concurrency());
 
-  std::transform(
-    threads.begin(), threads.end(), threads.begin(), [](std::thread* t) {
-      return new std::thread([]() {
-        uWS::TemplatedApp<ENABLE_SSL>({ .key_file_name = "/home/psy/key.pem",
-                                        .cert_file_name = "/home/psy/cert.pem",
-                                        .passphrase = "" })
-          .get("/*",
-               [](auto* res, auto* req) {
-                 DEB("get " << req->getUrl())
-                 auto file = file_cacher.get(std::string(req->getUrl()));
+    std::transform(
+            threads.begin(), threads.end(), threads.begin(), [](std::thread *t) {
+                return new std::thread([]() {
+                    uWS::TemplatedApp<ENABLE_SSL>({.key_file_name = "/home/psy/key.pem",
+                                                          .cert_file_name = "/home/psy/cert.pem",
+                                                          .passphrase = ""})
+                            .get("/*",
+                                 [](auto *res, auto *req) {
+                                     DEB("get " << req->getUrl())
+                                     auto file = file_cacher.get(std::string(req->getUrl()));
 
-                 if (file == file_cacher.m_cached_files.end()) {
-                   res->writeStatus("404");
-                   res->end("not found");
-                 } else
-                   res->end(file->second.m_view);
+                                     if (file == file_cacher.m_cached_files.end()) {
+                                         res->writeStatus("404");
+                                         res->end("not found");
+                                     } else
+                                         res->end(file->second.m_view);
 
-                 return;
-               })
-          .ws<PerSocketData>(
-            "/ws",
-            { //  .compression = uWS::SHARED_COMPRESSOR,
-              .compression = uWS::DISABLED,
-              .maxPayloadLength = 1024,
-              .idleTimeout = 1000,
-              .maxBackpressure = 0,
-              /* Handlers */
-              .open =
-                [](auto* ws) {
-                  DEB("websocket open from IP "
-                      << ws->getRemoteAddressAsText());
-                  // create message session
-                  auto msg_session = std::make_shared<MsgSession>(ws);
-                  static_cast<PerSocketData*>(ws->getUserData())->msg_session =
-                    msg_session;
-                },
-              // received websocket message
-              .message =
-                [](auto* ws,
-                   std::string_view message_buffer,
-                   uWS::OpCode opCode) {
-                  auto& msg_session =
-                    static_cast<PerSocketData*>(ws->getUserData())->msg_session;
+                                     return;
+                                 })
+                            .ws<PerSocketData>(
+                                    "/ws",
+                                    { //  .compression = uWS::SHARED_COMPRESSOR,
+                                            .compression = uWS::DISABLED,
+                                            .maxPayloadLength = 1024,
+                                            .idleTimeout = 1000,
+                                            .maxBackpressure = 0,
+                                            /* Handlers */
+                                            .open =
+                                            [](auto *ws) {
+                                                DEB("websocket open from IP "
+                                                            << ws->getRemoteAddressAsText());
+                                                // create message session
+                                                auto msg_session = std::make_shared<MsgSession>(ws);
+                                                static_cast<PerSocketData *>(ws->getUserData())->msg_session =
+                                                        msg_session;
+                                            },
+                                            // received websocket message
+                                            .message =
+                                            [](auto *ws,
+                                               std::string_view message_buffer,
+                                               uWS::OpCode opCode) {
+                                                auto &msg_session =
+                                                        static_cast<PerSocketData *>(ws->getUserData())->msg_session;
 
-                  if (opCode != uWS::BINARY) {
-                    msg_session->enqueue_error(
-                      "Received invalid websocket opcode");
-                    return;
-                  }
+                                                if (opCode != uWS::BINARY) {
+                                                    msg_session->enqueue_error(
+                                                            "Received invalid websocket opcode");
+                                                    return;
+                                                }
 
-                  // todo: stream of messages in one websocket message
+                                                // todo: stream of messages in one websocket message
 
-                  if (!event::VerifyMessageBuffer(flatbuffers::Verifier(
-                        message_buffer.data(), message_buffer.length()))) {
-                    msg_session->enqueue_error("Corrupt flatbuffer received.");
-                    return;
-                  }
+                                                if (!event::VerifyMessageBuffer(flatbuffers::Verifier(
+                                                        message_buffer.data(), message_buffer.length()))) {
+                                                    msg_session->enqueue_error("Corrupt flatbuffer received.");
+                                                    return;
+                                                }
 
-                  auto message = event::GetMessage(message_buffer.data());
-                  auto event_type = message->event_type();
+                                                auto message = event::GetMessage(message_buffer.data());
+                                                auto event_type = message->event_type();
 
-                  if (event_type < 0 || event_type > event::EventUnion_MAX ||
-                      handlers[event_type] == nullptr) {
-                    std::stringstream desc;
-                    desc
-                      << "Invalid event type, no handler found for event_type="
-                      << event_type;
+                                                if (event_type < 0 || event_type > event::EventUnion_MAX ||
+                                                    handlers[event_type] == nullptr) {
+                                                    std::stringstream desc;
+                                                    desc
+                                                            << "Invalid event type, no handler found for event_type="
+                                                            << event_type;
 
-                    msg_session->enqueue_error(desc.str());
-                    return;
-                  }
+                                                    msg_session->enqueue_error(desc.str());
+                                                    return;
+                                                }
 
-                  {
-                    try {
+                                                {
+                                                    try {
 
-                      handlers[event_type](msg_session, message);
+                                                        handlers[event_type](msg_session, message);
 
-                    } catch (std::exception e) {
-                      std::stringstream desc;
-                      desc << "Exception while handling "
-                           << event::EnumNameEventUnion(event_type) << ": "
-                           << e.what();
-                           msg_session->enqueue_error(desc.str());
+                                                    } catch (std::exception e) {
+                                                        std::stringstream desc;
+                                                        desc << "Exception while handling "
+                                                             << event::EnumNameEventUnion(event_type) << ": "
+                                                             << e.what();
+                                                        msg_session->enqueue_error(desc.str());
 
 #ifndef NDEBUG
-                      throw;
+                                                        throw;
 #endif
-                    }
-                  }
-                },
-              .drain =
-                [](auto* ws) {
-                  // buffered amount changed, check if we have some more queued
-                  // messages that can be send
-                  // TODO: optimize/test. not wait until its completely empty?
-                  if (ws->getBufferedAmount() == 0) {
-                    DEB("backpressure gone, sending queue");
+                                                    }
+                                                }
+                                            },
+                                            .drain =
+                                            [](auto *ws) {
+                                                // buffered amount changed, check if we have some more queued
+                                                // messages that can be send
+                                                // TODO: optimize/test. not wait until its completely empty?
+                                                if (ws->getBufferedAmount() == 0) {
+                                                    DEB("backpressure gone, sending queue");
 
-                    static_cast<PerSocketData*>(ws->getUserData())
-                      ->msg_session->send_queue();
-                  }
-                },
-              .ping = [](auto* ws) { DEB("websocket ping" << ws); },
-              .pong = [](auto* ws) { DEB("websocket pong" << ws); },
-              .close =
-                [](auto* ws, int code, std::string_view message) {
-                  // DEB("websocket close" << ws);
-                  static_cast<PerSocketData*>(ws->getUserData())
-                    ->msg_session->closed();
-                } })
+                                                    static_cast<PerSocketData *>(ws->getUserData())
+                                                            ->msg_session->send_queue();
+                                                }
+                                            },
+                                            .ping = [](auto *ws) {DEB("websocket ping" << ws); },
+                                            .pong = [](auto *ws) {DEB("websocket pong" << ws); },
+                                            .close =
+                                            [](auto *ws, int code, std::string_view message) {
+                                                // DEB("websocket close" << ws);
+                                                static_cast<PerSocketData *>(ws->getUserData())
+                                                        ->msg_session->closed();
+                                            }})
 
-          .listen(3000,
-                  [](auto* token) {
-                    if (token) {
-                      INFO("Listening");
-                    }
-                  })
-          .run();
-      });
-    });
+                            .listen(3000,
+                                    [](auto *token) {
+                                        if (token) {
+                                            INFO("Listening");
+                                        }
+                                    })
+                            .run();
+                });
+            });
 
-  // while (1) {
-  //   if (lastsess != nullptr) {
-  //     lastsess->enqueue_error(
-  //       "dummydatadummydatadummydatadummydatadummydatadummydatadummydatadummyda"
-  //       "tadummydatadummydatadummydatadummydatadummydatadummydatadummydatadummy"
-  //       "datadummydatadummydatadummydatadummydatadummydatadummydatadummydatadum"
-  //       "mydatadummydatadummydatadummydatadummydatadummydatadummydatadummydatad"
-  //       "ummydatadummydatadummydatadummydatadummydatadummydatadummydatadummydat"
-  //       "adummydatadummydatadummydatadummydatadummydatadummydatadummydatadummyd"
-  //       "atadummydatadummydatadummydatadummydatadummydatadummydatadummydatadumm"
-  //       "ydatadummydatadummydatadummydatadummydatadummydatadummydatadummydatadu"
-  //       "mmydatadummydatadummydatadummydatadummydatadummydatadummydatadummydata"
-  //       "dummydata");
-  //   }
-  //   std::this_thread::sleep_for(std::chrono::milliseconds(1));
-  // }
+    // while (1) {
+    //   if (lastsess != nullptr) {
+    //     lastsess->enqueue_error(
+    //       "dummydatadummydatadummydatadummydatadummydatadummydatadummydatadummyda"
+    //       "tadummydatadummydatadummydatadummydatadummydatadummydatadummydatadummy"
+    //       "datadummydatadummydatadummydatadummydatadummydatadummydatadummydatadum"
+    //       "mydatadummydatadummydatadummydatadummydatadummydatadummydatadummydatad"
+    //       "ummydatadummydatadummydatadummydatadummydatadummydatadummydatadummydat"
+    //       "adummydatadummydatadummydatadummydatadummydatadummydatadummydatadummyd"
+    //       "atadummydatadummydatadummydatadummydatadummydatadummydatadummydatadumm"
+    //       "ydatadummydatadummydatadummydatadummydatadummydatadummydatadummydatadu"
+    //       "mmydatadummydatadummydatadummydatadummydatadummydatadummydatadummydata"
+    //       "dummydata");
+    //   }
+    //   std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    // }
 
-  std::for_each(
-    threads.begin(), threads.end(), [](std::thread* t) { t->join(); });
-  ERROR("FAILED to listen");
-  return EXIT_SUCCESS;
+    std::for_each(
+            threads.begin(), threads.end(), [](std::thread *t) { t->join(); });
+    ERROR("FAILED to listen");
+    return EXIT_SUCCESS;
 }

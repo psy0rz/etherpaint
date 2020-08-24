@@ -1,5 +1,5 @@
 #include "messages_generated.h"
-#include "shared_session.hpp"
+#include "shared_session.h"
 
 register_handler echo(event::EventUnion_Echo, [](auto msg_session, auto msg) {
   auto echo = msg->event_as_Echo();

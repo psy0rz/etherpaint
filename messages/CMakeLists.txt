@@ -13,7 +13,7 @@ include(ExternalProject)
 #MESSAGE(STATUS "Detected source files: ${sources}")
 
 #add_executable(${PROJECT_NAME} main.cpp messages/MsgSession.cpp config.h messages/SharedSession.cpp SharedPaper.cpp)
-add_library(${PROJECT_NAME} messages.cpp MsgSession.cpp SharedSession.cpp messages.h)
+add_library(${PROJECT_NAME} messages.cpp MsgSession.cpp SharedSession.cpp messages.h register_handler.cpp)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
         CXX_STANDARD 20

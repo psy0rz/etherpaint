@@ -52,14 +52,14 @@ Transfer/sec:      2.97GB
 
 #include "messages/filecache.hpp"
 
-#include "messages/register_handler.hpp"
+//#include "messages/register_handler.hpp"
 #include "messages/log.hpp"
 #include "messages/MsgSession.h"
 
 #include "flatbuffers/flatbuffers.h"
 #include "messages_generated.h"
+#include "register_handler.h"
 
-#include "plugin_config.hpp"
 
 FileCacher file_cacher("../wwwdir");
 

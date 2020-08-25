@@ -10,7 +10,6 @@ union EventUnion {
 
 table Message {
   event: EventUnion;
-  kut: uint32=123;
 }
 
       

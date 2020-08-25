@@ -111,18 +111,10 @@ event.Message.prototype.event = function(obj) {
 };
 
 /**
- * @returns {number}
- */
-event.Message.prototype.kut = function() {
-  var offset = this.bb.__offset(this.bb_pos, 8);
-  return offset ? this.bb.readUint32(this.bb_pos + offset) : 123;
-};
-
-/**
  * @param {flatbuffers.Builder} builder
  */
 event.Message.startMessage = function(builder) {
-  builder.startObject(3);
+  builder.startObject(2);
 };
 
 /**
@@ -139,14 +131,6 @@ event.Message.addEventType = function(builder, eventType) {
  */
 event.Message.addEvent = function(builder, eventOffset) {
   builder.addFieldOffset(1, eventOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} kut
- */
-event.Message.addKut = function(builder, kut) {
-  builder.addFieldInt32(2, kut, 123);
 };
 
 /**
@@ -178,14 +162,12 @@ event.Message.finishSizePrefixedMessageBuffer = function(builder, offset) {
  * @param {flatbuffers.Builder} builder
  * @param {event.EventUnion} eventType
  * @param {flatbuffers.Offset} eventOffset
- * @param {number} kut
  * @returns {flatbuffers.Offset}
  */
-event.Message.createMessage = function(builder, eventType, eventOffset, kut) {
+event.Message.createMessage = function(builder, eventType, eventOffset) {
   event.Message.startMessage(builder);
   event.Message.addEventType(builder, eventType);
   event.Message.addEvent(builder, eventOffset);
-  event.Message.addKut(builder, kut);
   return event.Message.endMessage(builder);
 }
 

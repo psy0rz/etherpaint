@@ -23,7 +23,7 @@ void MsgSession::closed() {
     ws = nullptr;
 }
 
-MsgSession::MsgSession(uWS::WebSocket<false, true> *ws) {
+MsgSession::MsgSession(uWS::WebSocket<ENABLE_SSL, true> *ws) {
     this->ws = ws;
     // uwebsocket is single threaded, but supports deffering from other threads
     // Store loop for the current thread. (the one thats belongs to this ws)

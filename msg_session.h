@@ -32,10 +32,11 @@ private:
     std::deque<msg_serialized_type> msg_queue;
     std::mutex msg_queue_mutex;
 
+
+public:
     // the session we have currently joined (if any)
     std::shared_ptr<SharedSession> shared_session;
 
-public:
     // join a shared session
     void join(std::shared_ptr<SharedSession> shared_session);
 

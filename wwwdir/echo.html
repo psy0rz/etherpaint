@@ -23,9 +23,8 @@
                         m.builder,
                         123,
                         456,
-                        m.builder.createString("payloadddd")
-                    ),
-                    2222
+                        m.builder.createString("payload")
+                    )
                 )
             );
             m.send();
@@ -40,7 +39,7 @@
                     event.EventUnion.Join,
                     event.Join.createJoin(
                         m.builder,
-                        m.builder.createString("test")
+                        m.builder.createString(id)
                     ),
                 )
             );
@@ -48,7 +47,10 @@
 
         }
 
-        m.start();
+        m.start(function()
+        {
+            join("geeert");
+        });
 
         // m.handlers[event.EventUnion.Echo] = function (msg) {
         //     // console.log(msg);
@@ -73,7 +75,7 @@
     <pre id='stats'></pre>
 
 
-    <button onclick='ping(1); '>Add ping</button>
+    <button onclick='join("geert"); '>join</button>
     <button onclick='addping(1000);'>Add 1000 pings</button>
 
     <h1>Log</h1>

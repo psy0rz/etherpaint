@@ -49,3 +49,8 @@ void SharedSession::join(std::weak_ptr<MsgSession> new_msg_session) {
     msg_sessions.push_back(new_msg_session);
 }
 
+void SharedSession::test() {
+    DEB("base class test");
+
+}
+

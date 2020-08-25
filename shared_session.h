@@ -37,6 +37,8 @@ public:
 
     // let a session join this shared_session
     void join(std::weak_ptr<MsgSession> new_msg_session);
+
+    virtual void test();
 };
 
 #endif

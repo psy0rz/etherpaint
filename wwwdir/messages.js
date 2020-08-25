@@ -8,7 +8,7 @@ m.builder = new flatbuffers.Builder(1);
 
 //sends current builder
 m.send = function () {
-    this.ws.send(this.builder.asUint8Array());
+    m.ws.send(m.builder.asUint8Array());
 }
 
 
@@ -19,7 +19,14 @@ m.log = function (txt) {
 m.handlers = [];
 
 m.delayed_restart = function () {
-    setTimeout(this.restart, 1000);
+    setTimeout(m.restart, 1000);
+}
+
+
+m.start = function(connectcb)
+{
+    m.connectcb=connectcb;
+    m.restart();
 }
 
 m.restart = function () {
@@ -38,14 +45,15 @@ m.restart = function () {
     }
     m.log("Connecting to " + ws_url);
 
-    this.ws = new WebSocket(ws_url);
-    this.ws.binaryType = 'arraybuffer';
+    m.ws = new WebSocket(ws_url);
+    m.ws.binaryType = 'arraybuffer';
 
-    this.ws.onopen = function () {
+    m.ws.onopen = function () {
         m.log("Connected");
+        m.connectcb();
     };
 
-    this.ws.onmessage = function (evt) {
+    m.ws.onmessage = function (evt) {
         var buf = new flatbuffers.ByteBuffer(new Uint8Array(evt.data));
         var msg = event.Message.getRootAsMessage(buf);
 
@@ -58,15 +66,14 @@ m.restart = function () {
         }
     };
 
-    this.ws.onerror = function (evt) {
+    m.ws.onerror = function (evt) {
         m.log('Connection error');
     };
 
-    this.ws.onclose = function (evt) {
+    m.ws.onclose = function (evt) {
         m.log('Disconnected, reconnecting.');
         m.delayed_restart();
     };
 
 }
 
-m.start = m.restart;

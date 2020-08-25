@@ -255,8 +255,7 @@ struct Message FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   }
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_EVENT_TYPE = 4,
-    VT_EVENT = 6,
-    VT_KUT = 8
+    VT_EVENT = 6
   };
   event::EventUnion event_type() const {
     return static_cast<event::EventUnion>(GetField<uint8_t>(VT_EVENT_TYPE, 0));
@@ -277,15 +276,11 @@ struct Message FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const event::Leave *event_as_Leave() const {
     return event_type() == event::EventUnion_Leave ? static_cast<const event::Leave *>(event()) : nullptr;
   }
-  uint32_t kut() const {
-    return GetField<uint32_t>(VT_KUT, 123);
-  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint8_t>(verifier, VT_EVENT_TYPE) &&
            VerifyOffset(verifier, VT_EVENT) &&
            VerifyEventUnion(verifier, event(), event_type()) &&
-           VerifyField<uint32_t>(verifier, VT_KUT) &&
            verifier.EndTable();
   }
 };
@@ -316,9 +311,6 @@ struct MessageBuilder {
   void add_event(flatbuffers::Offset<void> event) {
     fbb_.AddOffset(Message::VT_EVENT, event);
   }
-  void add_kut(uint32_t kut) {
-    fbb_.AddElement<uint32_t>(Message::VT_KUT, kut, 123);
-  }
   explicit MessageBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -334,10 +326,8 @@ struct MessageBuilder {
 inline flatbuffers::Offset<Message> CreateMessage(
     flatbuffers::FlatBufferBuilder &_fbb,
     event::EventUnion event_type = event::EventUnion_NONE,
-    flatbuffers::Offset<void> event = 0,
-    uint32_t kut = 123) {
+    flatbuffers::Offset<void> event = 0) {
   MessageBuilder builder_(_fbb);
-  builder_.add_kut(kut);
   builder_.add_event(event);
   builder_.add_event_type(event_type);
   return builder_.Finish();
@@ -924,19 +914,17 @@ inline const flatbuffers::TypeTable *ObjectTypeTypeTable() {
 inline const flatbuffers::TypeTable *MessageTypeTable() {
   static const flatbuffers::TypeCode type_codes[] = {
     { flatbuffers::ET_UTYPE, 0, 0 },
-    { flatbuffers::ET_SEQUENCE, 0, 0 },
-    { flatbuffers::ET_UINT, 0, -1 }
+    { flatbuffers::ET_SEQUENCE, 0, 0 }
   };
   static const flatbuffers::TypeFunction type_refs[] = {
     event::EventUnionTypeTable
   };
   static const char * const names[] = {
     "event_type",
-    "event",
-    "kut"
+    "event"
   };
   static const flatbuffers::TypeTable tt = {
-    flatbuffers::ST_TABLE, 3, type_codes, type_refs, nullptr, names
+    flatbuffers::ST_TABLE, 2, type_codes, type_refs, nullptr, names
   };
   return &tt;
 }

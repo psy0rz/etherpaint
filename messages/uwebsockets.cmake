@@ -12,7 +12,8 @@ ExternalProject_Add(
 )
 
 ExternalProject_Get_Property(uwebsockets SOURCE_DIR)
-set(UWEBSOCKETS_INCLUDE_DIRS ${SOURCE_DIR}/src ${SOURCE_DIR}/uSockets/src)
+set(UWEBSOCKETS_INCLUDE_DIRS ${SOURCE_DIR}/src ${SOURCE_DIR}/uSockets/src PARENT_SCOPE)
+set(UWEBSOCKETS_INCLUDE_DIRS ${SOURCE_DIR}/src ${SOURCE_DIR}/uSockets/src )
 set(LIBUSOCKETS ${SOURCE_DIR}/uSockets/uSockets.a)
 
 

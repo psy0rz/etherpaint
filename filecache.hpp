@@ -55,7 +55,7 @@ class FileCacher {
 public:
     std::string m_root_dir;
 
-    typedef std::map<std::string, CachedFile> t_cached_files;
+    typedef std::map<std::string, std::unique_ptr<CachedFile>> t_cached_files;
     t_cached_files m_cached_files;
 
     FileCacher(std::string root_dir) {
@@ -70,6 +70,7 @@ public:
 
                 CachedFile cached_file(dir_entry.path());
 //                m_cached_files.insert(std::make_pair(url, CachedFile(dir_entry.path())));
+                m_cached_files[url]=std::make_unique<CachedFile>(dir_entry.path());
                 DEB("Web path: " << url);
             }
         }

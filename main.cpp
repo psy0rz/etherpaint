@@ -86,7 +86,7 @@ main(const int, const char **) {
                                          res->writeStatus("404");
                                          res->end("not found");
                                      } else
-                                         res->end(file->second.m_view);
+                                         res->end(file->second->m_view);
 
                                      return;
                                  })

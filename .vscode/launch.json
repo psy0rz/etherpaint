@@ -8,7 +8,7 @@
             "type": "gdb",
             "request": "launch",
             "name": "debug",
-            "target": "./restbed_test",
+            "target": "./messages",
             "cwd": "${workspaceRoot}/build",
             "valuesFormatting": "parseText",
             

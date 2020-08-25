@@ -2,8 +2,8 @@
 // Created by psy on 25-08-20.
 //
 
-#ifndef RESTBED_TEST_SHAREDPAPER_H
-#define RESTBED_TEST_SHAREDPAPER_H
+#ifndef messages_SHAREDPAPER_H
+#define messages_SHAREDPAPER_H
 
 
 #include "messages/SharedSession.h"
@@ -23,4 +23,4 @@ void paperding()
 };
 
 
-#endif //RESTBED_TEST_SHAREDPAPER_H
+#endif //messages_SHAREDPAPER_H

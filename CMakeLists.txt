@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(restbed_test)
+project(messages)
 include(GNUInstallDirs)
 
 set(EXTERNAL_PROJECTS_PREFIX ${CMAKE_BINARY_DIR}/external-projects)

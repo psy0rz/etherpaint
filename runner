@@ -1,15 +1,15 @@
 #!/bin/bash
-killall -9 restbed_test
+killall -9 messages
 
 cd build
 cmake .. || exit 1
 cmake --build . -- -j10 || exit 1
 echo "GO.."
-./restbed_test &
+./messages &
 
 # for bla in `seq 0 1000`; do curl -s http://localhost:1984/stream >/dev/null & done
 # sleep 10
-# killall -9 restbed_test
+# killall -9 messages
 
 # curl -v http://localhost:1984/events
 # curl -d '["12321",[{"bla":1},{"bla":2}]]' http://localhost:1984/send -v 

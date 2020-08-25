@@ -1,4 +1,4 @@
-#include "shared_session.h"
+#include "SharedSession.h"
 
 SharedSession::SharedSession(const std::string &id) {
     this->id = id;

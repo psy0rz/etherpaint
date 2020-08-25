@@ -15,7 +15,7 @@
 #include <WebSocket.h>
 
 #include "msg.hpp"
-#include "shared_session.h"
+#include "SharedSession.h"
 
 #include "messages_generated.h"
 #include "config.h"

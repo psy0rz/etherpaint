@@ -52,9 +52,9 @@ Transfer/sec:      2.97GB
 
 #include "filecache.hpp"
 
-#include "handler_manager.hpp"
+#include "register_handler.hpp"
 #include "log.hpp"
-#include "msg_session.h"
+#include "MsgSession.h"
 
 #include "flatbuffers/flatbuffers.h"
 #include "messages_generated.h"

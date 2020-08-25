@@ -1,7 +1,7 @@
 #include "messages_generated.h"
-#include "shared_session.h"
-#include "msg_session.h"
-#include "handler_manager.hpp"
+#include "SharedSession.h"
+#include "MsgSession.h"
+#include "register_handler.hpp"
 #include "SharedPaper.h"
 
 register_handler echo(event::EventUnion_Echo, [](auto msg_session, auto msg) {

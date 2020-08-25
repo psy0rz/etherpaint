@@ -1,4 +1,4 @@
-#include "msg_session.h"
+#include "MsgSession.h"
 
 void MsgSession::join(std::shared_ptr<SharedSession> shared_session) {
     this->shared_session = shared_session;

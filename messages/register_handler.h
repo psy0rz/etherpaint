@@ -3,7 +3,7 @@
 
 #include "msg.hpp"
 //#include "program_error.hpp"
-#include "messages/MsgSession.h"
+#include "MsgSession.h"
 
 //#include <functional>
 //#include <iostream>

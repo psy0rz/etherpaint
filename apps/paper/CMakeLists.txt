@@ -13,9 +13,10 @@ set(MESSAGES_GENERATED_JS_PATH ${CMAKE_SOURCE_DIR}/wwwdir)
 # - git clone and build all the stuff
 # - set: ${FLATBUFFERS_INCLUDE_DIR} and ${UWEBSOCKETS_INCLUDE_DIRS}
 # - generate messages_generated header and js files.
-add_subdirectory(messages)
+add_subdirectory(../../messages messages)
 
 include_directories(
+        ../..
         ${CMAKE_SOURCE_DIR}
         ${MESSAGES_GENERATED_H_PATH}
         ${FLATBUFFERS_INCLUDE_DIR}

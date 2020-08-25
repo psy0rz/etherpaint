@@ -12,6 +12,13 @@ class SharedPaper : public SharedSession {
 public:
     void test() override;
 
+    SharedPaper(const std::string &id);
+    std::string papernaam;
+
+void paperding()
+{
+  DEB("paperding called: " << papernaam);
+};
 
 };
 

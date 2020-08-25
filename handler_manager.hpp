@@ -16,7 +16,7 @@
 #include "messages_generated.h"
 
 typedef std::function<void(std::shared_ptr<MsgSession> & msg_session,
-                           msg_type message)>
+                           msg_type msg)>
   handler_type;
 
 handler_type handlers[event::EventUnion_MAX+1];

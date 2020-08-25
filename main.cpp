@@ -41,7 +41,6 @@ Transfer/sec:      2.97GB
 #include <map>
 #include <memory>
 #include <string>
-// #include <restbed>
 
 // uwebsockets
 #include <App.h>
@@ -123,9 +122,10 @@ main(const int, const char **) {
                                                 }
 
                                                 // todo: stream of messages in one websocket message
+                                                auto verifier = flatbuffers::Verifier((uint8_t *) message_buffer.data(),
+                                                                                      message_buffer.length());
 
-                                                if (!event::VerifyMessageBuffer(flatbuffers::Verifier(
-                                                        message_buffer.data(), message_buffer.length()))) {
+                                                if (!event::VerifyMessageBuffer(verifier)) {
                                                     msg_session->enqueue_error("Corrupt flatbuffer received.");
                                                     return;
                                                 }

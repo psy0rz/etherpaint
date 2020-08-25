@@ -6,7 +6,8 @@ ExternalProject_Add(
     TIMEOUT 10
     CMAKE_ARGS
         -G "Unix Makefiles"
-        -DCMAKE_BUILD_TYPE=Release
+        -DCMAKE_BUILD_TYPE=Debug
+        -DFLATBUFFERS_BUILD_TESTS=OFF
     # CONFIGURE_COMMAND "" #leave commented so cmake uses the cmakelists.txt of this external project.
     # BUILD_COMMAND ""
     INSTALL_COMMAND ""

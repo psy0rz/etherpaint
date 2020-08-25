@@ -11,7 +11,7 @@ include(ExternalProject)
 #file(GLOB sources *.cpp)
 #MESSAGE(STATUS "Detected source files: ${sources}")
 
-add_executable(${PROJECT_NAME} main.cpp MsgSession.cpp config.h SharedSession.cpp SharedPaper.cpp)
+add_executable(${PROJECT_NAME} main.cpp messages/MsgSession.cpp config.h messages/SharedSession.cpp SharedPaper.cpp)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_STANDARD 20

@@ -6,7 +6,7 @@
 #define RESTBED_TEST_SHAREDPAPER_H
 
 
-#include "SharedSession.h"
+#include "messages/SharedSession.h"
 
 class SharedPaper : public SharedSession {
 public:

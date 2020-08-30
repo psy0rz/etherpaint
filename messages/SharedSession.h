@@ -25,6 +25,10 @@ private:
     std::vector<std::weak_ptr<MsgSession>> msg_sessions;
 
 public:
+    //NOTE: implement this yourself, so you can return a subclass if needed. link-time implementation.
+    static std::shared_ptr<SharedSession> create(const std::string & id);
+
+
     SharedSession(const std::string &id);
 
     ~SharedSession(void) {DEB("Destroyed shared session " << id); }

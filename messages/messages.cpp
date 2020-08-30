@@ -46,9 +46,11 @@ Transfer/sec:      2.97GB
 #include <App.h>
 
 //#include <boost/regex.hpp>
-#include <fstream>
+//#include <fstream>
 #include <iostream>
 #include <thread>
+
+#include "messages.h"
 
 #include "filecache.hpp"
 
@@ -67,7 +69,8 @@ struct PerSocketData {
     std::shared_ptr<MsgSession> msg_session;
 };
 
-int messagerunner(const int argc, const char * argv[]) {
+
+int messagerunner(const int argc, const char *argv[]) {
     std::vector<std::thread *> threads(std::thread::hardware_concurrency());
 
     std::transform(
@@ -97,15 +100,18 @@ int messagerunner(const int argc, const char * argv[]) {
                                             .idleTimeout = 1000,
                                             .maxBackpressure = 0,
                                             /* Handlers */
+
                                             .open =
                                             [](auto *ws) {
                                                 DEB("websocket open from IP "
                                                             << ws->getRemoteAddressAsText());
                                                 // create message session
-                                                auto msg_session = std::make_shared<MsgSession>(ws);
+//                                                auto msg_session = std::make_shared<MsgSession>(ws);
+                                                auto msg_session = MsgSession::create(ws);
                                                 static_cast<PerSocketData *>(ws->getUserData())->msg_session =
                                                         msg_session;
                                             },
+
                                             // received websocket message
                                             .message =
                                             [](auto *ws,
@@ -161,6 +167,7 @@ int messagerunner(const int argc, const char * argv[]) {
                                                     }
                                                 }
                                             },
+
                                             .drain =
                                             [](auto *ws) {
                                                 // buffered amount changed, check if we have some more queued
@@ -173,8 +180,11 @@ int messagerunner(const int argc, const char * argv[]) {
                                                             ->msg_session->send_queue();
                                                 }
                                             },
+
                                             .ping = [](auto *ws) {DEB("websocket ping" << ws); },
+
                                             .pong = [](auto *ws) {DEB("websocket pong" << ws); },
+
                                             .close =
                                             [](auto *ws, int code, std::string_view message) {
                                                 // DEB("websocket close" << ws);

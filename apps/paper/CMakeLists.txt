@@ -23,5 +23,5 @@ include_directories(
         ${UWEBSOCKETS_INCLUDE_DIRS}
 )
 
-add_executable(${PROJECT_NAME} main.cpp SharedPaper.cpp)
+add_executable(${PROJECT_NAME} main.cpp SharedSessionPaper.cpp MsgSessionPaper.cpp )
 target_link_libraries(${PROJECT_NAME} messages)

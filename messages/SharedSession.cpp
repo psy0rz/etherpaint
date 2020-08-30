@@ -13,7 +13,7 @@ std::shared_ptr<SharedSession> SharedSession::get(const std::string &id) {
     if (existing_shared_session == SharedSession::shared_sessions.end() ||
         existing_shared_session->second.expired()) {
         // create new shared session
-        auto new_shared_session = std::make_shared<SharedSession>(id);
+        auto new_shared_session = SharedSession::create(id);
         SharedSession::shared_sessions[id] = new_shared_session;
         return (new_shared_session);
 

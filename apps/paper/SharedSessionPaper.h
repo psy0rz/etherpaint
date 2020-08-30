@@ -8,11 +8,11 @@
 
 #include "messages/SharedSession.h"
 
-class SharedPaper : public SharedSession {
+class SharedSessionPaper : public SharedSession {
 public:
     void test() override;
 
-    explicit SharedPaper(const std::string &id);
+    explicit SharedSessionPaper(const std::string &id);
     std::string papernaam;
 
 void paperding()

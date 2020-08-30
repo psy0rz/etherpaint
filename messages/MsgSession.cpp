@@ -1,25 +1,17 @@
 #include "MsgSession.h"
 
 void MsgSession::join(std::shared_ptr<SharedSession> shared_session) {
+    std::lock_guard<std::mutex> lock(mutex);
     this->shared_session = shared_session;
     shared_session->join(shared_from_this());
+}
 
-    // auto join_shared_session=shared_sessions.find(id);
-
-    // //session doesnt exist?
-    // if (join_shared_session==shared_sessions.end() ||
-    // join_shared_session.second.expired())
-    // {
-    //   //create new shared session
-    //   shared_session=make_shared<SharedSession>();
-    //   shared_sessions[id]=shared_session;
-    // }
-
-    // shared_session=shared_sessions[id].join(shared_from_this);
+void MsgSession::join(const std::string & id) {
+    join(SharedSession::get(id));
 }
 
 void MsgSession::closed() {
-    std::lock_guard<std::mutex> lock(msg_queue_mutex);
+    std::lock_guard<std::mutex> lock(mutex);
     ws = nullptr;
 }
 
@@ -38,7 +30,7 @@ MsgSession::~MsgSession() {
 }
 
 void MsgSession::send_queue() {
-    std::lock_guard<std::mutex> lock(msg_queue_mutex);
+    std::lock_guard<std::mutex> lock(mutex);
 
     // ws was closed in the meantime
     if (ws == nullptr)
@@ -78,7 +70,7 @@ void MsgSession::send_queue() {
 }
 
 void MsgSession::enqueue(msg_serialized_type &msg_serialized) {
-    std::lock_guard<std::mutex> lock(msg_queue_mutex);
+    std::lock_guard<std::mutex> lock(mutex);
 
     // ws was closed in the meantime
     if (ws == nullptr)

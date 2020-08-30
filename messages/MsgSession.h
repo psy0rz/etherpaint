@@ -30,15 +30,26 @@ private:
     uWS::WebSocket<ENABLE_SSL, true> *ws;
     uWS::Loop *loop;
     std::deque<msg_serialized_type> msg_queue;
-    std::mutex msg_queue_mutex;
+    std::mutex mutex;
 
 
 public:
+    //NOTE: implement this yourself, so you can return a subclass if needed. link-time implementation.
+    // (called from ws thread)
+    static std::shared_ptr<MsgSession> create(uWS::WebSocket<ENABLE_SSL, true> *ws);
+
+    // (called from ws thread)
+    MsgSession(uWS::WebSocket<ENABLE_SSL, true> *ws);
+
+    // called from any thread (whoever releases the last smart_ptr)
+    ~MsgSession();
+
     // the session we have currently joined (if any)
     std::shared_ptr<SharedSession> shared_session;
 
     // join a shared session
     void join(std::shared_ptr<SharedSession> shared_session);
+    void join(const std::string & id);
 
     // called when ws is closed.
     // the session might be referenced to for a while by other threads or and
@@ -46,11 +57,6 @@ public:
     // (called from ws thread)
     void closed();
 
-    // (called from ws thread)
-    MsgSession(uWS::WebSocket<ENABLE_SSL, true> *ws);
-
-    // called from any thread (whoever releases the last smart_ptr)
-    ~MsgSession();
 
     // send queued messages until backpressure has build up.
     // when backpressure is down/changed this will be called again.

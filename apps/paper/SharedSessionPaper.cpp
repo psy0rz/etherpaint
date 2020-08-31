@@ -11,10 +11,6 @@ std::shared_ptr<SharedSession> SharedSession::create(const std::string & id) {
 }
 
 
-void SharedSessionPaper::test() {
-    DEB("subclass test, member is " << papernaam);
-
-}
 
 SharedSessionPaper::SharedSessionPaper(const std::string &id) : SharedSession(id) {
 

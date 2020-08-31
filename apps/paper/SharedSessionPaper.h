@@ -10,7 +10,6 @@
 
 class SharedSessionPaper : public SharedSession {
 public:
-    void test() override;
 
     explicit SharedSessionPaper(const std::string &id);
     std::string papernaam;

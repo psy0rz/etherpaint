@@ -10,8 +10,7 @@ std::shared_ptr<SharedSession> SharedSession::get(const std::string &id) {
     auto existing_shared_session = SharedSession::shared_sessions.find(id);
 
     // session doesnt exist (anymore)?
-    if (existing_shared_session == SharedSession::shared_sessions.end() ||
-        existing_shared_session->second.expired()) {
+    if (existing_shared_session == SharedSession::shared_sessions.end())  {
         // create new shared session
         auto new_shared_session = SharedSession::create(id);
         SharedSession::shared_sessions[id] = new_shared_session;
@@ -19,38 +18,40 @@ std::shared_ptr<SharedSession> SharedSession::get(const std::string &id) {
 
     } else {
         // return existing
-        return (SharedSession::shared_sessions[id].lock());
+        return (SharedSession::shared_sessions[id]);
     }
 }
+
+void SharedSession::done(const std::string &id) {
+    std::unique_lock<std::mutex> lock(SharedSession::shared_sessions_lock);
+    SharedSession::shared_sessions.erase(id);
+}
+
+
 
 void SharedSession::enqueue(msg_serialized_type &msg_serialized) {
 
     std::unique_lock<std::mutex> lock(msg_sessions_lock);
 
     for (auto &msg_session : msg_sessions) {
-        auto msg_session_shared = msg_session.lock();
-        if (msg_session_shared != nullptr) {
-            msg_session_shared->enqueue(msg_serialized);
-        }
+//        auto msg_session_shared_ptr = msg_session.lock();
+        msg_session->enqueue(msg_serialized);
     }
 }
 
-void SharedSession::join(std::weak_ptr<MsgSession> new_msg_session) {
+void SharedSession::join(std::shared_ptr<MsgSession> new_msg_session) {
     std::unique_lock<std::mutex> lock(msg_sessions_lock);
 
-    // replace an expired session?
-    for (auto &msg_session : msg_sessions) {
-        if (msg_session.expired()) {
-            msg_session = new_msg_session;
-            return;
-        }
-    }
-
-    msg_sessions.push_back(new_msg_session);
+    DEB("Joined shared session " << id);
+    msg_sessions.insert(new_msg_session);
 }
 
-void SharedSession::test() {
-    DEB("base class test");
-
+void SharedSession::leave(std::shared_ptr<MsgSession> msg_session) {
+    std::unique_lock<std::mutex> lock(msg_sessions_lock);
+    DEB("left shared session " << id);
+    msg_sessions.erase(msg_session);
+    if (msg_sessions.empty())
+        SharedSession::done(id);
 }
+
 

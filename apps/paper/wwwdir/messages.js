@@ -6,9 +6,10 @@ var m = {};
 //fixed builder we reuse every time we send a message
 m.builder = new flatbuffers.Builder(1);
 
-//sends current builder
-m.send = function () {
-    m.ws.send(m.builder.asUint8Array());
+//sends specified flatbuffer builder and clears it for reuse
+m.send = function (builder) {
+    m.ws.send(builder.asUint8Array());
+    builder.clear();
 }
 
 
@@ -36,7 +37,7 @@ m.restart = function () {
     }
 
     var ws_url;
-    if (location.protocol == 'http:') {
+    if (location.protocol === 'http:') {
         ws_url = "ws://" + location.host + "/ws";
     }
     else {

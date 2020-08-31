@@ -1,12 +1,24 @@
 namespace event;
 
+
 //define the events here
 union EventUnion { 
     Echo,
     Error,
     Join,
-    Leave
+    Leave,
+    ClientDraw,
+    ServerDraw,
+    Cursor,
+
 }
+
+table Cursor
+{
+    x: uint8;
+    y: uint8;
+}
+
 
 table Message {
   event: EventUnion;
@@ -35,68 +47,61 @@ table Leave
 {
 }
 
-
-//paper stuff
-//info about a user (todo: add color/icon etc)
-table UserEvent
+table ServerDraw
 {
-  uid: uint32;
-  name: string;
+}
+
+table ClientDraw
+{
+    changes: [DrawChange];
 }
 
 
-//cursor position of a user
-struct  CursorEvent
-{
-  x: int32;
-  y: int32;
-  uid: uint32;
-}
 
-enum ObjectType:byte
+// drawing actions
+// drawing actions
+// drawing actions
+
+
+enum DrawTooltype:byte
 {
+  Unchanged,
   Line,
   PolyLine,
   Rectangle,
   Circle,
 }
 
-struct Point
+struct DrawPoint
 {
   x: uint16;
   y: uint16;
 }
 
-struct Color
+struct DrawColor
 {
   r: uint8;
   g: uint8;
   b: uint8;
+  set: bool;
 }
 
-//update/create new object.
-table ObjectUpdateEvent
+//we use the fact that default values are not taking up space to our advantage here.
+//so usually almost no fields are set (e.g. default), so we use the cached values.
+table DrawChange
 {
-  id: uint32=0; //0=new, let server decide
-  type: ObjectType;
-  color: Color;
-  points: [Point];
+    //reset all fields to default for this client
+    reset: bool;
+    client_id: uint8;
+    object_id: uint16;
+    tool_type: DrawTooltype;
+    add_points: [DrawPoint];
+    remove_points: uint8;
+    fill_color: DrawColor;
+    line_color: DrawColor;
+    cursor: DrawPoint;
 }
 
- 
-
-//add more points to an object
-table ObjectAddPointsEvent
-{
-  id: uint32;
-  points: [Point];
-}
-
-//delete object
-table ObjectDeleteEvent
-{
-  id: uint32;
-}
 
 
 root_type Message;

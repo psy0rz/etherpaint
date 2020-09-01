@@ -91,13 +91,13 @@ void MsgSession::enqueue(msg_serialized_type &msg_serialized) {
 
 void MsgSession::enqueue_error(const std::string &description) {
 
-    msg_serialized_type msg_serialized(200);
-    msg_serialized.Finish(event::CreateMessage(
-            msg_serialized,
-            event::EventUnion_Error,
-            event::CreateError(msg_serialized,
-                               msg_serialized.CreateString(description))
-                    .Union()));
-
-    enqueue(msg_serialized);
+//    msg_serialized_type msg_serialized(200);
+//    msg_serialized.Finish(event::CreateMessage(
+//            msg_serialized,
+//            event::EventUnion_Error,
+//            event::CreateError(msg_serialized,
+//                               msg_serialized.CreateString(description))
+//                    .Union()));
+//
+//    enqueue(msg_serialized);
 }

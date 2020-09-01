@@ -55,15 +55,41 @@ paper.send = function () {
         // m.send(paper.changes_builder);
         // paper.changes_offsets=[];
 
+        var cursor=event.Cursor.createCursor(
+            m.builder,
+            paper.cursor_x,
+            paper.cursor_y,
+        );
+        console.log(m.builder.asUint8Array().length);
+
+        var cursor2=event.Cursor.createCursor(
+            m.builder,
+            paper.cursor_x,
+            paper.cursor_y,
+        );
+
+        var etvect= event.Message.createEventsTypeVector(m.builder, [ event.EventUnion.Cursor,event.EventUnion.Cursor ]);
+        var evect = event.Message.createEventsVector(m.builder, [ cursor, cursor2 ]);
+        // var etvect= event.Message.createEventsTypeVector(m.builder, [ event.EventUnion.Cursor ]);
+        // var evect = event.Message.createEventsVector(m.builder, [ cursor ]);
+
+
+
+        //40 bytes normaal
+        //56 met events vector en 1 cursor.
+        //68 met events vector en 2 cursor.
+        //dus 12 bytes per cursor.
+
+        //vector met 1 cursor als struct: 44b
+        //vector met 2 cursor als struct: 52b
+        //dus 8 byts pr curs
+
+
         m.builder.finish(
             event.Message.createMessage(
                 m.builder,
-                event.EventUnion.Cursor,
-                event.Cursor.createCursor(
-                    m.builder,
-                    paper.cursor_x,
-                    paper.cursor_y,
-                ),
+                etvect,
+                evect
             )
         );
         m.send(m.builder);

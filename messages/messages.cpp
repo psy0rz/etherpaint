@@ -136,7 +136,8 @@ int messagerunner(const int argc, const char *argv[]) {
                                                 }
 
                                                 auto message = event::GetMessage(message_buffer.data());
-                                                auto event_type = message->event_type();
+                                                auto event=message->events()->Get(0);
+                                                auto event_type = message->events_type()->Get(0);
 
                                                 if (event_type < 0 || event_type > event::EventUnion_MAX ||
                                                     handlers[event_type] == nullptr) {
@@ -157,7 +158,7 @@ int messagerunner(const int argc, const char *argv[]) {
                                                     } catch (std::exception e) {
                                                         std::stringstream desc;
                                                         desc << "Exception while handling "
-                                                             << event::EnumNameEventUnion(event_type) << ": "
+//                                                             << event::EnumNameEventUnion(event_type) << ": "
                                                              << e.what();
                                                         msg_session->enqueue_error(desc.str());
 

@@ -1,4 +1,6 @@
 namespace event;
+//cursor event: 40bytes
+
 
 
 //define the events here
@@ -13,18 +15,16 @@ union EventUnion {
 
 }
 
-table Cursor
-{
-    x: uint8;
-    y: uint8;
-}
-
-
 table Message {
-  event: EventUnion;
+  events: [EventUnion];
 }
 
-      
+struct Cursor
+{
+    x: uint16;
+    y: uint16;
+}
+
 table Echo
 {
   id: uint32;

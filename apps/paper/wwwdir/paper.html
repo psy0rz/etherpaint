@@ -36,17 +36,13 @@
 
 
         function join(id) {
-            m.builder.finish(
-                event.Message.createMessage(
+            m.add_event(
+                event.EventUnion.Join,
+                event.Join.createJoin(
                     m.builder,
-                    event.EventUnion.Join,
-                    event.Join.createJoin(
-                        m.builder,
-                        m.builder.createString(id)
-                    ),
-                )
-            );
-            m.send(m.builder);
+                    m.builder.createString(id)
+                ));
+            m.send();
 
         }
 

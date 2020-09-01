@@ -6,10 +6,32 @@ var m = {};
 //fixed builder we reuse every time we send a message
 m.builder = new flatbuffers.Builder(1);
 
-//sends specified flatbuffer builder and clears it for reuse
-m.send = function (builder) {
-    m.ws.send(builder.asUint8Array());
-    builder.clear();
+//clear buffers, start new message.
+m.start_message = function () {
+    m.builder.clear();
+    m.event_types = [];
+    m.event_offsets = [];
+}
+
+//add event to message we're building. (you'll have to use m.builder directly in the create...() functions)
+m.add_event = function( event_type, event_offset)
+{
+    m.event_types.push(event_type);
+    m.event_offsets.push(event_offset)
+}
+
+//contructs final message from collected events and sends it.
+m.send = function () {
+    m.builder.finish(
+        event.Message.createMessage(
+            m.builder,
+            event.Message.createEventsTypeVector(m.builder, m.event_types),
+            event.Message.createEventsVector(m.builder, m.event_offsets)
+        )
+    );
+
+    m.ws.send(m.builder.asUint8Array());
+    m.start_message();
 }
 
 
@@ -26,6 +48,7 @@ m.delayed_restart = function () {
 
 m.start = function (connectcb) {
     m.connectcb = connectcb;
+    m.start_message();
     m.restart();
 }
 

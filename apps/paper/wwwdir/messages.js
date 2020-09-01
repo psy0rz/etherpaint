@@ -24,9 +24,8 @@ m.delayed_restart = function () {
 }
 
 
-m.start = function(connectcb)
-{
-    m.connectcb=connectcb;
+m.start = function (connectcb) {
+    m.connectcb = connectcb;
     m.restart();
 }
 
@@ -39,8 +38,7 @@ m.restart = function () {
     var ws_url;
     if (location.protocol === 'http:') {
         ws_url = "ws://" + location.host + "/ws";
-    }
-    else {
+    } else {
         ws_url = "wss://" + location.host + "/ws";
 
     }
@@ -55,15 +53,19 @@ m.restart = function () {
     };
 
     m.ws.onmessage = function (evt) {
-        var buf = new flatbuffers.ByteBuffer(new Uint8Array(evt.data));
-        var msg = event.Message.getRootAsMessage(buf);
+        let buf = new flatbuffers.ByteBuffer(new Uint8Array(evt.data));
+        let msg = event.Message.getRootAsMessage(buf);
 
-        var handler = m.handlers[msg.eventType()];
-        if (handler) {
-            handler(msg);
-        }
-        else {
-            m.log("Handler not found: " + event.EventUnionName[msg.eventType()])
+        let events_length = msg.eventsLength();
+
+
+        for (let event_index = 0; event_index < events_length; event_index++) {
+            let handler = m.handlers[msg.eventsType(event_index)];
+            if (handler) {
+                handler(msg, event_index);
+            } else {
+                m.log("Handler not found: " + event.EventUnionName[msg.eventsType(event_index)]);
+            }
         }
     };
 

@@ -38,7 +38,7 @@ add_custom_command(
 #        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         DEPENDS ${MESSAGES_FBS_PATH}/messages.fbs
         COMMENT "Generating ${MESSAGES_GENERATED_H_PATH}/messages_generated.h from ${MESSAGES_FBS_PATH}/messages.fbs"
-        COMMAND ${FLATC} --reflect-names -o ${MESSAGES_GENERATED_H_PATH} --cpp ${CMAKE_SOURCE_DIR}/messages.fbs
+        COMMAND ${FLATC} -o ${MESSAGES_GENERATED_H_PATH} --cpp  --reflect-names ${CMAKE_SOURCE_DIR}/messages.fbs
 )
 # add_dependencies(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/messages_generated.h )
 set_property(SOURCE messages.cpp APPEND PROPERTY OBJECT_DEPENDS ${CMAKE_SOURCE_DIR}/messages_generated.h)
@@ -50,7 +50,7 @@ add_custom_command(
 #        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         DEPENDS ${MESSAGES_FBS_PATH}/messages.fbs
         COMMENT "Generating ${MESSAGES_GENERATED_JS_PATH}/messages_generated.js from ${MESSAGES_FBS_PATH}/messages.fbs"
-        COMMAND ${FLATC}  -o ${MESSAGES_GENERATED_JS_PATH} --js ${MESSAGES_FBS_PATH}/messages.fbs
+        COMMAND ${FLATC} --reflect-names -o ${MESSAGES_GENERATED_JS_PATH} --js ${MESSAGES_FBS_PATH}/messages.fbs
 )
 set_property(SOURCE messages.cpp APPEND PROPERTY OBJECT_DEPENDS ${CMAKE_SOURCE_DIR}/wwwdir/messages_generated.js)
 

@@ -67,8 +67,8 @@
         // }
 
 
-        m.handlers[event.EventUnion.Error] = function (msg) {
-            error = msg.event(new event.Error());
+        m.handlers[event.EventUnion.Error] = function (msg, event_index) {
+            error = msg.events(event_index, new event.Error());
             console.error("Server reports error: " + error.description());
         }
 

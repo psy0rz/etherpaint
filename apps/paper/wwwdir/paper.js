@@ -60,30 +60,28 @@ paper.send = function () {
             paper.cursor_x,
             paper.cursor_y,
         );
-        console.log(m.builder.asUint8Array().length);
-
         var cursor2=event.Cursor.createCursor(
             m.builder,
             paper.cursor_x,
             paper.cursor_y,
         );
+        var cursor3=event.Cursor.createCursor(
+            m.builder,
+            paper.cursor_x,
+            paper.cursor_y,
+        );
 
-        var etvect= event.Message.createEventsTypeVector(m.builder, [ event.EventUnion.Cursor,event.EventUnion.Cursor ]);
-        var evect = event.Message.createEventsVector(m.builder, [ cursor, cursor2 ]);
-        // var etvect= event.Message.createEventsTypeVector(m.builder, [ event.EventUnion.Cursor ]);
-        // var evect = event.Message.createEventsVector(m.builder, [ cursor ]);
+        var etvect= event.Message.createEventsTypeVector(m.builder, [ event.EventUnion.Cursor,event.EventUnion.Cursor,event.EventUnion.Cursor ]);
+        var evect = event.Message.createEventsVector(m.builder, [ cursor, cursor2,cursor3 ]);
+        // var etvect= event.Message.createEventsTypeVector(m.builder, [  ]);
+        // var evect = event.Message.createEventsVector(m.builder, [  ]);
 
 
-
-        //40 bytes normaal
-        //56 met events vector en 1 cursor.
-        //68 met events vector en 2 cursor.
-        //dus 12 bytes per cursor.
-
-        //vector met 1 cursor als struct: 44b
-        //vector met 2 cursor als struct: 52b
-        //dus 8 byts pr curs
-
+//32 leeg vector
+//4 losse cursor
+//44 samen
+//52 2e cursor dr bij
+//60 3e
 
         m.builder.finish(
             event.Message.createMessage(
@@ -92,6 +90,7 @@ paper.send = function () {
                 evect
             )
         );
+        // console.log(m.builder.asUint8Array().length);
         m.send(m.builder);
 
         paper.cursor_moved = false;

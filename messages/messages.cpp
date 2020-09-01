@@ -126,46 +126,53 @@ int messagerunner(const int argc, const char *argv[]) {
                                                     return;
                                                 }
 
-                                                // todo: stream of messages in one websocket message
                                                 auto verifier = flatbuffers::Verifier((uint8_t *) message_buffer.data(),
                                                                                       message_buffer.length());
 
                                                 if (!event::VerifyMessageBuffer(verifier)) {
+                                                    DEB("Corrupt flatbuffer");
                                                     msg_session->enqueue_error("Corrupt flatbuffer received.");
                                                     return;
                                                 }
 
                                                 auto message = event::GetMessage(message_buffer.data());
-                                                auto event=message->events()->Get(0);
-                                                auto event_type = message->events_type()->Get(0);
 
-                                                if (event_type < 0 || event_type > event::EventUnion_MAX ||
-                                                    handlers[event_type] == nullptr) {
-                                                    std::stringstream desc;
-                                                    desc
-                                                            << "Invalid event type, no handler found for event_type="
-                                                            << event_type;
+                                                auto eventI = message->events()->begin();
+                                                auto event_typeI = message->events_type()->begin();
 
-                                                    msg_session->enqueue_error(desc.str());
-                                                    return;
-                                                }
 
-                                                {
-                                                    try {
 
-                                                        handlers[event_type](msg_session, message);
+                                                while (event_typeI != message->events_type()->end() ||
+                                                       eventI != message->events()->end()) {
 
-                                                    } catch (std::exception e) {
+                                                    if (*event_typeI < 0 || *event_typeI > event::EventUnion_MAX ||
+                                                        handlers[*event_typeI] == nullptr) {
                                                         std::stringstream desc;
-                                                        desc << "Exception while handling "
-//                                                             << event::EnumNameEventUnion(event_type) << ": "
-                                                             << e.what();
+                                                        desc
+                                                                << "Invalid event type, no handler found for event_type="
+                                                                << int(*event_typeI);
+
                                                         msg_session->enqueue_error(desc.str());
+                                                        DEB(desc.str());
+                                                    } else {
+                                                        try {
+                                                            //THE call
+                                                            handlers[*event_typeI](msg_session, message);
+
+                                                        } catch (std::exception e) {
+                                                            std::stringstream desc;
+                                                            desc << "Exception while handling "
+                                                                 <<   event::EnumNamesEventUnion()[*event_typeI] << ": "
+                                                                 << e.what();
+                                                            msg_session->enqueue_error(desc.str());
 
 #ifndef NDEBUG
-                                                        throw;
+                                                            throw;
 #endif
+                                                        }
                                                     }
+                                                    event_typeI++;
+                                                    eventI++;
                                                 }
                                             },
 

@@ -91,13 +91,20 @@ void MsgSession::enqueue(msg_serialized_type &msg_serialized) {
 
 void MsgSession::enqueue_error(const std::string &description) {
 
-//    msg_serialized_type msg_serialized(200);
-//    msg_serialized.Finish(event::CreateMessage(
-//            msg_serialized,
-//            event::EventUnion_Error,
-//            event::CreateError(msg_serialized,
-//                               msg_serialized.CreateString(description))
-//                    .Union()));
-//
-//    enqueue(msg_serialized);
+    msg_serialized_type msg_serialized(200);
+
+    std::vector<uint8_t> types;
+    types.push_back(event::EventUnion_Error);
+
+    std::vector<flatbuffers::Offset<void>> events;
+    events.push_back(event::CreateError(msg_serialized, msg_serialized.CreateString(description)).Union());
+
+
+    msg_serialized.Finish(event::CreateMessage(
+            msg_serialized,
+            msg_serialized.CreateVector(types),
+            msg_serialized.CreateVector(events)
+            ));
+
+    enqueue(msg_serialized);
 }

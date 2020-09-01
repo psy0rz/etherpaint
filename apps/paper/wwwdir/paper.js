@@ -28,20 +28,27 @@ paper.start = function () {
 //add latest cursor position and send all collected data
 paper.send = function () {
 
-    //anything to send at all?
-    if (paper.cursor_moved || paper.changes_offsets.length > 0) {
+    //buffer empty enough?
+    //todo: some kind of smarter throttling
+    if (m.ws.bufferedAmount == 0) {
+        //anything to send at all?
+        if (paper.cursor_moved || paper.changes_offsets.length > 0) {
 
-        m.add_event(
-            event.EventUnion.Cursor,
-            event.Cursor.createCursor(
-                m.builder,
-                paper.cursor_x,
-                paper.cursor_y,
-            ));
+            if (paper.cursor_moved) {
+                //add latest cursor event
+                m.add_event(
+                    event.EventUnion.Cursor,
+                    event.Cursor.createCursor(
+                        m.builder,
+                        paper.cursor_x,
+                        paper.cursor_y,
+                    ))
+                paper.cursor_moved = false;
+            }
 
-        m.send();
 
-        paper.cursor_moved = false;
+            m.send();
+        }
     }
     setTimeout(paper.send, 1000 / 60); //60 fps
 };

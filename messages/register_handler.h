@@ -15,8 +15,8 @@
 //#include <WebSocket.h>
 //#include "messages_generated.h"
 
-typedef std::function<void(std::shared_ptr<MsgSession> &msg_session,
-                           msg_type msg)>
+typedef std::function<void(const std::shared_ptr<MsgSession> &msg_session,
+                           const msg_type & msg, flatbuffers::uoffset_t event_index)>
         handler_type;
 
 extern handler_type handlers[event::EventUnion_MAX + 1];

@@ -32,7 +32,7 @@ void SharedSession::done(const std::string &id) {
 void SharedSession::enqueue(msg_serialized_type &msg_serialized) {
 
     std::unique_lock<std::mutex> lock(msg_sessions_lock);
-
+//FIXME: this is broken, uses move semantics.
     for (auto &msg_session : msg_sessions) {
 //        auto msg_session_shared_ptr = msg_session.lock();
         msg_session->enqueue(msg_serialized);

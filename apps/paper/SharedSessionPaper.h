@@ -11,6 +11,7 @@
 class SharedSessionPaper : public SharedSession {
 private:
     MsgBuilder msg_builder;
+    std::mutex msg_builder_mutex;
 
     void send_frame();
 

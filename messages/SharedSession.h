@@ -15,13 +15,13 @@ class MsgSession;
 class SharedSession {
 protected:
     // all the shared sessions (static/global)
-    inline static std::mutex shared_sessions_lock;
+    inline static std::mutex shared_sessions_mutex;
     inline static std::map<std::string, std::shared_ptr<SharedSession>> shared_sessions;
 
     std::string id;
 
     // sessions that are joined to this shared session
-    std::mutex msg_sessions_lock;
+    std::mutex msg_sessions_mutex;
     std::set<std::shared_ptr<MsgSession>> msg_sessions;
 
 public:
@@ -42,6 +42,7 @@ public:
 
     // send to all sessions
     void enqueue( const std::shared_ptr<msg_serialized_type> &msg_serialized);
+    void enqueue(MsgBuilder &msg_builder);
 
     // let a session join/leave this shared_session
     void join(std::shared_ptr<MsgSession> new_msg_session);

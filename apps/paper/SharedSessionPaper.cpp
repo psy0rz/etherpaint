@@ -31,7 +31,7 @@ void SharedSessionPaper::update_thread() {
 
         //locked
         {
-            std::unique_lock<std::mutex> lock(SharedSession::shared_sessions_lock);
+            std::unique_lock<std::mutex> lock(SharedSession::shared_sessions_mutex);
 
             for (const auto &[id, shared_session]: SharedSession::shared_sessions) {
                 auto shared_session_paper = std::static_pointer_cast<SharedSessionPaper>(shared_session);
@@ -47,19 +47,25 @@ void SharedSessionPaper::update_thread() {
 void SharedSessionPaper::send_frame() {
     INFO("send FRAME " << id);
 
-    std::unique_lock<std::mutex> lock(msg_sessions_lock);
+    std::unique_lock<std::mutex> lock(msg_builder_mutex);
 
-    //add all the cursors
-    for (auto &msg_session : msg_sessions) {
-        auto msg_session_paper = std::static_pointer_cast<MsgSessionPaper>(msg_session);
+    {
+        std::unique_lock<std::mutex> lock(msg_sessions_mutex);
 
-        msg_builder.add_event(
-                event::EventUnion::EventUnion_Cursor,
-                msg_builder.builder.CreateStruct<event::Cursor>(msg_session_paper->cursor).Union()
-        );
+        //add all the cursors
+        for (auto &msg_session : msg_sessions) {
+            auto msg_session_paper = std::static_pointer_cast<MsgSessionPaper>(msg_session);
 
+            msg_builder.add_event(
+                    event::EventUnion::EventUnion_Cursor,
+                    msg_builder.builder.CreateStruct<event::Cursor>(msg_session_paper->cursor).Union()
+            );
+
+        }
     }
 
+
+    enqueue(msg_builder);
 
 
 }

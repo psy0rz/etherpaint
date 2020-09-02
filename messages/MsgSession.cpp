@@ -6,14 +6,14 @@ void MsgSession::join(std::shared_ptr<SharedSession> shared_session) {
     shared_session->join(shared_from_this());
 }
 
-void MsgSession::join(const std::string & id) {
+void MsgSession::join(const std::string &id) {
     join(SharedSession::get(id));
 }
 
 void MsgSession::closed() {
     std::lock_guard<std::mutex> lock(mutex);
     ws = nullptr;
-    if (shared_session!=nullptr)
+    if (shared_session != nullptr)
         shared_session->leave(shared_from_this());
 }
 
@@ -27,8 +27,7 @@ MsgSession::MsgSession(uWS::WebSocket<ENABLE_SSL, true> *ws) {
 }
 
 MsgSession::~MsgSession() {
-     DEB("Destroyed msg session");
-    ;
+    DEB("Destroyed msg session");;
 }
 
 void MsgSession::send_queue() {
@@ -45,7 +44,7 @@ void MsgSession::send_queue() {
             msg_queue.pop_back();
 
             std::string_view msg_view(
-                   reinterpret_cast<char *>(msg_serialized_ptr->GetBufferPointer()),
+                    reinterpret_cast<char *>(msg_serialized_ptr->GetBufferPointer()),
                     msg_serialized_ptr->GetSize());
 
             auto ok = ws->send(msg_view, uWS::BINARY, true);
@@ -59,7 +58,7 @@ void MsgSession::send_queue() {
     }
 }
 
-void MsgSession::enqueue( const std::shared_ptr<msg_serialized_type> &msg_serialized) {
+void MsgSession::enqueue(const std::shared_ptr<msg_serialized_type> &msg_serialized) {
     std::lock_guard<std::mutex> lock(mutex);
 
     // ws was closed in the meantime
@@ -77,21 +76,24 @@ void MsgSession::enqueue( const std::shared_ptr<msg_serialized_type> &msg_serial
     msg_queue.push_front(msg_serialized);
 }
 
+//finishes msg_builder and moves it in to a shared_ptr and enqueues it
+void MsgSession::enqueue(MsgBuilder &msg_builder) {
+
+    msg_builder.finish();
+    enqueue(std::make_shared<msg_serialized_type>(std::move(msg_builder.builder)));
+}
+
+
 void MsgSession::enqueue_error(const std::string &description) {
 
-    auto msg_serialized=std::make_shared<msg_serialized_type>(200);
+    MsgBuilder msg_builder(100);
 
-    std::vector<uint8_t> types;
-    types.push_back(event::EventUnion_Error);
+    msg_builder.add_event(
+            event::EventUnion_Error,
+            event::CreateError(msg_builder.builder,
+                               msg_builder.builder.CreateString(description)).Union()
+    );
 
-    std::vector<flatbuffers::Offset<void>> events;
-    events.push_back(event::CreateError(*msg_serialized, msg_serialized->CreateString(description)).Union());
-
-    msg_serialized->Finish(event::CreateMessage(
-            *msg_serialized,
-            msg_serialized->CreateVector(types),
-            msg_serialized->CreateVector(events)
-            ));
-
-    enqueue(msg_serialized);
+    enqueue(msg_builder);
 }
+

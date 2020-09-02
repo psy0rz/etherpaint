@@ -14,6 +14,7 @@ std::shared_ptr<SharedSession> SharedSession::create(const std::string &id) {
 SharedSessionPaper::SharedSessionPaper(const std::string &id) : SharedSession(id) {
 
     DEB("paper construct " << id);
+//    current_frame=
 
 }
 

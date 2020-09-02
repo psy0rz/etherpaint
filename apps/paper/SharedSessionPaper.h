@@ -12,6 +12,9 @@ class SharedSessionPaper : public SharedSession {
 private:
     void send_frame();
 
+
+
+
 public:
     static void update_thread();
     inline static bool stop=false;

@@ -67,6 +67,7 @@ public:
     // sending if it isn't already.
     // (called from any thread)
     void enqueue( const std::shared_ptr<msg_serialized_type> &msg_serialized);
+    void enqueue( MsgBuilder &msg_builder);
 
     // send error message
     void enqueue_error(const std::string &description);

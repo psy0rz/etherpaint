@@ -9,7 +9,7 @@ union EventUnion {
     Error,
     Join,
     Leave,
-    ClientDraw,
+//    ClientDraw,
     ServerDraw,
     Cursor,
 
@@ -51,10 +51,10 @@ table ServerDraw
 {
 }
 
-table ClientDraw
-{
-    changes: [DrawChange];
-}
+//table ClientDraw
+//{
+//   changes: [DrawChange];
+//}
 
 
 
@@ -86,21 +86,6 @@ struct DrawColor
   set: bool;
 }
 
-//we use the fact that default values are not taking up space to our advantage here.
-//so usually almost no fields are set (e.g. default), so we use the cached values.
-table DrawChange
-{
-    //reset all fields to default for this client
-    reset: bool;
-    client_id: uint8;
-    object_id: uint16;
-    tool_type: DrawTooltype;
-    add_points: [DrawPoint];
-    remove_points: uint8;
-    fill_color: DrawColor;
-    line_color: DrawColor;
-    cursor: DrawPoint;
-}
 
 
 

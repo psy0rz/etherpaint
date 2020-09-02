@@ -12,10 +12,8 @@ class MsgSessionPaper:public MsgSession {
 public:
     explicit MsgSessionPaper(uWS::WebSocket<ENABLE_SSL, true> *ws);
 
-    struct {
-        uint16_t x;
-        uint16_t y;
-    } cursor;
+
+    event::Cursor cursor;
 
 
 

@@ -3,6 +3,7 @@
 //
 
 #include "SharedSessionPaper.h"
+#include "MsgSessionPaper.h"
 #include <chrono>
 
 //shared session factory
@@ -11,7 +12,7 @@ std::shared_ptr<SharedSession> SharedSession::create(const std::string &id) {
     return (shared_session);
 }
 
-SharedSessionPaper::SharedSessionPaper(const std::string &id) : SharedSession(id) {
+SharedSessionPaper::SharedSessionPaper(const std::string &id) : SharedSession(id), msg_builder(500) {
 
     DEB("paper construct " << id);
 
@@ -32,9 +33,9 @@ void SharedSessionPaper::update_thread() {
         {
             std::unique_lock<std::mutex> lock(SharedSession::shared_sessions_lock);
 
-            for ( const auto & [id, shared_session]: SharedSession::shared_sessions) {
+            for (const auto &[id, shared_session]: SharedSession::shared_sessions) {
                 auto shared_session_paper = std::static_pointer_cast<SharedSessionPaper>(shared_session);
-                if (shared_session_paper!=nullptr)
+                if (shared_session_paper != nullptr)
                     shared_session_paper->send_frame();
             }
         }
@@ -43,10 +44,22 @@ void SharedSessionPaper::update_thread() {
 
 //send an actual frame to all the connected sessions.
 //called with fps by update_thread
-void SharedSessionPaper::send_frame()
-{
-    INFO("send FRAME " << id );
+void SharedSessionPaper::send_frame() {
+    INFO("send FRAME " << id);
+
+    std::unique_lock<std::mutex> lock(msg_sessions_lock);
 
     //add all the cursors
+    for (auto &msg_session : msg_sessions) {
+        auto msg_session_paper = std::static_pointer_cast<MsgSessionPaper>(msg_session);
+
+        msg_builder.add_event(
+                event::EventUnion::EventUnion_Cursor,
+                msg_builder.builder.CreateStruct<event::Cursor>(msg_session_paper->cursor).Union()
+        );
+
+    }
+
+
 
 }

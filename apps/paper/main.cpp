@@ -18,11 +18,11 @@ int main(const int argc, const char *argv[]) {
 
     handlers[event::EventUnion_Cursor] = [](const std::shared_ptr<MsgSession> &msg_session, const msg_type &msg,
                                             auto event_index) {
-        const auto & event = msg->events()->GetAs<event::Cursor>(event_index);
         const auto & msg_session_paper= std::static_pointer_cast<MsgSessionPaper>(msg_session);
 
-        msg_session_paper->cursor.x=event->x();
-        msg_session_paper->cursor.y=event->y();
+         auto cursor = msg->events()->GetAs<event::Cursor>(event_index);
+
+        msg_session_paper->cursor=*cursor;
 
 //        INFO("cursor " << event->x() << "," << event->y());
 

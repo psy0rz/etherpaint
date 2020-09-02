@@ -31,6 +31,7 @@ public:
 
     void finish()
     {
+
         builder.Finish(event::CreateMessage(
                 builder,
                 builder.CreateVector(event_types),

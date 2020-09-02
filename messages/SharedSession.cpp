@@ -37,6 +37,7 @@ void SharedSession::enqueue( const std::shared_ptr<msg_serialized_type> &msg_ser
     }
 }
 
+
 void SharedSession::join(std::shared_ptr<MsgSession> new_msg_session) {
     std::unique_lock<std::mutex> lock(msg_sessions_lock);
 

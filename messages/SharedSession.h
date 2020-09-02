@@ -41,7 +41,7 @@ public:
 //    static void del(const std::string &id);
 
     // send to all sessions
-    void enqueue(msg_serialized_type &msg_serialized);
+    void enqueue( const std::shared_ptr<msg_serialized_type> &msg_serialized);
 
     // let a session join/leave this shared_session
     void join(std::shared_ptr<MsgSession> new_msg_session);

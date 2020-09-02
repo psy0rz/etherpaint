@@ -41,26 +41,14 @@ void MsgSession::send_queue() {
     // int before = msg_queue.size();
     ws->cork([this]() {
         while (!msg_queue.empty() && !ws->getBufferedAmount()) {
-            static int i = 0;
-            i++;
-            // DEB("send " << i << " q=" << msg_queue.size());
-            auto &msg_serialized = msg_queue.back();
+            auto msg_serialized_ptr = msg_queue.back();
+            msg_queue.pop_back();
 
             std::string_view msg_view(
-                    reinterpret_cast<char *>(msg_serialized.GetBufferPointer()),
-                    msg_serialized.GetSize());
+                   reinterpret_cast<char *>(msg_serialized_ptr->GetBufferPointer()),
+                    msg_serialized_ptr->GetSize());
 
             auto ok = ws->send(msg_view, uWS::BINARY, true);
-
-            // check
-
-            // auto message = event::GetMessage(msg_serialized.GetBufferPointer());
-            // auto event_type=message->event_type();
-            // DEB("SEND EVENT TYPE" << event_type);
-            // auto kut=message->kut();
-            // DEB("SEND kut" << kut);
-
-            msg_queue.pop_back(); // destroys flatbuffer
 
             if (!ok)
                 break;
@@ -71,7 +59,7 @@ void MsgSession::send_queue() {
     }
 }
 
-void MsgSession::enqueue(msg_serialized_type &msg_serialized) {
+void MsgSession::enqueue( const std::shared_ptr<msg_serialized_type> &msg_serialized) {
     std::lock_guard<std::mutex> lock(mutex);
 
     // ws was closed in the meantime
@@ -86,24 +74,23 @@ void MsgSession::enqueue(msg_serialized_type &msg_serialized) {
                 [msg_session = shared_from_this()]() { msg_session->send_queue(); });
     }
 
-    msg_queue.push_front(std::move(msg_serialized));
+    msg_queue.push_front(msg_serialized);
 }
 
 void MsgSession::enqueue_error(const std::string &description) {
 
-    msg_serialized_type msg_serialized(200);
+    auto msg_serialized=std::make_shared<msg_serialized_type>(200);
 
     std::vector<uint8_t> types;
     types.push_back(event::EventUnion_Error);
 
     std::vector<flatbuffers::Offset<void>> events;
-    events.push_back(event::CreateError(msg_serialized, msg_serialized.CreateString(description)).Union());
+    events.push_back(event::CreateError(*msg_serialized, msg_serialized->CreateString(description)).Union());
 
-
-    msg_serialized.Finish(event::CreateMessage(
-            msg_serialized,
-            msg_serialized.CreateVector(types),
-            msg_serialized.CreateVector(events)
+    msg_serialized->Finish(event::CreateMessage(
+            *msg_serialized,
+            msg_serialized->CreateVector(types),
+            msg_serialized->CreateVector(events)
             ));
 
     enqueue(msg_serialized);

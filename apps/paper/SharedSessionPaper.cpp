@@ -14,7 +14,6 @@ std::shared_ptr<SharedSession> SharedSession::create(const std::string &id) {
 SharedSessionPaper::SharedSessionPaper(const std::string &id) : SharedSession(id) {
 
     DEB("paper construct " << id);
-//    current_frame=
 
 }
 
@@ -47,5 +46,7 @@ void SharedSessionPaper::update_thread() {
 void SharedSessionPaper::send_frame()
 {
     INFO("send FRAME " << id );
+
+    //add all the cursors
 
 }

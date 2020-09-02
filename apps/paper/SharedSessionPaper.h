@@ -10,9 +10,9 @@
 
 class SharedSessionPaper : public SharedSession {
 private:
+    MsgBuilder msg_builder;
+
     void send_frame();
-
-
 
 
 public:

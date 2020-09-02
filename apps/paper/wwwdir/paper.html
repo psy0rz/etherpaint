@@ -69,10 +69,71 @@
             console.error("Server reports error: " + error.description());
         }
 
+
+
+
+
+
+        //create/get cursor svg object for specified client
+        function getCursor(clientId)
+        {
+            let drawing=paper.svg_element;
+            let svgns = 'http://www.w3.org/2000/svg';
+            var cursor=document.getElementById('cursor'+clientId);
+            if (cursor==null)
+            {
+                //create a group for this client's cursor
+                cursor = document.createElementNS(svgns, 'g');
+                cursor.setAttribute('id', 'cursor'+clientId);
+                cursor.setAttribute('stroke', '#000000');
+                cursor.setAttribute('stroke-width', '10');
+                drawing.appendChild(cursor);
+
+                //add drawing to the cursor group
+                var e = document.createElementNS(svgns, 'line');
+                e.setAttribute('x1', '-200');
+                e.setAttribute('x2', '+200');
+                e.setAttribute('y1', '0');
+                e.setAttribute('y2', '0');
+                cursor.appendChild(e);
+
+                var e = document.createElementNS(svgns, 'line');
+                e.setAttribute('x1', '0');
+                e.setAttribute('x2', '0');
+                e.setAttribute('y1', '-200');
+                e.setAttribute('y2', '+200');
+                cursor.appendChild(e);
+
+                //create text element
+                var e = document.createElementNS(svgns, 'text');
+                e.setAttribute('id', 'cursorName'+clientId);
+                e.setAttribute('x', '0');
+                e.setAttribute('y', '300');
+                e.setAttribute('font-size','200');
+                e.setAttribute('font-weight','bold');
+                e.setAttribute('stroke','#000000');
+                e.setAttribute('fill','#000000');
+                cursor.appendChild(e);
+
+                //add the actual text
+                var textNode = document.createTextNode("(unknown)", true);
+                e.appendChild(textNode);
+
+            }
+            return (cursor);
+        }
+
+
+
+
         m.handlers[event.EventUnion.Cursor] = (msg, event_index) => {
             cursor = msg.events(event_index, new event.Cursor());
-            console.log(cursor.x(), cursor.y()
-            );
+
+            csvg=getCursor(1);
+            csvg.setAttribute('transform', 'translate('+cursor.x()+','+cursor.y()+')');
+
+            console.log(cursor.x(), cursor.y());
+
         }
 
 
@@ -80,9 +141,9 @@
 
 </head>
 
-<body>
+<body style="width: 100%; height: 100%">
 
-<svg style="border-style: solid;">
+<svg style="border-style: solid;width: 100%; height: 100%">
 
 </svg>
 </body>

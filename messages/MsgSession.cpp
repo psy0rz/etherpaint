@@ -74,6 +74,7 @@ void MsgSession::enqueue(const std::shared_ptr<msg_serialized_type> &msg_seriali
     }
 
     msg_queue.push_front(msg_serialized);
+    INFO("Q=" << msg_queue.size());
 }
 
 //finishes msg_builder and moves it in to a shared_ptr and enqueues it

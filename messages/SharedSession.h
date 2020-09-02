@@ -13,7 +13,7 @@
 class MsgSession;
 
 class SharedSession {
-private:
+protected:
     // all the shared sessions (static/global)
     inline static std::mutex shared_sessions_lock;
     inline static std::map<std::string, std::shared_ptr<SharedSession>> shared_sessions;

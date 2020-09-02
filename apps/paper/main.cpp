@@ -6,7 +6,8 @@
 int main(const int argc, const char *argv[]) {
 
 
-    handlers[event::EventUnion_Join] = [](const std::shared_ptr<MsgSession> &msg_session, const msg_type & msg, auto event_index) {
+    handlers[event::EventUnion_Join] = [](const std::shared_ptr<MsgSession> &msg_session, const msg_type &msg,
+                                          auto event_index) {
         auto event = msg->events()->GetAs<event::Join>(event_index);
 
         INFO("Jooin " << event->id()->str());
@@ -14,12 +15,17 @@ int main(const int argc, const char *argv[]) {
     };
 
 
-    handlers[event::EventUnion_Cursor] = [](const std::shared_ptr<MsgSession> &msg_session, const msg_type & msg, auto event_index) {
+    handlers[event::EventUnion_Cursor] = [](const std::shared_ptr<MsgSession> &msg_session, const msg_type &msg,
+                                            auto event_index) {
         auto event = msg->events()->GetAs<event::Cursor>(event_index);
 
         INFO("cursor " << event->x() << "," << event->y());
     };
 
+    std::thread update_thread(SharedSessionPaper::update_thread);
 
-    return (messagerunner(argc, argv));
+    messagerunner(argc, argv);
+    update_thread.join();
+
+
 }

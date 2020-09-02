@@ -9,15 +9,17 @@
 #include "messages/SharedSession.h"
 
 class SharedSessionPaper : public SharedSession {
+private:
+    void send_frame();
+
 public:
+    static void update_thread();
+    inline static bool stop=false;
 
     explicit SharedSessionPaper(const std::string &id);
-    std::string papernaam;
 
-void paperding()
-{
-  DEB("paperding called: " << papernaam);
-};
+
+
 
 };
 

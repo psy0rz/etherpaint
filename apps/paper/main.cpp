@@ -18,11 +18,13 @@ int main(const int argc, const char *argv[]) {
 
     handlers[event::EventUnion_Cursor] = [](const std::shared_ptr<MsgSession> &msg_session, const msg_type &msg,
                                             auto event_index) {
-        const auto & msg_session_paper= std::static_pointer_cast<MsgSessionPaper>(msg_session);
+        const auto &msg_session_paper = std::static_pointer_cast<MsgSessionPaper>(msg_session);
 
-         auto cursor = msg->events()->GetAs<event::Cursor>(event_index);
+        auto cursor = msg->events()->GetAs<event::Cursor>(event_index);
 
-        msg_session_paper->cursor=*cursor;
+        //not thread safe but shouldnt matter for cursors?
+        msg_session_paper->cursor = *cursor;
+        msg_session_paper->cursor_changed = true;
 
 //        INFO("cursor " << event->x() << "," << event->y());
 

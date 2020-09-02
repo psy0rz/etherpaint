@@ -21,7 +21,7 @@ SharedSessionPaper::SharedSessionPaper(const std::string &id) : SharedSession(id
 //global update thread for shared sessions
 void SharedSessionPaper::update_thread() {
 
-    const auto fps = 1;
+    const auto fps = 60;
     using frames = std::chrono::duration<int64_t, std::ratio<1, fps>>;
 
     auto start_time = std::chrono::system_clock::now();
@@ -45,7 +45,6 @@ void SharedSessionPaper::update_thread() {
 //send an actual frame to all the connected sessions.
 //called with fps by update_thread
 void SharedSessionPaper::send_frame() {
-    INFO("send FRAME " << id);
 
     std::unique_lock<std::mutex> lock(msg_builder_mutex);
 
@@ -56,16 +55,21 @@ void SharedSessionPaper::send_frame() {
         for (auto &msg_session : msg_sessions) {
             auto msg_session_paper = std::static_pointer_cast<MsgSessionPaper>(msg_session);
 
-            msg_builder.add_event(
-                    event::EventUnion::EventUnion_Cursor,
-                    msg_builder.builder.CreateStruct<event::Cursor>(msg_session_paper->cursor).Union()
-            );
+            if (msg_session_paper->cursor_changed)
+            {
+                msg_session_paper->cursor_changed=false;
+                msg_builder.add_event(
+                        event::EventUnion::EventUnion_Cursor,
+                        msg_builder.builder.CreateStruct<event::Cursor>(msg_session_paper->cursor).Union()
+                );
+            }
 
         }
     }
 
-
-    enqueue(msg_builder);
+    //only send if we have events
+    if (!msg_builder.empty())
+        enqueue(msg_builder);
 
 
 }

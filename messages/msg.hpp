@@ -43,6 +43,11 @@ public:
 
     }
 
+    bool empty()
+    {
+        return(event_types.empty());
+    }
+
 private:
 
     std::vector<flatbuffers::Offset<void>> event_offsets;

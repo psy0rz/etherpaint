@@ -64,10 +64,17 @@
         // }
 
 
-        m.handlers[event.EventUnion.Error] = function (msg, event_index) {
+        m.handlers[event.EventUnion.Error] = (msg, event_index) => {
             error = msg.events(event_index, new event.Error());
             console.error("Server reports error: " + error.description());
         }
+
+        m.handlers[event.EventUnion.Cursor] = (msg, event_index) => {
+            cursor = msg.events(event_index, new event.Cursor());
+            console.log(cursor.x(), cursor.y()
+            );
+        }
+
 
     </script>
 

@@ -14,6 +14,7 @@ public:
 
 
     event::Cursor cursor;
+    bool cursor_changed=false;
 
 
 

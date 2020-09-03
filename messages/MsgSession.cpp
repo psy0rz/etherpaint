@@ -2,6 +2,11 @@
 
 void MsgSession::join(std::shared_ptr<SharedSession> shared_session) {
     std::lock_guard<std::mutex> lock(mutex);
+
+    if (this->shared_session!=nullptr)
+    {
+        throw(std::logic_error("Already joined"));
+    }
     this->shared_session = shared_session;
     shared_session->join(shared_from_this());
 }
@@ -15,6 +20,8 @@ void MsgSession::closed() {
     ws = nullptr;
     if (shared_session != nullptr)
         shared_session->leave(shared_from_this());
+
+    shared_session=nullptr;
 }
 
 MsgSession::MsgSession(uWS::WebSocket<ENABLE_SSL, true> *ws) {
@@ -74,7 +81,7 @@ void MsgSession::enqueue(const std::shared_ptr<msg_serialized_type> &msg_seriali
     }
 
     msg_queue.push_front(msg_serialized);
-    INFO("Q=" << msg_queue.size());
+//    INFO("Q=" << msg_queue.size());
 }
 
 //finishes msg_builder and moves it in to a shared_ptr and enqueues it

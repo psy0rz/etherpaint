@@ -2,7 +2,7 @@
 
 SharedSession::SharedSession(const std::string &id) {
     this->id = id;
-    DEB("Created shared session " << id);
+//    DEB("Created shared session " << id);
 }
 
 std::shared_ptr<SharedSession> SharedSession::get(const std::string &id) {
@@ -47,13 +47,13 @@ void SharedSession::enqueue(MsgBuilder &msg_builder) {
 void SharedSession::join(std::shared_ptr<MsgSession> new_msg_session) {
     std::unique_lock<std::mutex> lock(msg_sessions_mutex);
 
-    DEB("Joined shared session " << id);
+//    DEB("Joined shared session " << id);
     msg_sessions.insert(new_msg_session);
 }
 
 void SharedSession::leave(std::shared_ptr<MsgSession> msg_session) {
     std::unique_lock<std::mutex> lock(msg_sessions_mutex);
-    DEB("left shared session " << id);
+//    DEB("left shared session " << id);
     msg_sessions.erase(msg_session);
     if (msg_sessions.empty())
         SharedSession::done(id);

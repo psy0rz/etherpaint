@@ -21,6 +21,8 @@ table Message {
 
 struct Cursor
 {
+    ///client id
+    client_id: uint8;
     x: uint16;
     y: uint16;
 }

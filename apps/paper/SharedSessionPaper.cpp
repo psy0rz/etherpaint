@@ -14,7 +14,6 @@ std::shared_ptr<SharedSession> SharedSession::create(const std::string &id) {
 
 SharedSessionPaper::SharedSessionPaper(const std::string &id) : SharedSession(id), msg_builder(500) {
 
-    DEB("paper construct " << id);
 
 }
 
@@ -51,13 +50,12 @@ void SharedSessionPaper::send_frame() {
     {
         std::unique_lock<std::mutex> lock(msg_sessions_mutex);
 
-        //add all the cursors
+        //add all the changed cursors
         for (auto &msg_session : msg_sessions) {
             auto msg_session_paper = std::static_pointer_cast<MsgSessionPaper>(msg_session);
 
-            if (msg_session_paper->cursor_changed)
-            {
-                msg_session_paper->cursor_changed=false;
+            if (msg_session_paper->cursor_changed) {
+                msg_session_paper->cursor_changed = false;
                 msg_builder.add_event(
                         event::EventUnion::EventUnion_Cursor,
                         msg_builder.builder.CreateStruct<event::Cursor>(msg_session_paper->cursor).Union()
@@ -70,6 +68,42 @@ void SharedSessionPaper::send_frame() {
     //only send if we have events
     if (!msg_builder.empty())
         enqueue(msg_builder);
+
+
+}
+
+void SharedSessionPaper::join(std::shared_ptr<MsgSession> new_msg_session) {
+    //do insert it ourselfs and find new cid, so we only have to lock once
+    std::unique_lock<std::mutex> lock(msg_sessions_mutex);
+
+    auto new_msg_session_paper = std::static_pointer_cast<MsgSessionPaper>(new_msg_session);
+
+    //index all used ids
+    std::bitset<256> used_ids; //uint8_t max
+    for (const auto &msg_session: msg_sessions) {
+        auto msg_session_paper = std::static_pointer_cast<MsgSessionPaper>(msg_session);
+        used_ids.set(msg_session_paper->id);
+    }
+
+    //find first unused id (skip 0)
+    for (uint8_t id = 1; id < 255; id++) {
+        //found free id
+        if (!used_ids[id]) {
+            //set and join
+            new_msg_session_paper->id=id;
+            msg_sessions.insert(new_msg_session_paper);
+            DEB("Client joined as " << int(id) << " to shared paper session " << this->id);
+            return;
+
+        }
+
+    }
+
+
+}
+
+void SharedSessionPaper::leave(std::shared_ptr<MsgSession> new_msg_session) {
+    SharedSession::leave(new_msg_session);
 
 
 }

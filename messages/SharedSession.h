@@ -45,8 +45,8 @@ public:
     void enqueue(MsgBuilder &msg_builder);
 
     // let a session join/leave this shared_session
-    void join(std::shared_ptr<MsgSession> new_msg_session);
-    void leave(std::shared_ptr<MsgSession> new_msg_session);
+    virtual void join(std::shared_ptr<MsgSession> new_msg_session);
+    virtual void leave(std::shared_ptr<MsgSession> new_msg_session);
 
 };
 

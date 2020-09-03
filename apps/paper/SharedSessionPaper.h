@@ -15,6 +15,9 @@ private:
 
     void send_frame();
 
+public:
+    void join(std::shared_ptr<MsgSession> new_msg_session) override;
+
 
 public:
     static void update_thread();
@@ -22,7 +25,7 @@ public:
 
     explicit SharedSessionPaper(const std::string &id);
 
-
+    void leave(std::shared_ptr<MsgSession> new_msg_session) override;
 
 
 };

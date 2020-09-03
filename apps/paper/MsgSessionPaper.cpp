@@ -11,6 +11,5 @@ std::shared_ptr<MsgSession> MsgSession::create(uWS::WebSocket<ENABLE_SSL, true> 
 }
 
 MsgSessionPaper::MsgSessionPaper(uWS::WebSocket<false, true> *ws) : MsgSession(ws) {
-    DEB("its dah rennagade mastahhhhhhhhh2");
 
 }

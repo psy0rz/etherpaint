@@ -11,7 +11,6 @@ int main(const int argc, const char *argv[]) {
                                           auto event_index) {
         auto event = msg->events()->GetAs<event::Join>(event_index);
 
-        INFO("Jooin " << event->id()->str());
         msg_session->join(event->id()->str());
     };
 
@@ -23,7 +22,7 @@ int main(const int argc, const char *argv[]) {
         auto cursor = msg->events()->GetAs<event::Cursor>(event_index);
 
         //not thread safe but shouldnt matter for cursors?
-        msg_session_paper->cursor = *cursor;
+        msg_session_paper->cursor = event::Cursor(msg_session_paper->id, cursor->x(), cursor->y());
         msg_session_paper->cursor_changed = true;
 
 //        INFO("cursor " << event->x() << "," << event->y());

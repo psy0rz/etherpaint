@@ -15,6 +15,7 @@ public:
 
     event::Cursor cursor;
     bool cursor_changed=false;
+    uint8_t id=0; //client id
 
 
 

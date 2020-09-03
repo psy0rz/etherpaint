@@ -5,6 +5,7 @@
 #include "SharedSessionPaper.h"
 #include "MsgSessionPaper.h"
 #include <chrono>
+#include "messages/program_error.hpp"
 
 //shared session factory
 std::shared_ptr<SharedSession> SharedSession::create(const std::string &id) {
@@ -86,18 +87,26 @@ void SharedSessionPaper::join(std::shared_ptr<MsgSession> new_msg_session) {
     }
 
     //find first unused id (skip 0)
-    for (uint8_t id = 1; id < 255; id++) {
+    for (uint8_t client_id = 1; client_id < 255; client_id++) {
         //found free id
-        if (!used_ids[id]) {
-            //set and join
-            new_msg_session_paper->id=id;
+        if (!used_ids[client_id]) {
+            //set id and join
+            new_msg_session_paper->id = client_id;
             msg_sessions.insert(new_msg_session_paper);
-            DEB("Client joined as " << int(id) << " to shared paper session " << this->id);
+            DEB("Client joined as " << int(client_id) << " to shared paper session " << this->id);
+
+            //send join message back to client
+            MsgBuilder mb(200);
+            mb.add_event(event::EventUnion::EventUnion_Join,
+                         event::CreateJoin(mb.builder, mb.builder.CreateString(this->id), client_id).Union());
+            new_msg_session->enqueue(mb);
             return;
 
         }
 
     }
+
+    throw (program_error("Max number of clients has been reached for this paper"));
 
 
 }

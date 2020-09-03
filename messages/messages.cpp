@@ -140,7 +140,7 @@ int messagerunner(const int argc, const char *argv[]) {
                                                 const auto events_size = message->events_type()->size();
                                                 for (auto event_index = 0; event_index < events_size; event_index++) {
 
-                                                    auto event_type=message->events_type()->Get(event_index);
+                                                    auto event_type = message->events_type()->Get(event_index);
 
                                                     if (event_type < 0 || event_type > event::EventUnion_MAX ||
                                                         handlers[event_type] == nullptr) {
@@ -156,15 +156,22 @@ int messagerunner(const int argc, const char *argv[]) {
                                                             //THE call
                                                             handlers[event_type](msg_session, message, event_index);
 
-                                                        } catch (std::exception e) {
+                                                        }
+                                                        catch (program_error e) {
                                                             std::stringstream desc;
-                                                            desc << "Exception while handling "
+                                                            desc << "Program error while handling "
                                                                  << event::EnumNamesEventUnion()[event_type] << ": "
                                                                  << e.what();
                                                             msg_session->enqueue_error(desc.str());
+                                                        }
+                                                        catch (std::exception e) {
+                                                            std::stringstream desc;
+                                                            desc << "Exception while handling "
+                                                                 << event::EnumNamesEventUnion()[event_type];
+                                                            msg_session->enqueue_error(desc.str());
 
 #ifndef NDEBUG
-                                                            throw;
+//                                                            throw;
 #endif
                                                         }
                                                     }

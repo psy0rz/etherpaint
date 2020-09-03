@@ -1,13 +1,15 @@
 #include "MsgSession.h"
 
 void MsgSession::join(std::shared_ptr<SharedSession> shared_session) {
-    std::lock_guard<std::mutex> lock(mutex);
 
-    if (this->shared_session!=nullptr)
     {
-        throw(std::logic_error("Already joined"));
+        std::lock_guard<std::mutex> lock(mutex);
+
+        if (this->shared_session != nullptr) {
+            throw (std::logic_error("Already joined"));
+        }
+        this->shared_session = shared_session;
     }
-    this->shared_session = shared_session;
     shared_session->join(shared_from_this());
 }
 
@@ -21,7 +23,7 @@ void MsgSession::closed() {
     if (shared_session != nullptr)
         shared_session->leave(shared_from_this());
 
-    shared_session=nullptr;
+    shared_session = nullptr;
 }
 
 MsgSession::MsgSession(uWS::WebSocket<ENABLE_SSL, true> *ws) {

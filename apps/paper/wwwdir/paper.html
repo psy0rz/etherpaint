@@ -124,15 +124,22 @@
         }
 
 
+        m.handlers[event.EventUnion.Join] = (msg, event_index) => {
+            join = msg.events(event_index, new event.Join());
+            console.log("Join shared session",join.id(), "as client", join.clientId() );
+            paper.client_id=join.clientId();
+
+        }
 
 
         m.handlers[event.EventUnion.Cursor] = (msg, event_index) => {
             cursor = msg.events(event_index, new event.Cursor());
 
-            csvg=getCursor(1);
+            client_id=cursor.clientId();
+            csvg=getCursor(client_id);
             csvg.setAttribute('transform', 'translate('+cursor.x()+','+cursor.y()+')');
 
-            console.log(cursor.x(), cursor.y());
+            // console.log(cursor.x(), cursor.y());
 
         }
 

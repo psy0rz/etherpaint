@@ -10,6 +10,8 @@ paper.start = function () {
     paper.changes_builder = new flatbuffers.Builder(1);
     paper.changes_offsets = [];
 
+    paper.client_id=0;
+
     paper.svg_element.addEventListener('mousemove', function (m) {
         // console.log(m);
         // mouseTarget = m.target.id;
@@ -17,7 +19,6 @@ paper.start = function () {
         paper.cursor_x = m.clientX;//- $("#drawing").offset().left;
         paper.cursor_y = m.clientY; //mousePoint.y = m.clientY - $("#drawing").offset().top;
         paper.cursor_moved = true;
-        // console.log(m);
         // mouseMove(false);
     });
 
@@ -40,6 +41,7 @@ paper.send = function () {
                     event.EventUnion.Cursor,
                     event.Cursor.createCursor(
                         m.builder,
+                        paper.client_id,
                         paper.cursor_x,
                         paper.cursor_y,
                     ))

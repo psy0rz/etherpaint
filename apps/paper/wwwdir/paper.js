@@ -2,6 +2,7 @@
 
 var paper = {};
 
+//on connection/reconnections of websockets
 paper.start = function () {
     paper.svg_element = document.querySelector('svg');
     paper.svg = SVG(paper.svg_element);
@@ -10,7 +11,6 @@ paper.start = function () {
     paper.changes_builder = new flatbuffers.Builder(1);
     paper.changes_offsets = [];
 
-    paper.client_id=0;
 
     paper.svg_element.addEventListener('mousemove', function (m) {
         // console.log(m);
@@ -31,7 +31,7 @@ paper.send = function () {
 
     //buffer empty enough?
     //todo: some kind of smarter throttling
-    if (m.ws.bufferedAmount == 0) {
+    if (m.ws && m.ws.bufferedAmount == 0) {
         //anything to send at all?
         if (paper.cursor_moved || paper.changes_offsets.length > 0) {
 

@@ -47,14 +47,17 @@
 
         }
 
-        m.start(function () {
-            join(document.location.search);
-
-
-        });
-
         window.addEventListener('load', (event) => {
+
             paper.start();
+
+            //start websocket messaging:
+            m.start(function () {
+                //(re)-connected
+                join(document.location.search);
+
+
+            });
 
         })
 

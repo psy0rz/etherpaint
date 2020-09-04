@@ -94,8 +94,9 @@ int messagerunner(const int argc, const char *argv[]) {
                                  })
                             .ws<PerSocketData>(
                                     "/ws",
-                                    { //  .compression = uWS::SHARED_COMPRESSOR,
-                                            .compression = uWS::DISABLED,
+                                    {
+                                          .compression = uWS::SHARED_COMPRESSOR,
+//                                            .compression = uWS::DISABLED,
                                             .maxPayloadLength = 1024,
                                             .idleTimeout = 1000,
                                             .maxBackpressure = 0,

@@ -1,47 +1,54 @@
 'use strict';
 
+//actual paper handling stuff. sends/receives events and reads/writes to SVG
+
 var paper = {};
 
-paper.Modes =
-    {
-        Point: 1,
-        Draw: 2,
-        Remove: 3,
-        Select: 4
-    };
 
-paper.mode = paper.Modes.Point;
+paper.start = function (svg) {
 
-//selected tools and colors for draw mode
-paper.selected = {};
+    paper.svg = SVG(document.querySelector('svg'));
 
-paper.onMouseMove = function (m) {
-    // console.log(m);
-    // mouseTarget = m.target.id;
-    //work around SVG bug http://code.google.com/p/svgweb/issues/detail?id=244
-    paper.cursor_x = m.clientX;//- $("#drawing").offset().left;
-    paper.cursor_y = m.clientY; //mousePoint.y = m.clientY - $("#drawing").offset().top;
-    paper.cursor_moved = true;
-    // mouseMove(false);
-};
-
-
-//called when page is ready
-paper.start = function () {
-    paper.svg_element = document.querySelector('svg');
-    paper.svg = SVG(paper.svg_element);
-
-    paper.svg_element.addEventListener('mousemove', paper.onMouseMove);
-
-    //start interval timer
+    //start timer
     paper.onFrameTimer();
-
 
 }
 
-//add latest cursor position and send all collected events in m
-paper.onFrameTimer = function () {
 
+//send join to server
+paper.join = function (id) {
+    m.add_event(
+        event.EventUnion.Join,
+        event.Join.createJoin(
+            m.builder,
+            m.builder.createString(id)
+        ));
+
+    m.send();
+}
+
+
+//received join from server
+m.handlers[event.EventUnion.Join] = function(msg, event_index)  {
+    let join = msg.events(event_index, new event.Join());
+    console.log("Join shared session", join.id(), "as client", join.clientId());
+    paper.client_id = join.clientId();
+
+}
+
+
+//update cursor info (onFrameTimer will send it when its time)
+paper.sendCursor = function (x, y) {
+    paper.cursor_x = x;
+    paper.cursor_y = y;
+    paper.cursor_moved = true;
+    console.log(x,y);
+}
+
+
+//add latest cursor position and send all collected events in messaging
+paper.onFrameTimer = function () {
+    setTimeout(paper.onFrameTimer, 1000 / 60); //60 fps, unless we're too slow
     //buffer empty enough?
     //todo: some kind of smarter throttling
     if (m.ws && m.ws.bufferedAmount == 0) {
@@ -65,34 +72,20 @@ paper.onFrameTimer = function () {
             m.send();
         }
     }
-    setTimeout(paper.onFrameTimer, 1000 / 60); //60 fps
-};
+}
 
-paper.deselectTools = function()
-{
-    document.querySelectorAll('#tools ons-toolbar-button').forEach(function(e)
-    {
-        e.setAttribute("modifier", "");
-    })
+// paper.createCursor(client_id)
+// {
+//     paper.svg.
+// }
+
+
+//received a cursor event
+m.handlers[event.EventUnion.Cursor] = (msg, event_index) => {
+    const cursor = msg.events(event_index, new event.Cursor());
+    const client_id = cursor.clientId();
+
 }
 
 
-paper.onClickToolPointer = function (e) {
-    paper.deselectTools();
-    paper.mode=paper.Modes.Point;
-    e.setAttribute("modifier", "outline");
-};
 
-paper.onClickToolSelect = function (e) {
-    paper.deselectTools();
-    paper.mode=paper.Modes.Select;
-    e.setAttribute("modifier", "outline");
-};
-
-
-paper.onClickToolPolyline = function (e) {
-    paper.deselectTools();
-    paper.selected.drawType=event.DrawType.PolyLine;
-    paper.mode=paper.Modes.Draw;
-    e.setAttribute("modifier", "outline");
-};

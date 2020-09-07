@@ -93,7 +93,7 @@ void SharedSessionPaper::join(std::shared_ptr<MsgSession> new_msg_session) {
             //set id and join
             new_msg_session_paper->id = client_id;
             msg_sessions.insert(new_msg_session_paper);
-            DEB("Client joined as " << int(client_id) << " to shared paper session " << this->id);
+            DEB("Client joined as " << int(client_id) << " to shared control session " << this->id);
 
             //send join message back to client
             MsgBuilder mb(200);
@@ -106,7 +106,7 @@ void SharedSessionPaper::join(std::shared_ptr<MsgSession> new_msg_session) {
 
     }
 
-    throw (program_error("Max number of clients has been reached for this paper"));
+    throw (program_error("Max number of clients has been reached for this control"));
 
 
 }

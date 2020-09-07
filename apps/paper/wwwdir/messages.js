@@ -80,12 +80,15 @@ m.restart = function () {
         m.connectcb();
     };
 
+    // let counter=0;
     m.ws.onmessage = function (evt) {
         let buf = new flatbuffers.ByteBuffer(new Uint8Array(evt.data));
         let msg = event.Message.getRootAsMessage(buf);
 
         let events_length = msg.eventsLength();
 
+        // counter=counter+1;
+        // document.querySelector('#counter').innerHTML=counter;
 
         for (let event_index = 0; event_index < events_length; event_index++) {
             let handler = m.handlers[msg.eventsType(event_index)];

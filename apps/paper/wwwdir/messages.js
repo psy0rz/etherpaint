@@ -13,6 +13,11 @@ m.start_message = function () {
     m.event_offsets = [];
 }
 
+m.is_empty = function ()
+{
+    return(m.event_types.length==0);
+}
+
 //add event to message we're building. (you'll have to use m.builder directly in the create...() functions)
 m.add_event = function( event_type, event_offset)
 {

@@ -9,9 +9,8 @@ union EventUnion {
     Error,
     Join,
     Leave,
-//    ClientDraw,
-    ServerDraw,
     Cursor,
+    DrawObject
 
 }
 
@@ -52,41 +51,14 @@ table Leave
 }
 
 
-//all operations are reversable.
-// change-operations use relative values
-enum Operation
-{
-   StartTransaction,
-   ChangeObjectId,
-   ChangeToolType,
-   ChangeColor,
-   ChangeLineType,
-   AddPoints,
-   DeleteObject
-}
-
-//use reverse to indicate a reverse operation, used to undo deletes
-struct DrawOp
-{
-    client_id: uint8;
-    operation: Operation;
-    reverse: bool;
-    value1: uint8;
-    value2: uint8;
-    value3: uint8;
-
-}
-
-
 
 // drawing actions
 // drawing actions
 // drawing actions
 
 
-enum DrawTooltype:byte
+enum DrawType:byte
 {
-  Unchanged,
   Line,
   PolyLine,
   Rectangle,
@@ -104,10 +76,30 @@ struct DrawColor
   r: uint8;
   g: uint8;
   b: uint8;
-  set: bool;
 }
 
 
+/// temporary incremental objects
+struct DrawIncremental
+{
+    client_id: uint8;
+    type: DrawType;
+    point: DrawPoint;
+    color: DrawColor;
+}
 
+/// final complete object, commited to database. server will assign object_id when 0
+table DrawObject
+{
+    client_id: uint8;
+    object_id: uint32;
+    /// when deleting an object, you should specify all the needed information to reverse the delete as well. e.g. all the points and color settings.
+    remove: bool;
+    type: DrawType;
+    points: [DrawPoint];
+    color: DrawColor;
+}
+
+// grouping: deal with this later. needs seperate events i think
 
 root_type Message;

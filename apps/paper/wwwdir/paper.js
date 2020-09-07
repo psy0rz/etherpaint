@@ -2,38 +2,48 @@
 
 var paper = {};
 
+paper.Modes =
+    {
+        Point: 1,
+        Draw: 2,
+        Remove: 3,
+    };
+
+paper.mode = paper.Modes.Point;
+
+//selected tools and colors for draw mode
+paper.selected = {};
+
+paper.onMouseMove = function (m) {
+    // console.log(m);
+    // mouseTarget = m.target.id;
+    //work around SVG bug http://code.google.com/p/svgweb/issues/detail?id=244
+    paper.cursor_x = m.clientX;//- $("#drawing").offset().left;
+    paper.cursor_y = m.clientY; //mousePoint.y = m.clientY - $("#drawing").offset().top;
+    paper.cursor_moved = true;
+    // mouseMove(false);
+};
+
+
 //on connection/reconnections of websockets
 paper.start = function () {
     paper.svg_element = document.querySelector('svg');
     paper.svg = SVG(paper.svg_element);
 
-    //next buffer we're working on to be send in the next timeslot.
-    paper.changes_builder = new flatbuffers.Builder(1);
-    paper.changes_offsets = [];
-
-
-    paper.svg_element.addEventListener('mousemove', function (m) {
-        // console.log(m);
-        // mouseTarget = m.target.id;
-        //work around SVG bug http://code.google.com/p/svgweb/issues/detail?id=244
-        paper.cursor_x = m.clientX;//- $("#drawing").offset().left;
-        paper.cursor_y = m.clientY; //mousePoint.y = m.clientY - $("#drawing").offset().top;
-        paper.cursor_moved = true;
-        // mouseMove(false);
-    });
+    paper.svg_element.addEventListener('mousemove', paper.onMouseMove);
 
     //start interval timer
-    paper.send();
+    paper.onFrameTimer();
 }
 
-//add latest cursor position and send all collected data
-paper.send = function () {
+//add latest cursor position and send all collected events in m
+paper.onFrameTimer = function () {
 
     //buffer empty enough?
     //todo: some kind of smarter throttling
     if (m.ws && m.ws.bufferedAmount == 0) {
         //anything to send at all?
-        if (paper.cursor_moved || paper.changes_offsets.length > 0) {
+        if (paper.cursor_moved || !m.is_empty()) {
 
             if (paper.cursor_moved) {
                 //add latest cursor event
@@ -52,5 +62,10 @@ paper.send = function () {
             m.send();
         }
     }
-    setTimeout(paper.send, 1000 / 60); //60 fps
+    setTimeout(paper.onFrameTimer, 1000 / 60); //60 fps
+};
+
+paper.onClickToolPointer = function (tool) {
+    paper.selected.drawType=event.DrawType.Circle;
+
 };

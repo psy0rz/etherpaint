@@ -26,7 +26,7 @@ paper.onMouseMove = function (m) {
 };
 
 
-//on connection/reconnections of websockets
+//called when page is ready
 paper.start = function () {
     paper.svg_element = document.querySelector('svg');
     paper.svg = SVG(paper.svg_element);
@@ -35,6 +35,8 @@ paper.start = function () {
 
     //start interval timer
     paper.onFrameTimer();
+
+
 }
 
 //add latest cursor position and send all collected events in m

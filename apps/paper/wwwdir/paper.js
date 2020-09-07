@@ -7,6 +7,7 @@ paper.Modes =
         Point: 1,
         Draw: 2,
         Remove: 3,
+        Select: 4
     };
 
 paper.mode = paper.Modes.Point;
@@ -65,7 +66,31 @@ paper.onFrameTimer = function () {
     setTimeout(paper.onFrameTimer, 1000 / 60); //60 fps
 };
 
-paper.onClickToolPointer = function (tool) {
-    paper.selected.drawType=event.DrawType.Circle;
+paper.deselectTools = function()
+{
+    document.querySelectorAll('#tools ons-toolbar-button').forEach(function(e)
+    {
+        e.setAttribute("modifier", "");
+    })
+}
 
+
+paper.onClickToolPointer = function (e) {
+    paper.deselectTools();
+    paper.mode=paper.Modes.Point;
+    e.setAttribute("modifier", "outline");
+};
+
+paper.onClickToolSelect = function (e) {
+    paper.deselectTools();
+    paper.mode=paper.Modes.Select;
+    e.setAttribute("modifier", "outline");
+};
+
+
+paper.onClickToolPolyline = function (e) {
+    paper.deselectTools();
+    paper.selected.drawType=event.DrawType.PolyLine;
+    paper.mode=paper.Modes.Draw;
+    e.setAttribute("modifier", "outline");
 };

@@ -155,39 +155,40 @@
 <ons-page>
 
     <ons-toolbar modifier="material">
-        <div class='left'>
-            <ons-toolbar-button onclick="paper.onClickToolPointer()">
+        <div class='left' id="tools">
+
+            <ons-toolbar-button onclick="paper.onClickToolPointer(this)">
                 <ons-icon icon='fa-hand-point-up' class="fas"></ons-icon>
             </ons-toolbar-button>
 
-            <ons-toolbar-button onclick="paper.onClickToolSelect()">
+            <ons-toolbar-button onclick="paper.onClickToolSelect(this)">
                 <ons-icon icon='fa-mouse-pointer'></ons-icon>
             </ons-toolbar-button>
 
-            <ons-toolbar-button onclick="paper.onClickToolPolyline()">
+            <ons-toolbar-button onclick="paper.onClickToolPolyline(this)">
                 <ons-icon icon='fa-pen'></ons-icon>
             </ons-toolbar-button>
 
-            <ons-toolbar-button onclick="paper.onClickToolSquare()">
+            <ons-toolbar-button onclick="paper.onClickToolSquare(this)">
                 <ons-icon icon='fa-square' class="far"></ons-icon>
             </ons-toolbar-button>
 
-            <ons-toolbar-button onclick="paper.onClickToolCircle()">
+            <ons-toolbar-button onclick="paper.onClickToolCircle(this)">
                 <ons-icon icon='fa-circle' class="far"></ons-icon>
             </ons-toolbar-button>
 
-            <ons-toolbar-button onclick="paper.onClickToolEraser()">
+            <ons-toolbar-button onclick="paper.onClickToolEraser(this)">
                 <ons-icon icon='fa-eraser'></ons-icon>
             </ons-toolbar-button>
 
             <ons-toolbar-button></ons-toolbar-button>
 
             <ons-toolbar-button icon='undo'
-                                onclick="paper.onClickUndo()"></ons-toolbar-button>
+                                onclick="paper.onClickUndo(this)"></ons-toolbar-button>
             <ons-toolbar-button icon='redo'
-                                onclick="paper.onClickRedo()"></ons-toolbar-button>
+                                onclick="paper.onClickRedo(this)"></ons-toolbar-button>
             <ons-toolbar-button icon='history'
-                                onclick="paper.onClickHistory()"></ons-toolbar-button>
+                                onclick="paper.onClickHistory(this)"></ons-toolbar-button>
         </div>
 
     </ons-toolbar>

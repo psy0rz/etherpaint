@@ -19,7 +19,7 @@ table Message {
   events: [EventUnion];
 }
 
-struct Cursor
+ struct Cursor
 {
     ///client id
     client_id: uint8;
@@ -33,6 +33,7 @@ table Echo
   time: uint32;
   payload: string;
 }
+
 
 table Error
 {
@@ -50,14 +51,31 @@ table Leave
 {
 }
 
-table ServerDraw
+
+//all operations are reversable.
+// change-operations use relative values
+enum Operation
 {
+   StartTransaction,
+   ChangeObjectId,
+   ChangeToolType,
+   ChangeColor,
+   ChangeLineType,
+   AddPoints,
+   DeleteObject
 }
 
-//table ClientDraw
-//{
-//   changes: [DrawChange];
-//}
+//use reverse to indicate a reverse operation, used to undo deletes
+struct DrawOp
+{
+    client_id: uint8;
+    operation: Operation;
+    reverse: bool;
+    value1: uint8;
+    value2: uint8;
+    value3: uint8;
+
+}
 
 
 

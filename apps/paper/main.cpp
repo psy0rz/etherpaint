@@ -4,7 +4,30 @@
 #include "SharedSessionPaper.h"
 #include "MsgSessionPaper.h"
 #include "messages/program_error.hpp"
+/*
 
+ begin color 0,0,0
+
+ lijn tekenen:               inverse versie:
+ change color +20            unchange color -20
+ change tool to poly (+3)    unchange tool (-3)
+ add point 1,1               remove point 1,1
+ aad point 10,10             remove point 10,10
+
+absolute color: 20
+
+lijn deleten met color 30
+delete is an inverted draw.
+                                         inverse (tekend de lijn weer)
+change color +10                         change color -10
+remove point 6,0                         add point 6,0
+remove point 3,3                         add point 3,3
+change color -10                         change color +10
+
+ absolute color 20
+
+
+ */
 
 int main(const int argc, const char *argv[]) {
 

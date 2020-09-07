@@ -42,7 +42,6 @@ paper.sendCursor = function (x, y) {
     paper.cursor_x = x;
     paper.cursor_y = y;
     paper.cursor_moved = true;
-    console.log(x,y);
 }
 
 
@@ -74,16 +73,30 @@ paper.onFrameTimer = function () {
     }
 }
 
-// paper.createCursor(client_id)
-// {
-//     paper.svg.
-// }
-
+paper.cursors={};
 
 //received a cursor event
 m.handlers[event.EventUnion.Cursor] = (msg, event_index) => {
-    const cursor = msg.events(event_index, new event.Cursor());
-    const client_id = cursor.clientId();
+    const cursor_event = msg.events(event_index, new event.Cursor());
+    const client_id = cursor_event.clientId();
+
+    //create?
+    if (!(client_id in paper.cursors))
+    {
+        paper.cursors[client_id]=paper.svg.group();
+        paper.cursors[client_id].path('M-10,0 L10,0 M0,-10 L0,10').stroke('black');
+        paper.cursors[client_id].text("client "+client_id);
+    }
+
+    // paper.cursors[client_id].move(cursor_event.x(),cursor_event.y());
+
+    // paper.cursors[client_id].cx(cursor_event.x()).cy(cursor_event.y());
+    paper.cursors[client_id].transform({
+        translateX: cursor_event.x(),
+        translateY: cursor_event.y()
+    });
+
+    // paper.cursors[client_id].translate(cursor_event.x(),cursor_event.y());
 
 }
 

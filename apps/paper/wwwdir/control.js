@@ -31,7 +31,7 @@ control.onMouseMove = function (m) {
     const point=paper.svg.point(m.pageX, m.pageY);
 
 
-    console.log(m.offsetX, m.offsetY, point.x, point.y);
+    // console.log(m.offsetX, m.offsetY, point.x, point.y);
 
     paper.sendCursor(point.x, point.y);
 };

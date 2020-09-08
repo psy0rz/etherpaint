@@ -87,8 +87,8 @@ m.handlers[event.EventUnion.Cursor] = (msg, event_index) => {
     const client_id = cursor_event.clientId();
 
 
-    paper.svg.path("M0,0 L10,10 M0,0 L0,10").stroke('red');
-    paper.svg.path("M10000,10000 L0,0").stroke('blue');
+    // paper.svg.path("M0,0 L10,10 M0,0 L0,10").stroke('red');
+    // paper.svg.path("M10000,10000 L0,0").stroke('blue');
 
     //create?
     if (!(client_id in paper.cursors)) {

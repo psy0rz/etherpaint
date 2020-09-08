@@ -21,7 +21,7 @@
     <!-- our websockets messaging framework -->
     <script src="messages.js"></script>
 
-    <!-- control app -->
+    <!-- paper app stuff -->
     <script src="control.js"></script>
     <script src="paper.js"></script>
 
@@ -76,6 +76,11 @@
         window.addEventListener('load', (event) => {
 
             controlHamburgers();
+
+            //make sure paper starts after toolbar
+            document.querySelector('#paper-container').style.top=document.querySelector("nav").offsetHeight+"px";
+
+
             control.start(document.querySelector('#paper'));
             paper.start(document.querySelector('#paper'));
 
@@ -92,12 +97,15 @@
 
     </script>
 
+
+
 </head>
 <body>
 
 
 <nav role="navigation" aria-label="main navigation" class="navbar is-fixed-top">
     <div class="navbar-brand ">
+
         <div class="navbar-item">
             <div class="field is-grouped">
                 <p class="control" id="tools">
@@ -145,6 +153,24 @@
                         </span>
                     </a>
                 </p>
+
+                <p class="control">
+                    <a class="button" onclick="control.onClickZoomOut(this)">
+                        <span class="icon">
+                            <i class="fas fa-search-minus" aria-hidden="true"></i>
+                        </span>
+                    </a>
+                    <a class="button" onclick="control.onClickZoomIn(this)">
+                        <span class="icon">
+                            <i class="fas fa-search-plus" aria-hidden="true"></i>
+                        </span>
+                    </a>
+                    <span id="zoom-percentage">100%</span>
+
+
+                </p>
+
+
             </div>
         </div>
 
@@ -208,21 +234,21 @@
 <!--<section class="section">-->
 <!--    <div class="container">-->
 
-
 <!-- Your page content here. -->
+<div id="paper-container" style="position:fixed; top:0; left:0 ; right:0; bottom:0 ; background: gray; overflow: scroll">
+
 <svg
         id="paper"
-
         style="
-            width: 7680;
-            height: 4320;
-            left: 0;
-            right: 0;
-            top: 0;
-            bottom: 0;
+         overflow: hidden;
+         width: 6500;
+         height: 6500;
+
         ">
 
 </svg>
+
+</div>
 
 <!--    </div>-->
 <!--</section>-->

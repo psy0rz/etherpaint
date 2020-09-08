@@ -17,21 +17,25 @@ control.mode = control.Modes.Point;
 //selected tools and colors for draw mode
 control.selected = {};
 
-control.onMouseMove = function (m) {
-    paper.sendCursor(m.offsetX, m.offsetY);
-};
-
 
 //called when page is ready
 control.start = function (svg_element) {
     control.svg_element = svg_element;
+    control.zoom_percentage=100;
 
     control.svg_element.addEventListener('mousemove', control.onMouseMove);
-    console.log("start");
-
-
-
 }
+
+control.onMouseMove = function (m) {
+
+    const point=paper.svg.point(m.pageX, m.pageY);
+
+
+    console.log(m.offsetX, m.offsetY, point.x, point.y);
+
+    paper.sendCursor(point.x, point.y);
+};
+
 
 
 control.highlightTool = function(activate)
@@ -68,8 +72,23 @@ control.onClickToolPolyline = function (e) {
     e.classList.add("is-primary");
 };
 
+
+
+control.onClickZoomOut = function (e) {
+    control.zoom_percentage=control.zoom_percentage-10;
+    paper.setZoom(control.zoom_percentage/100);
+};
+
+control.onClickZoomIn = function (e) {
+    control.zoom_percentage=control.zoom_percentage+10;
+    paper.setZoom(control.zoom_percentage/100);
+};
+
+
 //todo: show on GUI
 m.handlers[event.EventUnion.Error] = (msg, event_index) => {
     error = msg.events(event_index, new event.Error());
     console.error("Server reports error: " + error.description());
 }
+
+

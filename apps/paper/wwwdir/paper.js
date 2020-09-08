@@ -7,7 +7,9 @@ var paper = {};
 
 paper.start = function (svg_element) {
 
+    paper.svg_element=svg_element;
     paper.svg = SVG(svg_element);
+    paper.setZoom(1);
 
     //start timer
     paper.onFrameTimer();
@@ -29,7 +31,7 @@ paper.join = function (id) {
 
 
 //received join from server
-m.handlers[event.EventUnion.Join] = function(msg, event_index)  {
+m.handlers[event.EventUnion.Join] = function (msg, event_index) {
     let join = msg.events(event_index, new event.Join());
     console.log("Join shared session", join.id(), "as client", join.clientId());
     paper.client_id = join.clientId();
@@ -40,7 +42,7 @@ m.handlers[event.EventUnion.Join] = function(msg, event_index)  {
 //update cursor info (onFrameTimer will send it when its time)
 paper.sendCursor = function (x, y) {
 
-    if (paper.cursor_x!=x || paper.cursor_y!=y) {
+    if (paper.cursor_x != x || paper.cursor_y != y) {
         paper.cursor_x = x;
         paper.cursor_y = y;
         paper.cursor_moved = true;
@@ -77,19 +79,22 @@ paper.onFrameTimer = function () {
     }
 }
 
-paper.cursors={};
+paper.cursors = {};
 
 //received a cursor event
 m.handlers[event.EventUnion.Cursor] = (msg, event_index) => {
     const cursor_event = msg.events(event_index, new event.Cursor());
     const client_id = cursor_event.clientId();
 
+
+    paper.svg.path("M0,0 L10,10 M0,0 L0,10").stroke('red');
+    paper.svg.path("M10000,10000 L0,0").stroke('blue');
+
     //create?
-    if (!(client_id in paper.cursors))
-    {
-        paper.cursors[client_id]=paper.svg.group();
+    if (!(client_id in paper.cursors)) {
+        paper.cursors[client_id] = paper.svg.group();
         paper.cursors[client_id].path('M-10,0 L10,0 M0,-10 L0,10').stroke('black');
-        paper.cursors[client_id].text("client "+client_id);
+        paper.cursors[client_id].text("client " + client_id);
     }
 
     // paper.cursors[client_id].move(cursor_event.x(),cursor_event.y());
@@ -101,8 +106,14 @@ m.handlers[event.EventUnion.Cursor] = (msg, event_index) => {
     });
 
     // paper.cursors[client_id].translate(cursor_event.x(),cursor_event.y());
-
+    // console.log(cursor_event.x(), cursor_event.y());
 }
 
 
+paper.setZoom = function (factor) {
 
+    const paper_size = 6500;
+    paper.svg_element.style.height = (paper_size * factor) + "px";
+    paper.svg_element.style.width = (paper_size * factor) + "px";
+    paper.svg.viewbox(0, 0, paper_size , paper_size );
+}

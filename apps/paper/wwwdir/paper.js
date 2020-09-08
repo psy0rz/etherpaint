@@ -39,9 +39,12 @@ m.handlers[event.EventUnion.Join] = function(msg, event_index)  {
 
 //update cursor info (onFrameTimer will send it when its time)
 paper.sendCursor = function (x, y) {
-    paper.cursor_x = x;
-    paper.cursor_y = y;
-    paper.cursor_moved = true;
+
+    if (paper.cursor_x!=x || paper.cursor_y!=y) {
+        paper.cursor_x = x;
+        paper.cursor_y = y;
+        paper.cursor_moved = true;
+    }
 }
 
 

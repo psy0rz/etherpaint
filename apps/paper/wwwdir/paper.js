@@ -5,10 +5,14 @@
 var paper = {};
 
 
-paper.start = function (svg_element) {
+paper.start = function (svg_element, grid_element) {
 
     paper.svg_element=svg_element;
+    paper.grid_element=grid_element;
+
     paper.svg = SVG(svg_element);
+    paper.grid= SVG(grid_element);
+
     paper.setZoom(1);
 
     //start timer
@@ -113,7 +117,18 @@ m.handlers[event.EventUnion.Cursor] = (msg, event_index) => {
 paper.setZoom = function (factor) {
 
     const paper_size = 6500;
+
     paper.svg_element.style.height = (paper_size * factor) + "px";
     paper.svg_element.style.width = (paper_size * factor) + "px";
     paper.svg.viewbox(0, 0, paper_size , paper_size );
+
+    paper.grid_element.style.height = (paper_size * factor) + "px";
+    paper.grid_element.style.width = (paper_size * factor) + "px";
+    paper.grid.viewbox(0, 0, paper_size , paper_size );
+
+
+    // document.querySelector('#grid').
+
+    // paper.grid(factor);
 }
+

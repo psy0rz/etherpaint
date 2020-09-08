@@ -78,11 +78,11 @@
             controlHamburgers();
 
             //make sure paper starts after toolbar
-            document.querySelector('#paper-container').style.top=document.querySelector("nav").offsetHeight+"px";
+            document.querySelector('#paper-container').style.top = document.querySelector("nav").offsetHeight + "px";
 
 
             control.start(document.querySelector('#paper'));
-            paper.start(document.querySelector('#paper'));
+            paper.start(document.querySelector('#paper'), document.querySelector('#grid'));
 
             //start websocket messaging:
             m.start(function () {
@@ -96,7 +96,6 @@
 
 
     </script>
-
 
 
 </head>
@@ -235,19 +234,46 @@
 <!--    <div class="container">-->
 
 <!-- Your page content here. -->
-<div id="paper-container" style="position:fixed; top:0; left:0 ; right:0; bottom:0 ;  overflow: scroll">
+<div id="paper-container" style="
+    position:fixed;
+    top:0;
+    left:0 ;
+    right:0;
+    bottom:0 ;
+    overflow: scroll;
+">
+    <!--    grid-->
+    <svg
+            id="grid"
+            style="
+                position: absolute;
+                left: 0;
+                right:0;
+                overflow:hidden
+            ">
 
-<svg
-        id="paper"
-        style="
-         overflow: hidden;
-         width: 6500;
-         height: 6500;
-         touch-action: manipulation;
+        <defs>
+            <pattern id="grid-pattern" width="250" height="250" patternUnits="userSpaceOnUse">
+                <path d="M 0 50 L 250 50 M 50 0 L 50 250 M 0 100 L 250 100 M 100 0 L 100 250 M 0 150 L 250 150 M 150 0 L 150 250 M 0 200 L 250 200 M 200 0 L 200 250"
+                      fill="none" stroke="#eeeeee"  stroke-width="1"></path>
+                <path d="M 250 0 L 0 0 0 250" fill="none" stroke="#aaaaaa" stroke-width="1"></path>
+            </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid-pattern)"></rect>
+    </svg>
 
-        ">
 
-</svg>
+    <svg
+            id="paper"
+            style="
+                 overflow: hidden;
+                 touch-action: manipulation;
+                 position: absolute;
+                 left: 0;
+                 right:0 ;
+            ">
+
+    </svg>
 
 </div>
 

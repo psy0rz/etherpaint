@@ -23,43 +23,49 @@ control.onMouseMove = function (m) {
 
 
 //called when page is ready
-control.start = function () {
-    control.svg_element = document.querySelector('svg');
+control.start = function (svg_element) {
+    control.svg_element = svg_element;
 
     control.svg_element.addEventListener('mousemove', control.onMouseMove);
+    console.log("start");
 
 
 
 }
 
 
-control.deselectTools = function()
+control.highlightTool = function(activate)
 {
-    document.querySelectorAll('#tools ons-toolbar-button').forEach(function(e)
+    // document.querySelectorAll('#tools ons-toolbar-button').forEach(function(e)
+    // {
+    //     e.setAttribute("modifier", "");
+    // })
+    //deselct others
+    document.querySelectorAll('#tools .button').forEach(function(e)
     {
-        e.setAttribute("modifier", "");
+        e.classList.remove("is-primary");
     })
+    activate.classList.add("is-primary");
+
 }
 
 
 control.onClickToolPointer = function (e) {
-    control.deselectTools();
+    control.highlightTool(e);
     control.mode=control.Modes.Point;
-    e.setAttribute("modifier", "outline");
 };
 
 control.onClickToolSelect = function (e) {
-    control.deselectTools();
+    control.highlightTool(e);
     control.mode=control.Modes.Select;
-    e.setAttribute("modifier", "outline");
 };
 
 
 control.onClickToolPolyline = function (e) {
-    control.deselectTools();
+    control.highlightTool(e);
     control.selected.drawType=event.DrawType.PolyLine;
     control.mode=control.Modes.Draw;
-    e.setAttribute("modifier", "outline");
+    e.classList.add("is-primary");
 };
 
 //todo: show on GUI

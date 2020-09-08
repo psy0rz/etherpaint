@@ -5,9 +5,9 @@
 var paper = {};
 
 
-paper.start = function (svg) {
+paper.start = function (svg_element) {
 
-    paper.svg = SVG(document.querySelector('svg'));
+    paper.svg = SVG(svg_element);
 
     //start timer
     paper.onFrameTimer();
@@ -44,6 +44,7 @@ paper.sendCursor = function (x, y) {
         paper.cursor_x = x;
         paper.cursor_y = y;
         paper.cursor_moved = true;
+
     }
 }
 

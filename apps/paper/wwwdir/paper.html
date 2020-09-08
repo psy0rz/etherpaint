@@ -1,13 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html class="has-navbar-fixed-top">
 
 <head>
-    <style>
-    </style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <!-- external frameworks -->
     <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.0/dist/svg.min.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsenui.css">
-    <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsen-css-components.min.css">
+    <!--    <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsenui.css">-->
+    <!--    <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsen-css-components.min.css">-->
+    <!--    <script src="https://unpkg.com/onsenui/js/onsenui.min.js"></script>-->
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css">
+
 
     <!-- standard flatbuffers js API -->
     <script src="flatbuffers.js"></script>
@@ -20,9 +25,6 @@
     <script src="control.js"></script>
     <script src="paper.js"></script>
 
-    <script src="https://unpkg.com/onsenui/js/onsenui.min.js"></script>
-
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <script>
 
@@ -44,12 +46,38 @@
             m.send();
         }
 
+        //Bulma.io stuff
+        function controlHamburgers() {
 
+            // Get all "navbar-burger" elements
+            const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+
+            // Check if there are any navbar burgers
+            if ($navbarBurgers.length > 0) {
+
+                // Add a click event on each of them
+                $navbarBurgers.forEach(el => {
+                    el.addEventListener('click', () => {
+
+                        // Get the target from the "data-target" attribute
+                        const target = el.dataset.target;
+                        const $target = document.getElementById(target);
+
+                        // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+                        el.classList.toggle('is-active');
+                        $target.classList.toggle('is-active');
+
+                    });
+                });
+            }
+
+        };
 
         window.addEventListener('load', (event) => {
 
-            control.start();
-            paper.start();
+            controlHamburgers();
+            control.start(document.querySelector('#paper'));
+            paper.start(document.querySelector('#paper'));
 
             //start websocket messaging:
             m.start(function () {
@@ -67,55 +95,137 @@
 </head>
 <body>
 
-<ons-page>
 
-    <ons-toolbar >
-        <div class='center' id="tools">
-            <ons-toolbar-button onclick="control.onClickToolPointer(this)">
-                <ons-icon icon='fa-hand-point-up' class="fas"></ons-icon>
-            </ons-toolbar-button>
+<nav role="navigation" aria-label="main navigation" class="navbar is-fixed-top">
+    <div class="navbar-brand ">
+        <div class="navbar-item">
+            <div class="field is-grouped">
+                <p class="control" id="tools">
+                    <a class="button" onclick="control.onClickToolPointer(this)">
+                        <span class="icon">
+                            <i class="fas fa-hand-point-up" aria-hidden="true"></i>
+                        </span>
+                    </a>
+                    <a class="button" onclick="control.onClickToolPolyline(this)">
+                        <span class="icon">
+                            <i class="fas fa-pen" aria-hidden="true"></i>
+                        </span>
+                    </a>
+                    <a class="button" onclick="control.onClickToolCircle(this)">
+                        <span class="icon">
+                            <i class="far fa-circle" aria-hidden="true"></i>
+                        </span>
+                    </a>
+                    <a class="button" onclick="control.onClickToolRect(this)">
+                        <span class="icon">
+                            <i class="far fa-square" aria-hidden="true"></i>
+                        </span>
+                    </a>
+                    <a class="button" onclick="control.onClickToolDelete(this)">
+                        <span class="icon">
+                            <i class="fas fa-eraser" aria-hidden="true"></i>
+                        </span>
+                    </a>
+                </p>
 
-            <ons-toolbar-button onclick="control.onClickToolSelect(this)">
-                <ons-icon icon='fa-mouse-pointer'></ons-icon>
-            </ons-toolbar-button>
-
-            <ons-toolbar-button onclick="control.onClickToolPolyline(this)">
-                <ons-icon icon='fa-pen'></ons-icon>
-            </ons-toolbar-button>
-
-            <ons-toolbar-button onclick="control.onClickToolSquare(this)">
-                <ons-icon icon='fa-square' class="far"></ons-icon>
-            </ons-toolbar-button>
-
-            <ons-toolbar-button onclick="control.onClickToolCircle(this)">
-                <ons-icon icon='fa-circle' class="far"></ons-icon>
-            </ons-toolbar-button>
-
-
-            <ons-toolbar-button onclick="control.onClickToolEraser(this)">
-                <ons-icon icon='fa-eraser'></ons-icon>
-            </ons-toolbar-button>
-
-
-            <ons-toolbar-button icon='undo'
-                                onclick="control.onClickUndo(this)"></ons-toolbar-button>
-            <ons-toolbar-button icon='redo'
-                                onclick="control.onClickRedo(this)"></ons-toolbar-button>
-            <ons-toolbar-button icon='history'
-                                onclick="control.onClickHistory(this)"></ons-toolbar-button>
+                <p class="control">
+                    <a class="button" onclick="control.onClickUndo(this)">
+                        <span class="icon">
+                            <i class="fas fa-undo" aria-hidden="true"></i>
+                        </span>
+                    </a>
+                    <a class="button" onclick="control.onClickRedo(this)">
+                        <span class="icon">
+                            <i class="fas fa-redo" aria-hidden="true"></i>
+                        </span>
+                    </a>
+                    <a class="button" onclick="control.onClickHistory(this)">
+                        <span class="icon">
+                            <i class="fas fa-history" aria-hidden="true"></i>
+                        </span>
+                    </a>
+                </p>
+            </div>
         </div>
 
-    </ons-toolbar>
+        <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false"
+           data-target="navbarBasicExample">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+    </div>
 
 
+    <div id="navbarBasicExample" class="navbar-menu">
+        <div class="navbar-start">
+            <a class="navbar-item">
+                MENU NOT IMPLEMENTED YET
+            </a>
 
-            <!-- Your page content here. -->
-    <svg style=" width: 200%; height: 200%">
+            <a class="navbar-item">
+                Documentation
+            </a>
 
-    </svg>
+            <div class="navbar-item has-dropdown is-hoverable">
+                <a class="navbar-link">
+                    More
+                </a>
+
+                <div class="navbar-dropdown">
+                    <a class="navbar-item">
+                        About
+                    </a>
+                    <a class="navbar-item">
+                        Jobs
+                    </a>
+                    <a class="navbar-item">
+                        Contact
+                    </a>
+                    <hr class="navbar-divider">
+                    <a class="navbar-item">
+                        Report an issue
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="navbar-end">
+            <div class="navbar-item">
+                <div class="buttons">
+                    <a class="button is-primary">
+                        <strong>Sign up</strong>
+                    </a>
+                    <a class="button is-light">
+                        Log in
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!--<section class="section">-->
+<!--    <div class="container">-->
 
 
-</ons-page>
+<!-- Your page content here. -->
+<svg
+        id="paper"
+
+        style="
+            width: 7680;
+            height: 4320;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+        ">
+
+</svg>
+
+<!--    </div>-->
+<!--</section>-->
 
 
 </body>

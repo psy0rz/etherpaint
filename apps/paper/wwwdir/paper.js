@@ -13,7 +13,8 @@ paper.start = function (svg_element, grid_element) {
     paper.svg = SVG(svg_element);
     paper.grid= SVG(grid_element);
 
-    paper.setZoom(1);
+
+    //paper.setZoom(1);
 
     //start timer
     paper.onFrameTimer();

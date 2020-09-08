@@ -21,7 +21,11 @@ control.selected = {};
 //called when page is ready
 control.start = function (svg_element) {
     control.svg_element = svg_element;
-    control.zoom_percentage=100;
+
+    //calculate default zoom for this screen
+    const zoom_width=1920;
+    control.zoom_percentage=  document.querySelector('#paper-container').clientWidth/zoom_width*100;
+    paper.setZoom(control.zoom_percentage/100);
 
     // control.svg_element.addEventListener('mousemove', control.onMouseMove);
     control.svg_element.addEventListener('pointermove', control.onMouseMove);

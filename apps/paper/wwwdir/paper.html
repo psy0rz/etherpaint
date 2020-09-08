@@ -81,8 +81,8 @@
             document.querySelector('#paper-container').style.top = document.querySelector("nav").offsetHeight + "px";
 
 
-            control.start(document.querySelector('#paper'));
             paper.start(document.querySelector('#paper'), document.querySelector('#grid'));
+            control.start(document.querySelector('#paper'));
 
             //start websocket messaging:
             m.start(function () {

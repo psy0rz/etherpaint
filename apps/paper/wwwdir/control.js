@@ -23,10 +23,14 @@ control.start = function (svg_element) {
     control.svg_element = svg_element;
     control.zoom_percentage=100;
 
-    control.svg_element.addEventListener('mousemove', control.onMouseMove);
+    // control.svg_element.addEventListener('mousemove', control.onMouseMove);
+    control.svg_element.addEventListener('pointermove', control.onMouseMove);
+
 }
 
 control.onMouseMove = function (m) {
+
+    console.log(m);
 
     const point=paper.svg.point(m.pageX, m.pageY);
 
@@ -57,19 +61,20 @@ control.highlightTool = function(activate)
 control.onClickToolPointer = function (e) {
     control.highlightTool(e);
     control.mode=control.Modes.Point;
+    control.svg_element.style.touchAction="manipulation";
 };
 
-control.onClickToolSelect = function (e) {
-    control.highlightTool(e);
-    control.mode=control.Modes.Select;
-};
+// control.onClickToolSelect = function (e) {
+//     control.highlightTool(e);
+//     control.mode=control.Modes.Select;
+// };
 
 
 control.onClickToolPolyline = function (e) {
     control.highlightTool(e);
-    control.selected.drawType=event.DrawType.PolyLine;
     control.mode=control.Modes.Draw;
-    e.classList.add("is-primary");
+    control.selected.drawType=event.DrawType.PolyLine;
+    control.svg_element.style.touchAction="none";
 };
 
 

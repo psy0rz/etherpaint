@@ -75,12 +75,13 @@ m.restart = function () {
     m.ws = new WebSocket(ws_url);
     m.ws.binaryType = 'arraybuffer';
 
+    // connected
     m.ws.onopen = function () {
         m.log("Connected");
         m.connectcb();
     };
 
-    // let counter=0;
+    // receive websocket messages.
     m.ws.onmessage = function (evt) {
         let buf = new flatbuffers.ByteBuffer(new Uint8Array(evt.data));
         let msg = event.Message.getRootAsMessage(buf);

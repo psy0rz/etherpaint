@@ -20,8 +20,8 @@ paper.start = function (viewer_element, paper_element, scratch_element) {
 
     //paper.setZoom(1);
 
-    //start timer
-    paper.onFrameTimer();
+    //start frame timer
+    paper.onAnimationFrame();
 
 }
 
@@ -60,9 +60,32 @@ paper.sendCursor = function (x, y) {
 }
 
 
-//add latest cursor position and send all collected events in messaging
-paper.onFrameTimer = function () {
-    setTimeout(paper.onFrameTimer, 1000 / 60); //60 fps, unless we're too slow
+paper.cursors = {};
+
+//draw data and send collected data
+paper.onAnimationFrame = function () {
+
+    //DRAW stuff
+
+    //changed cursors
+    paper.cursor_changed_clients.forEach(function (client_id) {
+        //create cursor?
+        if (!(client_id in paper.cursors)) {
+            paper.cursors[client_id] = paper.scratch_svg.group();
+            paper.cursors[client_id].path('M-10,0 L10,0 M0,-10 L0,10').stroke('black');
+            paper.cursors[client_id].text("client " + client_id);
+        }
+
+        //update cursor position
+        paper.cursors[client_id].transform({
+            translateX: paper.cursor_events[client_id].x(),
+            translateY: paper.cursor_events[client_id].y()
+        });
+
+    });
+
+
+    //SEND stuff
     //buffer empty enough?
     //todo: some kind of smarter throttling
     if (m.ws && m.ws.bufferedAmount == 0) {
@@ -86,32 +109,24 @@ paper.onFrameTimer = function () {
             m.send();
         }
     }
+
+    window.requestAnimationFrame(paper.onAnimationFrame);
+
 }
 
-paper.cursors = {};
 
-//received a cursor event
+paper.cursor_events ={};
+paper.cursor_changed_clients=new Set();
+
+//received a cursor event.
+//only store/replace it to handle performance issues gracefully. (e.g. skip updates instead of queue them)
 m.handlers[event.EventUnion.Cursor] = (msg, event_index) => {
     const cursor_event = msg.events(event_index, new event.Cursor());
     const client_id = cursor_event.clientId();
 
-    //create?
-    if (!(client_id in paper.cursors)) {
-        paper.cursors[client_id] = paper.scratch_svg.group();
-        paper.cursors[client_id].path('M-10,0 L10,0 M0,-10 L0,10').stroke('black');
-        paper.cursors[client_id].text("client " + client_id);
-    }
+    paper.cursor_events[client_id]=cursor_event;
+    paper.cursor_changed_clients.add(client_id);
 
-    // paper.cursors[client_id].move(cursor_event.x(),cursor_event.y());
-
-    // paper.cursors[client_id].cx(cursor_event.x()).cy(cursor_event.y());
-    paper.cursors[client_id].transform({
-        translateX: cursor_event.x(),
-        translateY: cursor_event.y()
-    });
-
-    // paper.cursors[client_id].translate(cursor_event.x(),cursor_event.y());
-    // console.log(cursor_event.x(), cursor_event.y());
 }
 
 

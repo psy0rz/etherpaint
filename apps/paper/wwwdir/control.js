@@ -27,22 +27,21 @@ control.start = function () {
     paper.setZoom(control.zoom_percentage/100);
 
     // control.svg_element.addEventListener('mousemove', control.onMouseMove);
-    paper.svg_element.addEventListener('pointermove', control.onMouseMove);
-    paper.scratch_element.addEventListener('pointermove', function(m)
-    {
-        console.log("scratch move" , m.target);
-        m.preventDefault();
-    });
+    document.querySelector("#viewer").addEventListener('pointermove', control.onMouseMove);
+    // paper.scratch_element.addEventListener('pointermove', function(m)
+    // {
+    //     console.log("scratch move" , m.target);
+    //     m.preventDefault();
+    // });
 
 }
 
 control.onMouseMove = function (m) {
 
-    console.log(m.target);
+    // console.log(m.target);
 
-    const point=paper.svg.point(m.pageX, m.pageY);
-
-
+    //calculate action svg paper location
+    const point=paper.viewer_svg.point(m.pageX, m.pageY);
     // console.log(m.offsetX, m.offsetY, point.x, point.y);
 
     paper.sendCursor(point.x, point.y);

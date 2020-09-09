@@ -5,17 +5,18 @@
 var paper = {};
 
 
-paper.start = function (svg_element, grid_element, scratch_element) {
+paper.start = function (viewer_element, paper_element, scratch_element) {
 
-    paper.svg_element=svg_element;
-    paper.grid_element=grid_element;
+    paper.viewer_element=viewer_element;
+    paper.paper_element=paper_element;
     paper.scratch_element=scratch_element;
 
-    paper.svg = SVG(svg_element);
-    paper.grid= SVG(grid_element);
-    paper.scratch= SVG(scratch_element);
+    paper.viewer_svg = SVG(viewer_element);
+    paper.paper_svg= SVG(paper_element);
+    paper.scratch_svg= SVG(scratch_element);
 
-    paper.svg.rect(100,100,1000,1000).fill('red');
+    paper.paper_svg.rect(100,100).fill('red');
+    paper.paper_svg.rect(10,10).fill('green');
 
     //paper.setZoom(1);
 
@@ -96,7 +97,7 @@ m.handlers[event.EventUnion.Cursor] = (msg, event_index) => {
 
     //create?
     if (!(client_id in paper.cursors)) {
-        paper.cursors[client_id] = paper.scratch.group();
+        paper.cursors[client_id] = paper.scratch_svg.group();
         paper.cursors[client_id].path('M-10,0 L10,0 M0,-10 L0,10').stroke('black');
         paper.cursors[client_id].text("client " + client_id);
     }
@@ -118,21 +119,30 @@ paper.setZoom = function (factor) {
 
     const paper_size = 6500;
 
-    paper.svg_element.style.height = (paper_size * factor) + "px";
-    paper.svg_element.style.width = (paper_size * factor) + "px";
-    paper.svg.viewbox(0, 0, paper_size , paper_size );
+    // paper.svg_element.style.height = (paper_size * factor) + "px";
+    // paper.svg_element.style.width = (paper_size * factor) + "px";
+    // paper.svg.viewbox(0, 0, paper_size , paper_size );
+    //
+    // paper.grid_element.style.height = (paper_size * factor) + "px";
+    // paper.grid_element.style.width = (paper_size * factor) + "px";
+    // paper.grid.viewbox(0, 0, paper_size , paper_size );
+    //
+    // paper.scratch_element.style.height = (paper_size * factor) + "px";
+    // paper.scratch_element.style.width = (paper_size * factor) + "px";
+    // paper.scratch.viewbox(0, 0, paper_size , paper_size );
 
-    paper.grid_element.style.height = (paper_size * factor) + "px";
-    paper.grid_element.style.width = (paper_size * factor) + "px";
-    paper.grid.viewbox(0, 0, paper_size , paper_size );
-
-    paper.scratch_element.style.height = (paper_size * factor) + "px";
-    paper.scratch_element.style.width = (paper_size * factor) + "px";
-    paper.scratch.viewbox(0, 0, paper_size , paper_size );
-
+    // let a=document.querySelector("#svgwrap");
+    // a.style.height = (paper_size * factor) + "px";
+    // a.style.width = (paper_size * factor) + "px";
+    // SVG(a).viewbox(0, 0, paper_size , paper_size );
 
     // document.querySelector('#grid').
 
     // paper.grid(factor);
+
+    paper.viewer_element.style.height = (paper_size * factor) + "px";
+    paper.viewer_element.style.width = (paper_size * factor) + "px";
+    paper.viewer_svg.viewbox(0, 0, paper_size , paper_size );
+
 }
 

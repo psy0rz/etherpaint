@@ -27,26 +27,51 @@ control.start = function () {
     paper.setZoom(control.zoom_percentage/100);
 
     // control.svg_element.addEventListener('mousemove', control.onMouseMove);
-    document.querySelector("#viewer").addEventListener('pointermove', control.onMouseMove);
-    // paper.scratch_element.addEventListener('pointermove', function(m)
-    // {
-    //     console.log("scratch move" , m.target);
-    //     m.preventDefault();
-    // });
+    document.querySelector("#viewer").addEventListener('pointermove', control.onPointerMove);
+    document.querySelector("#viewer").addEventListener('pointerdown', control.onPointerDown);
+    document.querySelector("#viewer").addEventListener('pointerup', control.onPointerUp);
+    document.querySelector("#viewer").addEventListener('pointercancel', control.onPointerCancel);
 
 }
 
-control.onMouseMove = function (m) {
+control.onPointerDown = function (m) {
+    //calculate action svg paper location
+    const point=paper.viewer_svg.point(m.pageX, m.pageY);
 
-    // console.log(m.target);
+    paper.sendCursor(point.x, point.y);
+    if (m.buttons==1)
+    {
+        paper.sendDrawIncrement(event.IncrementalType.PointerStart, point.x, point.y);
+    }
+};
+
+control.onPointerMove = function (m) {
 
     //calculate action svg paper location
     const point=paper.viewer_svg.point(m.pageX, m.pageY);
-    // console.log(m.offsetX, m.offsetY, point.x, point.y);
 
     paper.sendCursor(point.x, point.y);
+
+    //button pressed?
+    if (m.buttons==1)
+    {
+        paper.sendDrawIncrement(event.IncrementalType.PointerMove, point.x, point.y);
+    }
 };
 
+control.onPointerUp = function (m) {
+    //calculate action svg paper location
+    const point=paper.viewer_svg.point(m.pageX, m.pageY);
+
+    paper.sendDrawIncrement(event.IncrementalType.PointerEnd, point.x, point.y);
+};
+
+control.onPointerCancel = function (m) {
+    //calculate action svg paper location
+    const point=paper.viewer_svg.point(m.pageX, m.pageY);
+
+    paper.sendDrawIncrement(event.IncrementalType.PointerCancel, point.x, point.y);
+};
 
 
 control.highlightTool = function(activate)

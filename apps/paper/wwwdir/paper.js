@@ -19,6 +19,7 @@ paper.start = function (viewer_element, paper_element, scratch_element) {
     paper.paper_svg.rect(10, 10).fill('green');
 
     paper.clients = {};
+    paper.changed_clients= new Set();
 
     //paper.setZoom(1);
 
@@ -90,16 +91,18 @@ m.handlers[event.EventUnion.DrawIncrement] = function (msg, event_index) {
     const draw_increment = msg.events(event_index, new event.DrawIncrement());
     const client_id = draw_increment.clientId();
 
-    paper.getClient(client_id).drawIncrementEvent(draw_increment);
+    const client=paper.getClient(client_id);
+    client.drawIncrementEvent(draw_increment);
+    paper.changed_clients.add(client);
 
 }
 
 
 
 //draw data and send collected data
-paper.cursors = {};
-paper.cursor_events = {};
-paper.cursor_changed_clients = new Set();
+// paper.cursors = {};
+// paper.cursor_events = {};
+// paper.cursor_changed_clients = new Set();
 paper.onAnimationFrame = function () {
 
     window.requestAnimationFrame(paper.onAnimationFrame);
@@ -110,10 +113,13 @@ paper.onAnimationFrame = function () {
 
     //DRAW stuff
 
-    //let all clients do their incremental draw and cursor stuff:
-    Object.values(paper.clients).forEach(function (paper_client) {
-        paper_client.animate();
-    });
+    //let all changed clients do their incremental draw and cursor stuff:
+    for(const client of paper.changed_clients)
+    {
+        client.animate();
+    }
+    paper.changed_clients.clear();
+
 
     //SEND stuff
     //buffer empty enough?
@@ -152,7 +158,11 @@ m.handlers[event.EventUnion.Cursor] = (msg, event_index) => {
 
     // paper.cursor_events[client_id] = cursor_event;
     // paper.cursor_changed_clients.add(client_id);
-    paper.getClient(client_id).cursorEvent(cursor_event);
+    const client=paper.getClient(client_id);
+    client.cursorEvent(cursor_event);
+    paper.changed_clients.add(client);
+
+
 
 }
 

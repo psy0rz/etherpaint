@@ -90,9 +90,10 @@ enum DrawMode:byte
 
 enum IncrementalType:byte
 {
-    PointerDown,
+    PointerStart,
     PointerMove,
-    PointerUp,
+    PointerEnd,
+    PointerCancel,
     SelectDrawType,
     SelectDrawMode,
     SelectDrawColor,
@@ -103,9 +104,9 @@ struct DrawIncrement
 {
     client_id: uint8;
     type: IncrementalType;
-    p1: uint8;
-    p2: uint8;
-    p3: uint8;
+    p1: uint16;
+    p2: uint16;
+    p3: uint16;
 }
 
 

@@ -116,3 +116,14 @@ void SharedSessionPaper::leave(std::shared_ptr<MsgSession> new_msg_session) {
 
 
 }
+
+void SharedSessionPaper::addDrawIncrement(const event::DrawIncrement *draw_increment) {
+    std::unique_lock<std::mutex> lock(msg_builder_mutex);
+
+    msg_builder.add_event(
+            event::EventUnion::EventUnion_DrawIncrement,
+            msg_builder.builder.CreateStruct<event::DrawIncrement>(*draw_increment).Union()
+    );
+
+}
+

@@ -10,7 +10,8 @@ union EventUnion {
     Join,
     Leave,
     Cursor,
-    DrawObject
+    DrawObject,
+    DrawIncrement
 
 }
 
@@ -78,15 +79,36 @@ struct DrawColor
   b: uint8;
 }
 
+enum DrawMode:byte
+{
+    Draw,
+    Erase,
+    Point,
+    Move
+}
 
-/// temporary incremental objects
-struct DrawIncremental
+
+enum IncrementalType:byte
+{
+    PointerDown,
+    PointerMove,
+    PointerUp,
+    SelectDrawType,
+    SelectDrawMode,
+    SelectDrawColor,
+}
+
+/// used for small incremental drawing actions in the scratch path. temporary for visual effect only.
+struct DrawIncrement
 {
     client_id: uint8;
-    type: DrawType;
-    point: DrawPoint;
-    color: DrawColor;
+    type: IncrementalType;
+    p1: uint8;
+    p2: uint8;
+    p3: uint8;
 }
+
+
 
 /// final complete object, commited to database. server will assign object_id when 0
 table DrawObject

@@ -7,16 +7,18 @@ var paper = {};
 
 paper.start = function (viewer_element, paper_element, scratch_element) {
 
-    paper.viewer_element=viewer_element;
-    paper.paper_element=paper_element;
-    paper.scratch_element=scratch_element;
+    paper.viewer_element = viewer_element;
+    paper.paper_element = paper_element;
+    paper.scratch_element = scratch_element;
 
     paper.viewer_svg = SVG(viewer_element);
-    paper.paper_svg= SVG(paper_element);
-    paper.scratch_svg= SVG(scratch_element);
+    paper.paper_svg = SVG(paper_element);
+    paper.scratch_svg = SVG(scratch_element);
 
-    paper.paper_svg.rect(100,100).fill('red');
-    paper.paper_svg.rect(10,10).fill('green');
+    paper.paper_svg.rect(100, 100).fill('red');
+    paper.paper_svg.rect(10, 10).fill('green');
+
+    paper.clients = {};
 
     //paper.setZoom(1);
 
@@ -39,11 +41,12 @@ paper.join = function (id) {
 }
 
 
-//received join from server
+//server tells us we are joined to a new session.
 m.handlers[event.EventUnion.Join] = function (msg, event_index) {
-    let join = msg.events(event_index, new event.Join());
-    console.log("Join shared session", join.id(), "as client", join.clientId());
+    const join = msg.events(event_index, new event.Join());
+    console.log("Joined shared session", join.id(), "as client", join.clientId());
     paper.client_id = join.clientId();
+    paper.clients = {};
 
 }
 
@@ -59,39 +62,58 @@ paper.sendCursor = function (x, y) {
     }
 }
 
+paper.sendDrawIncrement = function (type, p1, p2, p3) {
+    m.add_event(
+        event.EventUnion.DrawIncrement,
+        event.DrawIncrement.createDrawIncrement(
+            m.builder,
+            paper.client_id,
+            type,
+            p1,
+            p2,
+            p3
+        ));
+}
+
+//find or create PaperClient
+paper.getClient = function (client_id) {
+    let client = paper.clients[client_id];
+    if (!client)
+        client = paper.clients[client_id] = new PaperClient(client_id);
+
+    return (client);
+
+}
+
+//received an incremental draw
+m.handlers[event.EventUnion.DrawIncrement] = function (msg, event_index) {
+    const draw_increment = msg.events(event_index, new event.DrawIncrement());
+    const client_id = draw_increment.clientId();
+
+    paper.getClient(client_id).drawIncrementEvent(cursor_event);
+
+}
+
 
 
 //draw data and send collected data
 paper.cursors = {};
-paper.cursor_events ={};
-paper.cursor_changed_clients=new Set();
+paper.cursor_events = {};
+paper.cursor_changed_clients = new Set();
 paper.onAnimationFrame = function () {
 
     window.requestAnimationFrame(paper.onAnimationFrame);
 
     //only if we are connected
-    if (!m.ws || m.ws.readyState!=1)
+    if (!m.ws || m.ws.readyState != 1)
         return;
 
     //DRAW stuff
 
-    //changed cursors
-    paper.cursor_changed_clients.forEach(function (client_id) {
-        //create cursor?
-        if (!(client_id in paper.cursors)) {
-            paper.cursors[client_id] = paper.scratch_svg.group();
-            paper.cursors[client_id].path('M-10,0 L10,0 M0,-10 L0,10').stroke('black');
-            paper.cursors[client_id].text("client " + client_id);
-        }
-
-        //update cursor position
-        paper.cursors[client_id].transform({
-            translateX: paper.cursor_events[client_id].x(),
-            translateY: paper.cursor_events[client_id].y()
-        });
-
+    //let all clients do their incremental draw and cursor stuff:
+    Object.values(paper.clients).forEach(function (paper_client) {
+        paper_client.animate();
     });
-
 
     //SEND stuff
     //buffer empty enough?
@@ -122,15 +144,15 @@ paper.onAnimationFrame = function () {
 }
 
 
-
 //received a cursor event.
 //only store/replace it to handle performance issues gracefully. (e.g. skip updates instead of queue them)
 m.handlers[event.EventUnion.Cursor] = (msg, event_index) => {
     const cursor_event = msg.events(event_index, new event.Cursor());
     const client_id = cursor_event.clientId();
 
-    paper.cursor_events[client_id]=cursor_event;
-    paper.cursor_changed_clients.add(client_id);
+    // paper.cursor_events[client_id] = cursor_event;
+    // paper.cursor_changed_clients.add(client_id);
+    paper.getClient(client_id).cursorEvent(cursor_event);
 
 }
 
@@ -139,30 +161,9 @@ paper.setZoom = function (factor) {
 
     const paper_size = 6500;
 
-    // paper.svg_element.style.height = (paper_size * factor) + "px";
-    // paper.svg_element.style.width = (paper_size * factor) + "px";
-    // paper.svg.viewbox(0, 0, paper_size , paper_size );
-    //
-    // paper.grid_element.style.height = (paper_size * factor) + "px";
-    // paper.grid_element.style.width = (paper_size * factor) + "px";
-    // paper.grid.viewbox(0, 0, paper_size , paper_size );
-    //
-    // paper.scratch_element.style.height = (paper_size * factor) + "px";
-    // paper.scratch_element.style.width = (paper_size * factor) + "px";
-    // paper.scratch.viewbox(0, 0, paper_size , paper_size );
-
-    // let a=document.querySelector("#svgwrap");
-    // a.style.height = (paper_size * factor) + "px";
-    // a.style.width = (paper_size * factor) + "px";
-    // SVG(a).viewbox(0, 0, paper_size , paper_size );
-
-    // document.querySelector('#grid').
-
-    // paper.grid(factor);
-
     paper.viewer_element.style.height = (paper_size * factor) + "px";
     paper.viewer_element.style.width = (paper_size * factor) + "px";
-    paper.viewer_svg.viewbox(0, 0, paper_size , paper_size );
+    paper.viewer_svg.viewbox(0, 0, paper_size, paper_size);
 
 }
 

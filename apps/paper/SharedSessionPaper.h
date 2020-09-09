@@ -27,6 +27,7 @@ public:
 
     void leave(std::shared_ptr<MsgSession> new_msg_session) override;
 
+    void addDrawIncrement(const event::DrawIncrement* draw_increment);
 
 };
 

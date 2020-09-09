@@ -67,8 +67,11 @@ control.highlightTool = function(activate)
 
 control.onClickToolPointer = function (e) {
     control.highlightTool(e);
-    control.mode=control.Modes.Point;
-    paper.svg_element.style.touchAction="manipulation";
+    // control.mode=control.Modes.Point;
+    paper.viewer_element.style.touchAction="manipulation";
+
+    paper.sendDrawIncrement(event.IncrementalType.SelectDrawMode, event.DrawMode.Point);
+
 };
 
 // control.onClickToolSelect = function (e) {
@@ -79,9 +82,12 @@ control.onClickToolPointer = function (e) {
 
 control.onClickToolPolyline = function (e) {
     control.highlightTool(e);
-    control.mode=control.Modes.Draw;
-    control.selected.drawType=event.DrawType.PolyLine;
-    paper.svg_element.style.touchAction="none";
+    // control.mode=control.Modes.Draw;
+    // control.selected.drawType=event.DrawType.PolyLine;
+    paper.viewer_element.style.touchAction="manipulation";
+
+    paper.sendDrawIncrement(event.IncrementalType.SelectDrawType, event.DrawType.PolyLine);
+    paper.sendDrawIncrement(event.IncrementalType.SelectDrawMode, event.DrawMode.Draw);
 };
 
 

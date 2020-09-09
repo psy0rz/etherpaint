@@ -5,14 +5,17 @@
 var paper = {};
 
 
-paper.start = function (svg_element, grid_element) {
+paper.start = function (svg_element, grid_element, scratch_element) {
 
     paper.svg_element=svg_element;
     paper.grid_element=grid_element;
+    paper.scratch_element=scratch_element;
 
     paper.svg = SVG(svg_element);
     paper.grid= SVG(grid_element);
+    paper.scratch= SVG(scratch_element);
 
+    paper.svg.rect(100,100,1000,1000).fill('red');
 
     //paper.setZoom(1);
 
@@ -91,13 +94,9 @@ m.handlers[event.EventUnion.Cursor] = (msg, event_index) => {
     const cursor_event = msg.events(event_index, new event.Cursor());
     const client_id = cursor_event.clientId();
 
-
-    // paper.svg.path("M0,0 L10,10 M0,0 L0,10").stroke('red');
-    // paper.svg.path("M10000,10000 L0,0").stroke('blue');
-
     //create?
     if (!(client_id in paper.cursors)) {
-        paper.cursors[client_id] = paper.svg.group();
+        paper.cursors[client_id] = paper.scratch.group();
         paper.cursors[client_id].path('M-10,0 L10,0 M0,-10 L0,10').stroke('black');
         paper.cursors[client_id].text("client " + client_id);
     }
@@ -126,6 +125,10 @@ paper.setZoom = function (factor) {
     paper.grid_element.style.height = (paper_size * factor) + "px";
     paper.grid_element.style.width = (paper_size * factor) + "px";
     paper.grid.viewbox(0, 0, paper_size , paper_size );
+
+    paper.scratch_element.style.height = (paper_size * factor) + "px";
+    paper.scratch_element.style.width = (paper_size * factor) + "px";
+    paper.scratch.viewbox(0, 0, paper_size , paper_size );
 
 
     // document.querySelector('#grid').

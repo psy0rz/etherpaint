@@ -19,8 +19,7 @@ control.selected = {};
 
 
 //called when page is ready
-control.start = function (svg_element) {
-    control.svg_element = svg_element;
+control.start = function () {
 
     //calculate default zoom for this screen
     const zoom_width=1920;
@@ -28,13 +27,18 @@ control.start = function (svg_element) {
     paper.setZoom(control.zoom_percentage/100);
 
     // control.svg_element.addEventListener('mousemove', control.onMouseMove);
-    control.svg_element.addEventListener('pointermove', control.onMouseMove);
+    paper.svg_element.addEventListener('pointermove', control.onMouseMove);
+    paper.scratch_element.addEventListener('pointermove', function(m)
+    {
+        console.log("scratch move" , m.target);
+        m.preventDefault();
+    });
 
 }
 
 control.onMouseMove = function (m) {
 
-    console.log(m);
+    console.log(m.target);
 
     const point=paper.svg.point(m.pageX, m.pageY);
 
@@ -65,7 +69,7 @@ control.highlightTool = function(activate)
 control.onClickToolPointer = function (e) {
     control.highlightTool(e);
     control.mode=control.Modes.Point;
-    control.svg_element.style.touchAction="manipulation";
+    paper.svg_element.style.touchAction="manipulation";
 };
 
 // control.onClickToolSelect = function (e) {
@@ -78,7 +82,7 @@ control.onClickToolPolyline = function (e) {
     control.highlightTool(e);
     control.mode=control.Modes.Draw;
     control.selected.drawType=event.DrawType.PolyLine;
-    control.svg_element.style.touchAction="none";
+    paper.svg_element.style.touchAction="none";
 };
 
 

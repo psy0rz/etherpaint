@@ -81,8 +81,8 @@
             document.querySelector('#paper-container').style.top = document.querySelector("nav").offsetHeight + "px";
 
 
-            paper.start(document.querySelector('#paper'), document.querySelector('#grid'));
-            control.start(document.querySelector('#paper'));
+            paper.start(document.querySelector('#paper'), document.querySelector('#grid'), document.querySelector("#scratch"));
+            control.start();
 
             //start websocket messaging:
             m.start(function () {
@@ -242,7 +242,10 @@
     bottom:0 ;
     overflow: scroll;
 ">
-    <!--    grid-->
+
+
+
+    <!-- grid background -->
     <svg
             id="grid"
             style="
@@ -255,7 +258,7 @@
         <defs>
             <pattern id="grid-pattern" width="250" height="250" patternUnits="userSpaceOnUse">
                 <path d="M 0 50 L 250 50 M 50 0 L 50 250 M 0 100 L 250 100 M 100 0 L 100 250 M 0 150 L 250 150 M 150 0 L 150 250 M 0 200 L 250 200 M 200 0 L 200 250"
-                      fill="none" stroke="#eeeeee"  stroke-width="1"></path>
+                      fill="none" stroke="#eeeeee" stroke-width="1"></path>
                 <path d="M 250 0 L 0 0 0 250" fill="none" stroke="#aaaaaa" stroke-width="1"></path>
             </pattern>
         </defs>
@@ -263,17 +266,31 @@
     </svg>
 
 
+    <!-- actual paper -->
     <svg
             id="paper"
             style="
                  overflow: hidden;
-                 touch-action: manipulation;
                  position: absolute;
                  left: 0;
                  right:0 ;
             ">
 
     </svg>
+
+    <!-- scratch buffer for cursors and objects-in-action -->
+    <svg
+            id="scratch"
+            style="
+                 overflow: hidden;
+                 position: absolute;
+                 left: 0;
+                 right:0 ;
+                 z-index: 100;
+            ">
+
+    </svg>
+
 
 </div>
 

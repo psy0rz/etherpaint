@@ -90,7 +90,7 @@ m.handlers[event.EventUnion.DrawIncrement] = function (msg, event_index) {
     const draw_increment = msg.events(event_index, new event.DrawIncrement());
     const client_id = draw_increment.clientId();
 
-    paper.getClient(client_id).drawIncrementEvent(cursor_event);
+    paper.getClient(client_id).drawIncrementEvent(draw_increment);
 
 }
 

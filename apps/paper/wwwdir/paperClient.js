@@ -35,5 +35,14 @@ class PaperClient {
             this.cursor_changed = false;
         }
 
+        //execute draw actions
+        for(const increment_event of this.increment_events)
+        {
+            switch(increment_event.type()){
+                case event.IncrementalType.SelectDrawType:
+                    this.draw_type=increment_event.p1();
+            }
+        }
+
     }
 }

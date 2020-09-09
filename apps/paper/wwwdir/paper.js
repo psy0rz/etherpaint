@@ -60,10 +60,18 @@ paper.sendCursor = function (x, y) {
 }
 
 
-paper.cursors = {};
 
 //draw data and send collected data
+paper.cursors = {};
+paper.cursor_events ={};
+paper.cursor_changed_clients=new Set();
 paper.onAnimationFrame = function () {
+
+    window.requestAnimationFrame(paper.onAnimationFrame);
+
+    //only if we are connected
+    if (!m.ws || m.ws.readyState!=1)
+        return;
 
     //DRAW stuff
 
@@ -110,13 +118,10 @@ paper.onAnimationFrame = function () {
         }
     }
 
-    window.requestAnimationFrame(paper.onAnimationFrame);
 
 }
 
 
-paper.cursor_events ={};
-paper.cursor_changed_clients=new Set();
 
 //received a cursor event.
 //only store/replace it to handle performance issues gracefully. (e.g. skip updates instead of queue them)

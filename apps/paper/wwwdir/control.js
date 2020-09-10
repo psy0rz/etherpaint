@@ -22,26 +22,29 @@ control.selected = {};
 control.start = function () {
 
     //calculate default zoom for this screen
-    const zoom_width=1920;
-    control.zoom_percentage=  document.querySelector('#paper-container').clientWidth/zoom_width*100;
-    paper.setZoom(control.zoom_percentage/100);
+    const zoom_width = 1920;
+    control.zoom_percentage = document.querySelector('#paper-container').clientWidth / zoom_width * 100;
+    paper.setZoom(control.zoom_percentage / 100);
 
     // control.svg_element.addEventListener('mousemove', control.onMouseMove);
-    document.querySelector("#viewer").addEventListener('pointermove', control.onPointerMove, { passive: true });
-    document.querySelector("#viewer").addEventListener('pointerdown', control.onPointerDown, { passive: false });
-    document.querySelector("#viewer").addEventListener('pointerup', control.onPointerUp, { passive: true });
-    document.querySelector("#viewer").addEventListener('pointercancel', control.onPointerCancel, { passive: true });
+    document.querySelector("#viewer").addEventListener('pointermove', control.onPointerMove, {passive: true});
+    document.querySelector("#viewer").addEventListener('pointerdown', control.onPointerDown, {passive: false});
+    document.querySelector("#viewer").addEventListener('pointerup', control.onPointerUp, {passive: true});
+    document.querySelector("#viewer").addEventListener('pointercancel', control.onPointerCancel, {passive: true});
 
 }
 
-//FIXME: we miss coalesced button downs now?
 control.onPointerDown = function (m) {
     //calculate action svg paper location
-    const point=paper.viewer_svg.point(m.pageX, m.pageY);
+    const point = paper.viewer_svg.point(m.pageX, m.pageY);
+    console.log("PRESS");
 
     paper.sendCursor(point.x, point.y);
-    if (m.buttons&1)
-    {
+
+    document.querySelector("#debug").innerText = "buttons=" + m.buttons;
+
+    if (m.buttons & 1) {
+        control.primaryDown = true;
         paper.sendDrawIncrement(event.IncrementalType.PointerStart, point.x, point.y);
     }
 
@@ -51,16 +54,15 @@ control.onPointerDown = function (m) {
 control.onPointerMove = function (m) {
 
     //calculate action svg paper location
-    const point=paper.viewer_svg.point(m.pageX, m.pageY);
+    const point = paper.viewer_svg.point(m.pageX, m.pageY);
 
     //last cursor location, dont need all the coalesced events.
     paper.sendCursor(point.x, point.y);
 
-    for (const coalesced of m.getCoalescedEvents())
-    {
-        //button pressed?
-        if (m.buttons & 1) {
-            let point=paper.viewer_svg.point(coalesced.pageX, coalesced.pageY);
+    //button pressed?
+    if (control.primaryDown) {
+        for (const coalesced of m.getCoalescedEvents()) {
+            let point = paper.viewer_svg.point(coalesced.pageX, coalesced.pageY);
             paper.sendDrawIncrement(event.IncrementalType.PointerMove, point.x, point.y);
         }
     }
@@ -68,28 +70,29 @@ control.onPointerMove = function (m) {
 
 control.onPointerUp = function (m) {
     //calculate action svg paper location
-    const point=paper.viewer_svg.point(m.pageX, m.pageY);
+    const point = paper.viewer_svg.point(m.pageX, m.pageY);
 
-    paper.sendDrawIncrement(event.IncrementalType.PointerEnd, point.x, point.y);
+    if (control.primaryDown) {
+        paper.sendDrawIncrement(event.IncrementalType.PointerEnd, point.x, point.y);
+        control.primaryDown = false;
+    }
 };
 
 control.onPointerCancel = function (m) {
     //calculate action svg paper location
-    const point=paper.viewer_svg.point(m.pageX, m.pageY);
+    const point = paper.viewer_svg.point(m.pageX, m.pageY);
 
     paper.sendDrawIncrement(event.IncrementalType.PointerCancel, point.x, point.y);
 };
 
 
-control.highlightTool = function(activate)
-{
+control.highlightTool = function (activate) {
     // document.querySelectorAll('#tools ons-toolbar-button').forEach(function(e)
     // {
     //     e.setAttribute("modifier", "");
     // })
     //deselct others
-    document.querySelectorAll('#tools .button').forEach(function(e)
-    {
+    document.querySelectorAll('#tools .button').forEach(function (e) {
         e.classList.remove("is-primary");
     })
     activate.classList.add("is-primary");
@@ -100,7 +103,7 @@ control.highlightTool = function(activate)
 control.onClickToolPointer = function (e) {
     control.highlightTool(e);
     // control.mode=control.Modes.Point;
-    paper.viewer_element.style.touchAction="manipulation";
+    paper.viewer_element.style.touchAction = "manipulation";
 
     paper.sendDrawIncrement(event.IncrementalType.SelectDrawMode, event.DrawMode.Point);
 
@@ -116,22 +119,21 @@ control.onClickToolPolyline = function (e) {
     control.highlightTool(e);
     // control.mode=control.Modes.Draw;
     // control.selected.drawType=event.DrawType.PolyLine;
-    paper.viewer_element.style.touchAction="manipulation";
+    paper.viewer_element.style.touchAction = "manipulation";
 
     paper.sendDrawIncrement(event.IncrementalType.SelectDrawType, event.DrawType.PolyLine);
     paper.sendDrawIncrement(event.IncrementalType.SelectDrawMode, event.DrawMode.Draw);
 };
 
 
-
 control.onClickZoomOut = function (e) {
-    control.zoom_percentage=control.zoom_percentage-10;
-    paper.setZoom(control.zoom_percentage/100);
+    control.zoom_percentage = control.zoom_percentage - 10;
+    paper.setZoom(control.zoom_percentage / 100);
 };
 
 control.onClickZoomIn = function (e) {
-    control.zoom_percentage=control.zoom_percentage+10;
-    paper.setZoom(control.zoom_percentage/100);
+    control.zoom_percentage = control.zoom_percentage + 10;
+    paper.setZoom(control.zoom_percentage / 100);
 };
 
 
@@ -144,18 +146,18 @@ m.handlers[event.EventUnion.Error] = (msg, event_index) => {
 
 control.onClickHistory = function (e) {
     document.querySelector("#history").classList.remove("is-hidden");
-    document.querySelector("#history-slider").max=paper.increments.length-1;
-    document.querySelector("#history-slider").value=paper.increments.length-1;
+    document.querySelector("#history-slider").max = paper.increments.length - 1;
+    document.querySelector("#history-slider").value = paper.increments.length - 1;
 
-    paper.paused=true;
+    paper.paused = true;
 };
 
 control.onClickHistoryClose = function (e) {
     document.querySelector("#history").classList.add("is-hidden");
-    paper.paused=false;
-    paper.target_index=paper.increments.length-1;
+    paper.paused = false;
+    paper.target_index = paper.increments.length - 1;
 };
 
 control.onInputHistory = function (e) {
-    paper.target_index=e.value;
+    paper.target_index = e.value;
 }

@@ -94,9 +94,14 @@ enum IncrementalType:byte
     PointerMove,
     PointerEnd,
     PointerCancel,
+    Delete,
+    DeletePoint,
     SelectDrawType,
     SelectDrawMode,
     SelectDrawColor,
+    //the undo-able form of delete:
+    Archive,
+    Unarchive,
 }
 
 /// used for small incremental drawing actions in the scratch path. temporary for visual effect only.

@@ -17,9 +17,8 @@ paper.start = function (viewer_element, paper_element, scratch_element) {
 
     paper.paper_svg.text("Work in progress - het is stuk :)").attr('font-size', '200%');
 
-    paper.clients = {};
-    paper.changed_clients= new Set();
 
+    paper.clear();
     //paper.setZoom(1);
 
     //start frame timer
@@ -27,6 +26,16 @@ paper.start = function (viewer_element, paper_element, scratch_element) {
 
 }
 
+paper.clear=function()
+{
+    paper.clients = {};
+    paper.increments = [];
+    paper.reverse_increments = [];
+    paper.increment_index = 0;
+    paper.sliding=false;
+    paper.changed_clients = new Set();
+
+}
 
 //send join to server
 paper.join = function (id) {
@@ -45,11 +54,9 @@ paper.join = function (id) {
 m.handlers[event.EventUnion.Join] = function (msg, event_index) {
     const join = msg.events(event_index, new event.Join());
     console.log("Joined shared session", join.id(), "as client", join.clientId());
+
     paper.client_id = join.clientId();
-    paper.clients = {};
-    paper.increments=[];
-    paper.decrements=[];
-    paper.increment_index=0;
+    paper.clear();
 
 }
 
@@ -108,13 +115,31 @@ m.handlers[event.EventUnion.DrawIncrement] = function (msg, event_index) {
 }
 
 
-paper.drawIncrements = function(index)
-{
-    while(paper.increment_index<=index)
-    {
-        const increment=paper.increments[paper.increment_index];
-        const client=paper.getClient(increment[0]);
-        client.drawIncrement(increment[1], increment[2], increment[3], increment[4]);
+paper.drawReverseIncrements = function (index) {
+    while (paper.increment_index > index) {
+        paper.increment_index=paper.increment_index-1;
+        console.log(paper.increment_index);
+
+        const increment = paper.reverse_increments[paper.increment_index];
+        if (!(increment === undefined)) {
+            const client = paper.getClient(increment[0]);
+
+            client.drawIncrement(increment[1], increment[2], increment[3], increment[4]);
+        }
+
+    }
+
+}
+
+paper.drawIncrements = function (index) {
+    while (paper.increment_index <= index) {
+        const increment = paper.increments[paper.increment_index];
+        const client = paper.getClient(increment[0]);
+        let reverse=[increment[0]];
+        reverse=reverse.concat(client.drawIncrement(increment[1], increment[2], increment[3], increment[4]));
+        if (paper.reverse_increments.length < paper.increments.length)
+            paper.reverse_increments.push(reverse);
+
         paper.increment_index++;
     }
 }
@@ -136,20 +161,19 @@ paper.onAnimationFrame = function () {
     //DRAW stuff
 
     //let all changed clients do their incremental draw and cursor stuff:
-    for(const client of paper.changed_clients)
-    {
+    for (const client of paper.changed_clients) {
         client.animateCursor();
     }
     paper.changed_clients.clear();
 
-    paper.drawIncrements(paper.increments.length-1);
-
+    if (!paper.sliding)
+        paper.drawIncrements(paper.increments.length - 1);
 
 
     //SEND stuff
     //buffer empty enough?
     //todo: some kind of smarter throttling
-    if (m.ws && m.ws.bufferedAmount == 0 ) {
+    if (m.ws && m.ws.bufferedAmount == 0) {
         //anything to send at all?
         if (paper.cursor_moved || !m.is_empty()) {
 
@@ -185,10 +209,9 @@ m.handlers[event.EventUnion.Cursor] = (msg, event_index) => {
 
     // paper.cursor_events[client_id] = cursor_event;
     // paper.cursor_changed_clients.add(client_id);
-    const client=paper.getClient(client_id);
+    const client = paper.getClient(client_id);
     client.cursorEvent(cursor_event);
     paper.changed_clients.add(client);
-
 
 
 }

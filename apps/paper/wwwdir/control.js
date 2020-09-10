@@ -34,6 +34,7 @@ control.start = function () {
 
 }
 
+//FIXME: we miss coalesced button downs now?
 control.onPointerDown = function (m) {
     //calculate action svg paper location
     const point=paper.viewer_svg.point(m.pageX, m.pageY);

@@ -142,3 +142,17 @@ m.handlers[event.EventUnion.Error] = (msg, event_index) => {
 }
 
 
+control.onClickHistory = function (e) {
+    document.querySelector("#history").classList.remove("is-hidden");
+    document.querySelector("#history-slider").max=paper.increments.length-1;
+    paper.paused=true;
+};
+
+control.onClickHistoryClose = function (e) {
+    document.querySelector("#history").classList.add("is-hidden");
+    paper.paused=false;
+};
+
+control.onInputHistory = function (e) {
+    paper.slideTo(e.value);
+}

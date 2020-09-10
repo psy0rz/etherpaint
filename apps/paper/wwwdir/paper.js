@@ -26,13 +26,12 @@ paper.start = function (viewer_element, paper_element, scratch_element) {
 
 }
 
-paper.clear=function()
-{
+paper.clear = function () {
     paper.clients = {};
     paper.increments = [];
     paper.reverse_increments = [];
     paper.increment_index = 0;
-    paper.sliding=false;
+    paper.paused = false;
     paper.changed_clients = new Set();
 
 }
@@ -117,7 +116,7 @@ m.handlers[event.EventUnion.DrawIncrement] = function (msg, event_index) {
 
 paper.drawReverseIncrements = function (index) {
     while (paper.increment_index > index) {
-        paper.increment_index=paper.increment_index-1;
+        paper.increment_index = paper.increment_index - 1;
         console.log(paper.increment_index);
 
         const increment = paper.reverse_increments[paper.increment_index];
@@ -135,14 +134,27 @@ paper.drawIncrements = function (index) {
     while (paper.increment_index <= index) {
         const increment = paper.increments[paper.increment_index];
         const client = paper.getClient(increment[0]);
-        let reverse=[increment[0]];
-        reverse=reverse.concat(client.drawIncrement(increment[1], increment[2], increment[3], increment[4]));
+        let reverse = [increment[0]];
+        reverse = reverse.concat(client.drawIncrement(increment[1], increment[2], increment[3], increment[4]));
         if (paper.reverse_increments.length < paper.increments.length)
             paper.reverse_increments.push(reverse);
 
         paper.increment_index++;
     }
 }
+
+paper.slideTo = function (index) {
+
+    paper.paused=true;
+
+    if (paper.increment_index > index)
+        paper.drawReverseIncrements(index);
+
+    else if (paper.increment_index < index)
+        paper.drawIncrements(index);
+
+}
+
 
 
 //draw data and send collected data
@@ -166,7 +178,7 @@ paper.onAnimationFrame = function () {
     }
     paper.changed_clients.clear();
 
-    if (!paper.sliding)
+    if (!paper.paused)
         paper.drawIncrements(paper.increments.length - 1);
 
 

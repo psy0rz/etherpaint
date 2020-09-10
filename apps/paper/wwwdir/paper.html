@@ -232,6 +232,31 @@
     </div>
 </nav>
 
+<!--History slider-->
+<nav role="navigation"  id="history" class="navbar is-fixed-top is-hidden">
+    <div class="navbar-brand ">
+        <div class="navbar-item">
+            <div class="field is-grouped" >
+                <p class="control" style="width: 500px">
+                    <input  id="history-slider" style='width: 100%'                type="range" id="points" name="points" min="0" max="1000" oninput="control.onInputHistory(this)" >
+                </p>
+
+                <p class="control">
+                    <a class="button" onclick="control.onClickHistoryClose(this)">
+                        <span class="icon">
+                            <i class="fas fa-window-close" aria-hidden="true"></i>
+                        </span>
+                    </a>
+                </p>
+
+        </div>
+
+    </div>
+</nav>
+
+
+
+
 <!--<section class="section">-->
 <!--    <div class="container">-->
 

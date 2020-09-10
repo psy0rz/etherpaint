@@ -34,6 +34,11 @@ class PaperClient {
         });
     }
 
+    getObjectIdStr(id)
+    {
+        return("c"+this.client_id+"o"+id);
+    }
+
     //execute a drawing increment, and retrun the reverse for undo/timeslider purposes.
     drawIncrement(type, p1, p2, p3) {
         let reverse;
@@ -50,7 +55,7 @@ class PaperClient {
 
                         this.current_element = paper.scratch_svg.polyline([[p1,p2]]);
                         this.current_element.stroke('black').fill('none');
-                        this.current_element.node.id="c"+this.client_id+"o"+this.next_object_id;
+                        this.current_element.node.id=this.getObjectIdStr(this.next_object_id);
                         this.next_object_id++;
 
                         // this.current_points=document.querySelector("#"+this.current_element.id).points;
@@ -82,6 +87,14 @@ class PaperClient {
                 reverse=[event.IncrementalType.PointerMove, point[0], point[1] ];
                 console.log("removing", p1);
                 this.current_element.node.points.removeItem(p1);
+                break;
+
+            case event.IncrementalType.Delete:
+                this.next_object_id--;
+                this.current_element.remove();
+                this.current_element=SVG(document.querySelector("#"+this.getObjectIdStr(this.next_object_id-1)));
+                console.log("removed current is", this.current_element);
+
                 break;
 
 

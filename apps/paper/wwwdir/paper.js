@@ -15,7 +15,7 @@ paper.start = function (viewer_element, paper_element, scratch_element) {
     paper.paper_svg = SVG(paper_element);
     paper.scratch_svg = SVG(scratch_element);
 
-    paper.paper_svg.text("Work in progress - het is stuk :)").attr('font-size', '200%');
+    paper.paper_svg.text("Alleen pencil en history slider werken. ").attr('font-size', '200%');
 
 
     paper.clear();

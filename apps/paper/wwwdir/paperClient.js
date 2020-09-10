@@ -57,17 +57,20 @@ class PaperClient {
                     }
                     break;
                 case event.IncrementalType.PointerMove:
-                    switch (this.drawtype) {
-                        case event.DrawType.PolyLine:
-                            let p = paper.scratch_svg.node.createSVGPoint();
-                            p.x = increment_event.p1();
-                            p.y = increment_event.p2();
-                            this.current_element.node.points.appendItem(p);
-                            // console.log("jo", this.current_element);
+                    if (this.current_element) {
 
-                            break;
-                        default:
-                            break;
+                        switch (this.drawtype) {
+                            case event.DrawType.PolyLine:
+                                let p = paper.scratch_svg.node.createSVGPoint();
+                                p.x = increment_event.p1();
+                                p.y = increment_event.p2();
+                                this.current_element.node.points.appendItem(p);
+                                // console.log("jo", this.current_element);
+
+                                break;
+                            default:
+                                break;
+                        }
                     }
                     break;
 

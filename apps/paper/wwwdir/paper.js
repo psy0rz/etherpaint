@@ -15,7 +15,7 @@ paper.start = function (viewer_element, paper_element, scratch_element) {
     paper.paper_svg = SVG(paper_element);
     paper.scratch_svg = SVG(scratch_element);
 
-    paper.paper_svg.text("Work in progress - Alleen het 2e icoontje van links en de zoom doet het.").attr('font-size', '200%');
+    paper.paper_svg.text("Work in progress - het is stuk :)").attr('font-size', '200%');
 
     paper.clients = {};
     paper.changed_clients= new Set();
@@ -47,6 +47,9 @@ m.handlers[event.EventUnion.Join] = function (msg, event_index) {
     console.log("Joined shared session", join.id(), "as client", join.clientId());
     paper.client_id = join.clientId();
     paper.clients = {};
+    paper.increments=[];
+    paper.decrements=[];
+    paper.increment_index=0;
 
 }
 
@@ -87,15 +90,34 @@ paper.getClient = function (client_id) {
 
 //received an incremental draw
 m.handlers[event.EventUnion.DrawIncrement] = function (msg, event_index) {
-    const draw_increment = msg.events(event_index, new event.DrawIncrement());
-    const client_id = draw_increment.clientId();
+    const draw_increment_event = msg.events(event_index, new event.DrawIncrement());
+    const client_id = draw_increment_event.clientId();
 
-    const client=paper.getClient(client_id);
-    client.drawIncrementEvent(draw_increment);
-    paper.changed_clients.add(client);
+    // const client=paper.getClient(client_id);
+    paper.increments.push([
+        client_id,
+        draw_increment_event.type(),
+        draw_increment_event.p1(),
+        draw_increment_event.p2(),
+        draw_increment_event.p3(),
+    ]);
+
+    // client.drawIncrementEvent(draw_increment);
+    // paper.changed_clients.add(client);
 
 }
 
+
+paper.drawIncrements = function(index)
+{
+    while(paper.increment_index<=index)
+    {
+        const increment=paper.increments[paper.increment_index];
+        const client=paper.getClient(increment[0]);
+        client.drawIncrement(increment[1], increment[2], increment[3], increment[4]);
+        paper.increment_index++;
+    }
+}
 
 
 //draw data and send collected data
@@ -116,15 +138,18 @@ paper.onAnimationFrame = function () {
     //let all changed clients do their incremental draw and cursor stuff:
     for(const client of paper.changed_clients)
     {
-        client.animate();
+        client.animateCursor();
     }
     paper.changed_clients.clear();
+
+    paper.drawIncrements(paper.increments.length-1);
+
 
 
     //SEND stuff
     //buffer empty enough?
     //todo: some kind of smarter throttling
-    if (m.ws && m.ws.bufferedAmount == 0) {
+    if (m.ws && m.ws.bufferedAmount == 0 ) {
         //anything to send at all?
         if (paper.cursor_moved || !m.is_empty()) {
 

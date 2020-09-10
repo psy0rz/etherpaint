@@ -217,16 +217,17 @@
         </div>
 
         <div class="navbar-end">
-            <div class="navbar-item">
-                <div class="buttons">
-                    <a class="button is-primary">
-                        <strong>Sign up</strong>
-                    </a>
-                    <a class="button is-light">
-                        Log in
-                    </a>
-                </div>
-            </div>
+<!--            <div class="navbar-item">-->
+<!--                <div class="buttons">-->
+<!--                    <a class="button is-primary">-->
+<!--                        <strong>Sign up</strong>-->
+<!--                    </a>-->
+<!--                    <a class="button is-light">-->
+<!--                        Log in-->
+<!--                    </a>-->
+<!--                </div>-->
+<!--            </div>-->
+
         </div>
     </div>
 </nav>
@@ -242,6 +243,8 @@
     right:0;
     bottom:0 ;
     overflow: scroll;
+    touch-action: none;
+
 ">
 
     <!-- viewer, handles mouseevents, zooming and panning -->
@@ -250,11 +253,12 @@
                 position: absolute;
                 left: 0;
                 right:0;
-                overflow:hidden
+                overflow:hidden;
+
                     ">
 
         <!-- grid background -->
-        <svg style="pointer-events: none">
+        <svg style="pointer-events: none;">
             <defs>
                 <pattern id="grid-pattern" width="250" height="250" patternUnits="userSpaceOnUse">
                     <path d="M 0 50 L 250 50 M 50 0 L 50 250 M 0 100 L 250 100 M 100 0 L 100 250 M 0 150 L 250 150 M 150 0 L 150 250 M 0 200 L 250 200 M 200 0 L 200 250"
@@ -266,7 +270,7 @@
         </svg>
 
         <!-- actual paper -->
-        <svg id="paper">
+        <svg id="paper" style="">
         </svg>
 
         <!-- scratch buffer for cursors and objects-in-action -->

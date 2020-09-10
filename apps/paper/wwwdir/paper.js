@@ -15,8 +15,7 @@ paper.start = function (viewer_element, paper_element, scratch_element) {
     paper.paper_svg = SVG(paper_element);
     paper.scratch_svg = SVG(scratch_element);
 
-    paper.paper_svg.rect(100, 100).fill('red');
-    paper.paper_svg.rect(10, 10).fill('green');
+    paper.paper_svg.text("Work in progress - Alleen het 2e icoontje van links en de zoom doet het.").attr('font-size', '200%');
 
     paper.clients = {};
     paper.changed_clients= new Set();
@@ -105,11 +104,12 @@ m.handlers[event.EventUnion.DrawIncrement] = function (msg, event_index) {
 // paper.cursor_changed_clients = new Set();
 paper.onAnimationFrame = function () {
 
-    window.requestAnimationFrame(paper.onAnimationFrame);
 
     //only if we are connected
-    if (!m.ws || m.ws.readyState != 1)
+    if (!m.ws || m.ws.readyState != 1) {
+        window.requestAnimationFrame(paper.onAnimationFrame);
         return;
+    }
 
     //DRAW stuff
 
@@ -147,6 +147,8 @@ paper.onAnimationFrame = function () {
     }
 
 
+    window.requestAnimationFrame(paper.onAnimationFrame);
+    // setTimeout(paper.onA)
 }
 
 

@@ -145,14 +145,17 @@ m.handlers[event.EventUnion.Error] = (msg, event_index) => {
 control.onClickHistory = function (e) {
     document.querySelector("#history").classList.remove("is-hidden");
     document.querySelector("#history-slider").max=paper.increments.length-1;
+    document.querySelector("#history-slider").value=paper.increments.length-1;
+
     paper.paused=true;
 };
 
 control.onClickHistoryClose = function (e) {
     document.querySelector("#history").classList.add("is-hidden");
     paper.paused=false;
+    paper.target_index=paper.increments.length-1;
 };
 
 control.onInputHistory = function (e) {
-    paper.slideTo(e.value);
+    paper.target_index=e.value;
 }

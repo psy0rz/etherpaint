@@ -70,7 +70,6 @@ class PaperClient {
                     switch (this.drawtype) {
                         case event.DrawType.PolyLine:
                             reverse=[event.IncrementalType.DeletePoint, this.current_element.node.points.length ];
-                            console.log("rev=", reverse);
                             let p = paper.scratch_svg.node.createSVGPoint();
                             p.x = p1;
                             p.y = p2;
@@ -85,7 +84,6 @@ class PaperClient {
             case event.IncrementalType.DeletePoint:
                 let point=this.current_element.node.points[p1];
                 reverse=[event.IncrementalType.PointerMove, point[0], point[1] ];
-                console.log("removing", p1);
                 this.current_element.node.points.removeItem(p1);
                 break;
 
@@ -93,7 +91,6 @@ class PaperClient {
                 this.next_object_id--;
                 this.current_element.remove();
                 this.current_element=SVG(document.querySelector("#"+this.getObjectIdStr(this.next_object_id-1)));
-                console.log("removed current is", this.current_element);
 
                 break;
 

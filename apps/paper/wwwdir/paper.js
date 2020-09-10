@@ -31,8 +31,9 @@ paper.clear = function () {
     paper.increments = [];
     paper.reverse_increments = [];
     paper.increment_index = 0;
-    paper.paused = false;
+    paper.target_index=0;
     paper.changed_clients = new Set();
+    paper.paused = false;
 
 }
 
@@ -108,6 +109,9 @@ m.handlers[event.EventUnion.DrawIncrement] = function (msg, event_index) {
         draw_increment_event.p3(),
     ]);
 
+    if (!paper.paused)
+        paper.target_index=paper.increments.length-1;
+
     // client.drawIncrementEvent(draw_increment);
     // paper.changed_clients.add(client);
 
@@ -117,7 +121,6 @@ m.handlers[event.EventUnion.DrawIncrement] = function (msg, event_index) {
 paper.drawReverseIncrements = function (index) {
     while (paper.increment_index > index) {
         paper.increment_index = paper.increment_index - 1;
-        console.log(paper.increment_index);
 
         const increment = paper.reverse_increments[paper.increment_index];
         if (!(increment === undefined)) {
@@ -130,13 +133,16 @@ paper.drawReverseIncrements = function (index) {
 
 }
 
+//pay attention to performance in this one
 paper.drawIncrements = function (index) {
     while (paper.increment_index <= index) {
         const increment = paper.increments[paper.increment_index];
         const client = paper.getClient(increment[0]);
         let reverse = [increment[0]];
         reverse = reverse.concat(client.drawIncrement(increment[1], increment[2], increment[3], increment[4]));
-        if (paper.reverse_increments.length < paper.increments.length)
+
+        //(push is the fastest operation)
+        if (paper.increment_index==paper.reverse_increments.length )
             paper.reverse_increments.push(reverse);
 
         paper.increment_index++;
@@ -144,8 +150,6 @@ paper.drawIncrements = function (index) {
 }
 
 paper.slideTo = function (index) {
-
-    paper.paused=true;
 
     if (paper.increment_index > index)
         paper.drawReverseIncrements(index);
@@ -161,7 +165,7 @@ paper.slideTo = function (index) {
 // paper.cursors = {};
 // paper.cursor_events = {};
 // paper.cursor_changed_clients = new Set();
-paper.onAnimationFrame = function () {
+paper.onAnimationFrame = function (s) {
 
 
     //only if we are connected
@@ -178,8 +182,8 @@ paper.onAnimationFrame = function () {
     }
     paper.changed_clients.clear();
 
-    if (!paper.paused)
-        paper.drawIncrements(paper.increments.length - 1);
+
+    paper.slideTo(paper.target_index);
 
 
     //SEND stuff

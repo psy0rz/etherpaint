@@ -61,9 +61,17 @@ control.onPointerMove = function (m) {
 
     //button pressed?
     if (control.primaryDown) {
-        for (const coalesced of m.getCoalescedEvents()) {
-            let point = paper.viewer_svg.point(coalesced.pageX, coalesced.pageY);
+        if (m.getCoalescedEvents) {
+            for (const coalesced of m.getCoalescedEvents()) {
+                let point = paper.viewer_svg.point(coalesced.pageX, coalesced.pageY);
+                paper.sendDrawIncrement(event.IncrementalType.PointerMove, point.x, point.y);
+            }
+        }
+        else
+        {
+            let point = paper.viewer_svg.point(m.pageX, m.pageY);
             paper.sendDrawIncrement(event.IncrementalType.PointerMove, point.x, point.y);
+
         }
     }
 };

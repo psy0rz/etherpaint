@@ -110,12 +110,12 @@ control.highlightTool = function (activate) {
 
 control.onClickToolPointer = function (e) {
     control.highlightTool(e);
-    // control.mode=control.Modes.Point;
-    paper.viewer_element.style.touchAction = "manipulation";
 
     paper.sendDrawIncrement(event.IncrementalType.SelectDrawMode, event.DrawMode.Point);
 
 };
+
+
 
 // control.onClickToolSelect = function (e) {
 //     control.highlightTool(e);
@@ -132,6 +132,15 @@ control.onClickToolPolyline = function (e) {
     paper.sendDrawIncrement(event.IncrementalType.SelectDrawType, event.DrawType.PolyLine);
     paper.sendDrawIncrement(event.IncrementalType.SelectDrawMode, event.DrawMode.Draw);
 };
+
+control.onClickToolRect = function (e) {
+    control.highlightTool(e);
+    paper.viewer_element.style.touchAction = "manipulation";
+
+    paper.sendDrawIncrement(event.IncrementalType.SelectDrawType, event.DrawType.Rectangle);
+    paper.sendDrawIncrement(event.IncrementalType.SelectDrawMode, event.DrawMode.Draw);
+};
+
 
 
 control.onClickZoomOut = function (e) {

@@ -109,6 +109,8 @@ m.handlers[event.EventUnion.DrawIncrement] = function (msg, event_index) {
         draw_increment_event.p3(),
     ]);
 
+    console.log("client=", client_id, "type=", draw_increment_event.type(), "parameters",  draw_increment_event.p1(),   draw_increment_event.p2(),  draw_increment_event.p3())
+
     if (!paper.paused)
         paper.target_index=paper.increments.length-1;
 

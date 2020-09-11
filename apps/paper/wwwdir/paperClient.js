@@ -58,7 +58,15 @@ class PaperClient {
                         this.current_element.node.id=this.getObjectIdStr(this.next_object_id);
                         this.next_object_id++;
 
-                        // this.current_points=document.querySelector("#"+this.current_element.id).points;
+                        break;
+                    case event.DrawType.Rectangle:
+                        reverse=[event.IncrementalType.Delete];
+
+                        this.current_element = paper.scratch_svg.rect().move(p1,p2);
+                        this.current_element.stroke('black').fill('none');
+                        this.current_element.node.id=this.getObjectIdStr(this.next_object_id);
+                        this.next_object_id++;
+
                         break;
                     default:
                         break;
@@ -74,6 +82,19 @@ class PaperClient {
                             p.x = p1;
                             p.y = p2;
                             this.current_element.node.points.appendItem(p);
+
+                            break;
+                        case event.DrawType.Rectangle:
+
+
+                            this.current_element.attr('height',  p2-this.current_element.attr().y );
+                            reverse=[event.IncrementalType.PointerMove,
+                                this.current_element.attr().x+this.current_element.attr().width, //current x
+                                this.current_element.attr().y+this.current_element.attr().height //current y
+                            ];
+
+                            this.current_element.attr('width',  p1-this.current_element.attr().x );
+                            this.current_element.attr('height',  p2-this.current_element.attr().y );
 
                             break;
                         default:

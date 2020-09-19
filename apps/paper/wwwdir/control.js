@@ -13,6 +13,8 @@ control.Modes =
     };
 
 control.mode = control.Modes.Point;
+control.last_x = 0;
+control.last_y = 0;
 
 //selected tools and colors for draw mode
 control.selected = {};
@@ -37,15 +39,18 @@ control.start = function () {
 control.onPointerDown = function (m) {
     //calculate action svg paper location
     const point = paper.viewer_svg.point(m.pageX, m.pageY);
-    console.log("PRESS");
+    const x = Math.round(point.x);
+    const y = Math.round(point.y);
 
-    paper.sendCursor(point.x, point.y);
+    control.last_x = x;
+    control.last_y = y;
 
-    document.querySelector("#debug").innerText = "buttons=" + m.buttons;
+    paper.sendCursor(x, y);
+
 
     if (m.buttons & 1) {
         control.primaryDown = true;
-        paper.sendDrawIncrement(event.IncrementalType.PointerStart, point.x, point.y);
+        paper.sendDrawIncrement(event.IncrementalType.PointerStart, x, y);
     }
 
     m.preventDefault();
@@ -55,22 +60,34 @@ control.onPointerMove = function (m) {
 
     //calculate action svg paper location
     const point = paper.viewer_svg.point(m.pageX, m.pageY);
+    const x = Math.round(point.x);
+    const y = Math.round(point.y);
 
-    //last cursor location, dont need all the coalesced events.
-    paper.sendCursor(point.x, point.y);
+    if (x != control.last_x || y != control.last_y) {
+        //last cursor location, dont need all the coalesced events.
+        paper.sendCursor(x, y);
+    }
 
     //button pressed?
     if (control.primaryDown) {
         if (m.getCoalescedEvents) {
             for (const coalesced of m.getCoalescedEvents()) {
                 let point = paper.viewer_svg.point(coalesced.pageX, coalesced.pageY);
-                paper.sendDrawIncrement(event.IncrementalType.PointerMove, point.x, point.y);
+                const x = Math.round(point.x);
+                const y = Math.round(point.y);
+                if (x != control.last_x || y != control.last_y) {
+                    paper.sendDrawIncrement(event.IncrementalType.PointerMove, x, y);
+                    control.last_x = x;
+                    control.last_y = y;
+                }
             }
-        }
-        else
-        {
-            let point = paper.viewer_svg.point(m.pageX, m.pageY);
-            paper.sendDrawIncrement(event.IncrementalType.PointerMove, point.x, point.y);
+        } else {
+            if (x != control.last_x || y != control.last_y) {
+
+                paper.sendDrawIncrement(event.IncrementalType.PointerMove, x, y);
+                control.last_x = x;
+                control.last_y = y;
+            }
 
         }
     }
@@ -79,9 +96,13 @@ control.onPointerMove = function (m) {
 control.onPointerUp = function (m) {
     //calculate action svg paper location
     const point = paper.viewer_svg.point(m.pageX, m.pageY);
+    const x = Math.round(point.x);
+    const y = Math.round(point.y);
+    control.last_x = x;
+    control.last_y = y;
 
     if (control.primaryDown) {
-        paper.sendDrawIncrement(event.IncrementalType.PointerEnd, point.x, point.y);
+        paper.sendDrawIncrement(event.IncrementalType.PointerEnd, x, y);
         control.primaryDown = false;
     }
 };
@@ -116,7 +137,6 @@ control.onClickToolPointer = function (e) {
 };
 
 
-
 // control.onClickToolSelect = function (e) {
 //     control.highlightTool(e);
 //     control.mode=control.Modes.Select;
@@ -140,7 +160,6 @@ control.onClickToolRect = function (e) {
     paper.sendDrawIncrement(event.IncrementalType.SelectDrawType, event.DrawType.Rectangle);
     paper.sendDrawIncrement(event.IncrementalType.SelectDrawMode, event.DrawMode.Draw);
 };
-
 
 
 control.onClickZoomOut = function (e) {

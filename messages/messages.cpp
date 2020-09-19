@@ -97,7 +97,7 @@ int messagerunner(const int argc, const char *argv[]) {
                                     {
                                           .compression = uWS::SHARED_COMPRESSOR,
 //                                            .compression = uWS::DISABLED,
-                                            .maxPayloadLength = 1024,
+                                            .maxPayloadLength = 10024,
                                             .idleTimeout = 1000,
                                             .maxBackpressure = 0,
                                             /* Handlers */

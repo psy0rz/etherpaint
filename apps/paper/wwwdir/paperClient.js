@@ -53,7 +53,7 @@ class PaperClient {
                     case event.DrawType.PolyLine:
                         reverse=[event.IncrementalType.Delete];
 
-                        this.current_element = paper.scratch_svg.polyline([[p1,p2]]);
+                        this.current_element = paper.paper_svg.polyline([[p1,p2]]);
                         this.current_element.stroke('black').fill('none');
                         this.current_element.node.id=this.getObjectIdStr(this.next_object_id);
                         this.next_object_id++;
@@ -62,7 +62,7 @@ class PaperClient {
                     case event.DrawType.Rectangle:
                         reverse=[event.IncrementalType.Delete];
 
-                        this.current_element = paper.scratch_svg.rect().move(p1,p2);
+                        this.current_element = paper.paper_svg.rect().move(p1,p2);
                         this.current_element.stroke('black').fill('none');
                         this.current_element.node.id=this.getObjectIdStr(this.next_object_id);
                         this.next_object_id++;
@@ -78,7 +78,7 @@ class PaperClient {
                     switch (this.drawtype) {
                         case event.DrawType.PolyLine:
                             reverse=[event.IncrementalType.DeletePoint, this.current_element.node.points.length ];
-                            let p = paper.scratch_svg.node.createSVGPoint();
+                            let p = paper.paper_svg.node.createSVGPoint();
                             p.x = p1;
                             p.y = p2;
                             this.current_element.node.points.appendItem(p);
@@ -87,10 +87,39 @@ class PaperClient {
                         case event.DrawType.Rectangle:
 
 
+                            // this.current_element.attr('height',  p2-this.current_element.attr().y );
+                            // reverse=[event.IncrementalType.PointerMove,
+                            //     this.current_element.attr().x+this.current_element.attr().width, //current x
+                            //     this.current_element.attr().y+this.current_element.attr().height //current y
+                            // ];
+
+                            this.current_element.attr('width',  p1-this.current_element.attr().x );
+                            this.current_element.attr('height',  p2-this.current_element.attr().y );
+
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                break;
+            case event.IncrementalType.PointerEnd:
+                if (this.current_element) {
+
+                    switch (this.drawtype) {
+                        // case event.DrawType.PolyLine:
+                        //     reverse=[event.IncrementalType.DeletePoint, this.current_element.node.points.length ];
+                        //     let p = paper.scratch_svg.node.createSVGPoint();
+                        //     p.x = p1;
+                        //     p.y = p2;
+                        //     this.current_element.node.points.appendItem(p);
+                        //
+                        //     break;
+                        case event.DrawType.Rectangle:
+
                             this.current_element.attr('height',  p2-this.current_element.attr().y );
                             reverse=[event.IncrementalType.PointerMove,
-                                this.current_element.attr().x+this.current_element.attr().width, //current x
-                                this.current_element.attr().y+this.current_element.attr().height //current y
+                                this.current_element.attr().x,
+                                this.current_element.attr().y
                             ];
 
                             this.current_element.attr('width',  p1-this.current_element.attr().x );

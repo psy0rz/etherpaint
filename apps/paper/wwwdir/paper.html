@@ -47,36 +47,43 @@
             m.send();
         }
 
-        //Bulma.io stuff
-        function controlHamburgers() {
 
-            // Get all "navbar-burger" elements
-            const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+        function toggleMenu() {
+            document.querySelector('#toolmenu').classList.toggle('is-active');
+            document.querySelector('.navbar-burger').classList.toggle('is-active');
 
-            // Check if there are any navbar burgers
-            if ($navbarBurgers.length > 0) {
-
-                // Add a click event on each of them
-                $navbarBurgers.forEach(el => {
-                    el.addEventListener('click', () => {
-
-                        // Get the target from the "data-target" attribute
-                        const target = el.dataset.target;
-                        const $target = document.getElementById(target);
-
-                        // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
-                        el.classList.toggle('is-active');
-                        $target.classList.toggle('is-active');
-
-                    });
-                });
-            }
-
-        };
+        }
 
         window.addEventListener('load', (event) => {
 
-            controlHamburgers();
+            //move toolbar tools around according to screen width
+            new ResizeObserver(function () {
+                const burger = document.querySelector("#mainbar .burger");
+                for (const e of document.querySelectorAll("#mainbar .control")) {
+                    // e.classList.remove("is-hidden");
+                    // console.log(e.offsetLeft+e.offsetWidth, document.querySelector("#mainbar").offsetWidth);
+                }
+
+
+                var nodesArray = Array.prototype.slice.call(document.querySelectorAll("#mainbar .control"));
+                for (const e of nodesArray.reverse()) {
+                    e.classList.remove("is-hidden");
+                    const right = e.offsetLeft + e.offsetWidth;
+                    if (right > document.querySelector("#mainbar").offsetWidth - 10) {
+
+                        // e.classList.add("is-hidden");
+
+                    }
+                    // console.log(e.offsetLeft+e.offsetWidth, document.querySelector("#mainbar").offsetWidth);
+                }
+
+
+            }).observe(document.querySelector("#mainbar"));
+
+            // controlHamburgers();
+            document.querySelector(".navbar-burger").addEventListener('click', () => {
+                toggleMenu();
+            });
 
             //make sure paper starts after toolbar
             document.querySelector('#paper-container').style.top = document.querySelector("nav").offsetHeight + "px";
@@ -103,13 +110,13 @@
 <body>
 
 
-<nav role="navigation" aria-label="main navigation" class="navbar is-fixed-top">
+<nav id="mainbar" role="navigation" aria-label="main navigation" class="navbar is-fixed-top">
     <div class="navbar-brand ">
 
         <div class="navbar-item">
-            <div class="field is-grouped">
-                <p class="control" id="tools">
-                    <a class="button" onclick="control.onClickToolPointer(this)">
+            <div class="field is-grouped " id="tools">
+                <p class="control">
+                    <a class="button " onclick="control.onClickToolPointer(this)">
                         <span class="icon">
                             <i class="fas fa-hand-point-up" aria-hidden="true"></i>
                         </span>
@@ -136,7 +143,7 @@
                     </a>
                 </p>
 
-                <p class="control">
+                <p class="control 		">
                     <a class="button" onclick="control.onClickUndo(this)">
                         <span class="icon">
                             <i class="fas fa-undo" aria-hidden="true"></i>
@@ -145,11 +152,6 @@
                     <a class="button" onclick="control.onClickRedo(this)">
                         <span class="icon">
                             <i class="fas fa-redo" aria-hidden="true"></i>
-                        </span>
-                    </a>
-                    <a class="button" onclick="control.onClickHistory(this)">
-                        <span class="icon">
-                            <i class="fas fa-history" aria-hidden="true"></i>
                         </span>
                     </a>
                 </p>
@@ -165,20 +167,22 @@
                             <i class="fas fa-search-plus" aria-hidden="true"></i>
                         </span>
                     </a>
-                    <span id="zoom-percentage">100%</span>
 
 
                 </p>
-                <a class="navbar-item" id="debug">
 
-                </a>
-
+                <p class="control">
+                    <a class="button" onclick="control.onClickHistory(this);toggleMenu()">
+                        <span class="icon">
+                            <i class="fas fa-history" aria-hidden="true"></i>
+                        </span>
+                    </a>
+                </p>
 
             </div>
         </div>
 
-        <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false"
-           data-target="navbarBasicExample">
+        <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false">
             <span aria-hidden="true"></span>
             <span aria-hidden="true"></span>
             <span aria-hidden="true"></span>
@@ -186,57 +190,20 @@
     </div>
 
 
-    <div id="navbarBasicExample" class="navbar-menu">
-        <div class="navbar-start">
-
-            <a class="navbar-item">
-                Documentation
-            </a>
-
-            <div class="navbar-item has-dropdown is-hoverable">
-                <a class="navbar-link">
-                    More
-                </a>
-
-                <div class="navbar-dropdown">
-                    <a class="navbar-item">
-                        About
-                    </a>
-                    <a class="navbar-item">
-                        Jobs
-                    </a>
-                    <a class="navbar-item">
-                        Contact
-                    </a>
-                    <hr class="navbar-divider">
-                    <a class="navbar-item">
-                        Report an issue
-                    </a>
-                </div>
-            </div>
-        </div>
-
+    <div id="toolmenu" class="navbar-menu">
         <div class="navbar-end">
-<!--            <div class="navbar-item">-->
-<!--                <div class="buttons">-->
-<!--                    <a class="button is-primary">-->
-<!--                        <strong>Sign up</strong>-->
-<!--                    </a>-->
-<!--                    <a class="button is-light">-->
-<!--                        Log in-->
-<!--                    </a>-->
-<!--                </div>-->
-<!--            </div>-->
+            <div class="navbar-item">
 
+            </div>
         </div>
     </div>
 </nav>
 
 <!--History slider-->
-<nav role="navigation"  id="history" class="navbar is-fixed-top is-hidden">
+<nav role="navigation" id="history" class="navbar is-fixed-top is-hidden">
     <div class="navbar-brand ">
         <div class="navbar-item">
-            <div class="field is-grouped" >
+            <div class="field is-grouped">
 
                 <p class="control">
                     <a class="button" onclick="control.onClickHistoryClose(this)">
@@ -246,15 +213,14 @@
                     </a>
                 </p>
                 <p class="control" style="width: 500px">
-                    <input  id="history-slider" style='width: 100%'                type="range" id="points" name="points" min="0" max="1000" oninput="control.onInputHistory(this)" >
+                    <input id="history-slider" style='width: 100%' type="range" id="points" name="points" min="0"
+                           max="1000" oninput="control.onInputHistory(this)">
                 </p>
 
+            </div>
+
         </div>
-
-    </div>
 </nav>
-
-
 
 
 <!--<section class="section">-->
@@ -273,8 +239,8 @@
 ">
 
     <!-- viewer, handles mouseevents, zooming and panning -->
-    <svg    id="viewer"
-            style="
+    <svg id="viewer"
+         style="
                 position: absolute;
                 left: 0;
                 right:0;

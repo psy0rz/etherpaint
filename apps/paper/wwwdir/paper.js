@@ -73,6 +73,10 @@ paper.sendCursor = function (x, y) {
 }
 
 paper.sendDrawIncrement = function (type, p1, p2, p3) {
+
+    //local echo (and determining if event has to be stored/undoable)
+    const reverse=paper.getClient(0).drawIncrement(type, p1, p2 ,p3);
+
     m.add_event(
         event.EventUnion.DrawIncrement,
         event.DrawIncrement.createDrawIncrement(
@@ -109,7 +113,7 @@ m.handlers[event.EventUnion.DrawIncrement] = function (msg, event_index) {
         draw_increment_event.p3(),
     ]);
 
-    console.log("client=", client_id, "type=", draw_increment_event.type(), "parameters",  draw_increment_event.p1(),   draw_increment_event.p2(),  draw_increment_event.p3())
+    // console.log("client=", client_id, "type=", draw_increment_event.type(), "parameters",  draw_increment_event.p1(),   draw_increment_event.p2(),  draw_increment_event.p3())
 
     if (!paper.paused)
         paper.target_index=paper.increments.length-1;
@@ -136,6 +140,8 @@ paper.drawReverseIncrements = function (index) {
 }
 
 //pay attention to performance in this one
+//draw increments until index. also store reverse increments or delete increments if they dont have a reverse.
+//increments without a reverse are usually only for visual effect. (e.g. when drawing a rectangle)
 paper.drawIncrements = function (index) {
     while (paper.increment_index <= index) {
         const increment = paper.increments[paper.increment_index];
@@ -143,7 +149,6 @@ paper.drawIncrements = function (index) {
         let reverse = [increment[0]];
         reverse = reverse.concat(client.drawIncrement(increment[1], increment[2], increment[3], increment[4]));
 
-        //(push is the fastest operation)
         if (paper.increment_index==paper.reverse_increments.length )
             paper.reverse_increments.push(reverse);
 
@@ -214,8 +219,9 @@ paper.onAnimationFrame = function (s) {
     }
 
 
-    window.requestAnimationFrame(paper.onAnimationFrame);
-    // setTimeout(paper.onA)
+    // window.requestAnimationFrame(paper.onAnimationFrame);
+    //testing:
+    setTimeout(paper.onAnimationFrame, 1000);
 }
 
 

@@ -10,9 +10,12 @@ class PaperClient {
         this.next_object_id=0;
 
         //create cursor
-        this.cursor_svg = paper.scratch_svg.group();
-        this.cursor_svg.path('M-10,0 L10,0 M0,-10 L0,10').stroke('black');
-        this.cursor_svg.text("client " + client_id);
+        if (client_id!=0)
+        {
+            this.cursor_svg = paper.scratch_svg.group();
+            this.cursor_svg.path('M-10,0 L10,0 M0,-10 L0,10').stroke('black');
+            this.cursor_svg.text("client " + client_id);
+        }
 
     }
 

@@ -63,10 +63,8 @@ control.onPointerMove = function (m) {
     const x = Math.round(point.x);
     const y = Math.round(point.y);
 
-    if (x != control.last_x || y != control.last_y) {
-        //last cursor location, dont need all the coalesced events.
-        paper.sendCursor(x, y);
-    }
+    //last cursor location, dont need all the coalesced events.
+    paper.sendCursor(x, y);
 
     //button pressed?
     if (control.primaryDown) {

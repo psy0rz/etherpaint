@@ -34,6 +34,7 @@ paper.clear = function () {
     paper.target_index=0;
     paper.changed_clients = new Set();
     paper.paused = false;
+    paper.echo_client=paper.getClient(0);
 
 }
 
@@ -69,13 +70,22 @@ paper.sendCursor = function (x, y) {
         paper.cursor_y = y;
         paper.cursor_moved = true;
 
+
     }
 }
 
 paper.sendDrawIncrement = function (type, p1, p2, p3) {
 
     //local echo (and determining if event has to be stored/undoable)
-    const reverse=paper.getClient(0).drawIncrement(type, p1, p2 ,p3);
+    const reverse=paper.echo_client.drawIncrement(type, p1, p2 ,p3);
+    if (type==event.IncrementalType.PointerEnd)
+    {
+        //delete temporary object
+        if (paper.echo_client.current_element)
+        {
+            paper.echo_client.current_element.remove();
+        }
+    }
 
     m.add_event(
         event.EventUnion.DrawIncrement,
@@ -139,9 +149,9 @@ paper.drawReverseIncrements = function (index) {
 
 }
 
-//pay attention to performance in this one
 //draw increments until index. also store reverse increments or delete increments if they dont have a reverse.
 //increments without a reverse are usually only for visual effect. (e.g. when drawing a rectangle)
+//pay attention to performance in this one
 paper.drawIncrements = function (index) {
     while (paper.increment_index <= index) {
         const increment = paper.increments[paper.increment_index];
@@ -219,9 +229,9 @@ paper.onAnimationFrame = function (s) {
     }
 
 
-    // window.requestAnimationFrame(paper.onAnimationFrame);
+    window.requestAnimationFrame(paper.onAnimationFrame);
     //testing:
-    setTimeout(paper.onAnimationFrame, 1000);
+    // setTimeout(paper.onAnimationFrame, 1000);
 }
 
 

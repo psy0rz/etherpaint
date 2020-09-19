@@ -10,8 +10,10 @@
 
 class SharedSessionPaper : public SharedSession {
 private:
-    MsgBuilder msg_builder;
+    MsgBuilder msg_builder; //to send to clients
+    MsgBuilder msg_builder_storage; //to send to storage module (without cursors and non-store increments)
     std::mutex msg_builder_mutex;
+
 
     void send_frame();
 
@@ -29,6 +31,8 @@ public:
 
     void addDrawIncrement(const event::DrawIncrement* draw_increment);
 
+    void store();
+//    void stream();
 };
 
 

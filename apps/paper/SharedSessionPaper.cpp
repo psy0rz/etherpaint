@@ -6,6 +6,7 @@
 #include "MsgSessionPaper.h"
 #include <chrono>
 #include "messages/program_error.hpp"
+//#include "msg.hpp"
 
 //shared session factory
 std::shared_ptr<SharedSession> SharedSession::create(const std::string &id) {
@@ -13,7 +14,8 @@ std::shared_ptr<SharedSession> SharedSession::create(const std::string &id) {
     return (shared_session);
 }
 
-SharedSessionPaper::SharedSessionPaper(const std::string &id) : SharedSession(id), msg_builder(500) {
+SharedSessionPaper::SharedSessionPaper(const std::string &id) : SharedSession(id), msg_builder(500),
+                                                                msg_builder_storage(500) {
 
 
 }
@@ -86,7 +88,7 @@ void SharedSessionPaper::join(std::shared_ptr<MsgSession> new_msg_session) {
         used_ids.set(msg_session_paper->id);
     }
 
-    //find first unused id (skip 0)
+    //find first unused id (skip 0, its used for local echo)
     for (uint8_t client_id = 1; client_id < 255; client_id++) {
         //found free id
         if (!used_ids[client_id]) {
@@ -106,7 +108,7 @@ void SharedSessionPaper::join(std::shared_ptr<MsgSession> new_msg_session) {
 
     }
 
-    throw (program_error("Max number of clients has been reached for this control"));
+    throw (program_error("Max number of clients has been reached for this paper"));
 
 
 }
@@ -117,6 +119,8 @@ void SharedSessionPaper::leave(std::shared_ptr<MsgSession> new_msg_session) {
 
 }
 
+
+
 void SharedSessionPaper::addDrawIncrement(const event::DrawIncrement *draw_increment) {
     std::unique_lock<std::mutex> lock(msg_builder_mutex);
 
@@ -125,5 +129,32 @@ void SharedSessionPaper::addDrawIncrement(const event::DrawIncrement *draw_incre
             msg_builder.builder.CreateStruct<event::DrawIncrement>(*draw_increment).Union()
     );
 
+    //store to persistent storage buffer? (will be storage/emptied in store()
+    if (draw_increment->store()) {
+        msg_builder_storage.add_event(
+                event::EventUnion::EventUnion_DrawIncrement,
+                msg_builder_storage.builder.CreateStruct<event::DrawIncrement>(*draw_increment).Union()
+        );
+    }
+
 }
+//store msg_builder_storage to disk.
+// Called periodicly by 1 global storage thread.
+void SharedSessionPaper::store() {
+    //no locking needed: done by one global thread.
+
+    std::unique_ptr<msg_serialized_type> store_buffer;
+
+    {
+        //move buffer, to minimize locking time
+        std::unique_lock<std::mutex> lock(msg_builder_mutex);
+        msg_builder_storage.finishSizePrefixed();
+        store_buffer=std::make_unique<msg_serialized_type>(std::move(msg_builder_storage.builder));
+    }
+
+    //now store it to disk, no problem if its slow
+
+
+}
+
 

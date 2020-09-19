@@ -14,6 +14,11 @@ typedef flatbuffers::FlatBufferBuilder msg_serialized_type;
 //incremental message builder
 //build a serialized message in memory, allows adding events
 class MsgBuilder {
+private:
+
+    std::vector<flatbuffers::Offset<void>> event_offsets;
+    std::vector<uint8_t> event_types;
+
 public:
     msg_serialized_type builder;
 
@@ -43,15 +48,25 @@ public:
 
     }
 
+    void finishSizePrefixed()
+    {
+        builder.FinishSizePrefixed(event::CreateMessage(
+                builder,
+                builder.CreateVector(event_types),
+                builder.CreateVector(event_offsets)
+        ));
+
+        event_types.clear();
+        event_offsets.clear();
+
+    }
+
+
     bool empty()
     {
         return(event_types.empty());
     }
 
-private:
-
-    std::vector<flatbuffers::Offset<void>> event_offsets;
-    std::vector<uint8_t> event_types;
 
 
 };

@@ -44,7 +44,7 @@ class PaperClient {
 
     //execute a drawing increment, and retrun the reverse for undo/timeslider purposes.
     drawIncrement(type, p1, p2, p3) {
-        let reverse;
+        let reverse=undefined;
 
         switch (type) {
             case event.IncrementalType.SelectDrawType:
@@ -90,11 +90,11 @@ class PaperClient {
                         case event.DrawType.Rectangle:
 
 
-                            // this.current_element.attr('height',  p2-this.current_element.attr().y );
                             // reverse=[event.IncrementalType.PointerMove,
                             //     this.current_element.attr().x+this.current_element.attr().width, //current x
                             //     this.current_element.attr().y+this.current_element.attr().height //current y
                             // ];
+                            // console.log("MOLVE", p1, this.current_element.attr().x);
 
                             this.current_element.attr('width',  p1-this.current_element.attr().x );
                             this.current_element.attr('height',  p2-this.current_element.attr().y );
@@ -118,8 +118,7 @@ class PaperClient {
                         //
                         //     break;
                         case event.DrawType.Rectangle:
-
-                            this.current_element.attr('height',  p2-this.current_element.attr().y );
+// console.log("END", p1, this.current_element.attr().x);
                             reverse=[event.IncrementalType.PointerMove,
                                 this.current_element.attr().x,
                                 this.current_element.attr().y

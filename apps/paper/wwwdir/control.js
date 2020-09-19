@@ -173,7 +173,7 @@ control.onClickZoomIn = function (e) {
 
 //todo: show on GUI
 m.handlers[event.EventUnion.Error] = (msg, event_index) => {
-    error = msg.events(event_index, new event.Error());
+    const error = msg.events(event_index, new event.Error());
     console.error("Server reports error: " + error.description());
 }
 

@@ -112,6 +112,7 @@ struct DrawIncrement
     p1: uint16;
     p2: uint16;
     p3: uint16;
+    store: bool;
 }
 
 

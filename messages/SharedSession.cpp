@@ -2,7 +2,7 @@
 
 SharedSession::SharedSession(const std::string &id) {
     this->id = id;
-//    DEB("Created shared session " << id);
+    DEB("Created shared session " << id);
 }
 
 std::shared_ptr<SharedSession> SharedSession::get(const std::string &id) {
@@ -17,8 +17,19 @@ std::shared_ptr<SharedSession> SharedSession::get(const std::string &id) {
         return (new_shared_session);
 
     } else {
-        // return existing
-        return (SharedSession::shared_sessions[id]);
+        //try to return existing
+        auto shared_session=SharedSession::shared_sessions[id].lock();
+        if (shared_session==nullptr)
+        {
+            //it was expired, so create new one
+            auto new_shared_session = SharedSession::create(id);
+            SharedSession::shared_sessions[id] = new_shared_session;
+            return (new_shared_session);
+        }
+        else {
+            //return existing one
+            return (shared_session);
+        }
     }
 }
 
@@ -55,8 +66,9 @@ void SharedSession::leave(std::shared_ptr<MsgSession> msg_session) {
     std::unique_lock<std::mutex> lock(msg_sessions_mutex);
 //    DEB("left shared session " << id);
     msg_sessions.erase(msg_session);
-    if (msg_sessions.empty())
-        SharedSession::done(id);
+//    if (msg_sessions.empty())
+//        SharedSession::done(id);
+
 }
 
 

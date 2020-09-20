@@ -81,7 +81,7 @@ int messagerunner(const int argc, const char *argv[]) {
                                                           .passphrase = ""})
                             .get("/*",
                                  [](auto *res, auto *req) {
-                                     DEB("get " << req->getUrl())
+//                                     DEB("get " << req->getUrl())
                                      auto file = file_cacher.get(std::string(req->getUrl()));
 
                                      if (file == file_cacher.m_cached_files.end()) {

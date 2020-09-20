@@ -16,7 +16,7 @@ class SharedSession {
 protected:
     // all the shared sessions (static/global)
     inline static std::mutex shared_sessions_mutex;
-    inline static std::map<std::string, std::shared_ptr<SharedSession>> shared_sessions;
+    inline static std::map<std::string, std::weak_ptr<SharedSession>> shared_sessions;
 
     std::string id;
 
@@ -30,7 +30,7 @@ public:
 
     // get a shared session by id-string (calls create if it needs to be created)
     static std::shared_ptr<SharedSession> get(const std::string &id);
-    // remove a shared session from the table
+    // remove a shared session from the table. this should be called by app.
     static void done(const std::string &id);
 
 

@@ -40,10 +40,13 @@ void SharedSessionPaper::update_thread() {
         {
             std::unique_lock<std::mutex> lock(SharedSession::shared_sessions_mutex);
 
-            for (const auto &[id, shared_session]: SharedSession::shared_sessions) {
-                auto shared_session_paper = std::static_pointer_cast<SharedSessionPaper>(shared_session);
-                if (shared_session_paper != nullptr)
-                    shared_session_paper->send_frame();
+            for (const auto &[id, shared_session_weak]: SharedSession::shared_sessions) {
+                auto shared_session = shared_session_weak.lock();
+                if (shared_session != nullptr) {
+                    auto shared_session_paper = std::static_pointer_cast<SharedSessionPaper>(shared_session);
+                    if (shared_session_paper != nullptr)
+                        shared_session_paper->send_frame();
+                }
             }
         }
     }
@@ -101,7 +104,7 @@ void SharedSessionPaper::join(std::shared_ptr<MsgSession> new_msg_session) {
             //set id and join
             new_msg_session_paper->id = client_id;
             msg_sessions.insert(new_msg_session_paper);
-            DEB("Client joined as " << int(client_id) << " to shared control session " << this->id);
+            DEB("Client joined as " << int(client_id) << " to shared paper session " << this->id);
 
             //send join message back to client
             MsgBuilder mb(200);
@@ -146,6 +149,8 @@ void SharedSessionPaper::addDrawIncrement(const event::DrawIncrement *draw_incre
 
 
 //global io thread (slow but shouldn't interfere)
+//note: this will keep shared sessions alive until the last data is saved.
+//HOWEVER: it will miss data if a client joins for shorter that interval-time. (which shouldnt matter that much, as long as its short enough)
 void SharedSessionPaper::io_thread() {
 
     const auto interval = 5; //seconds
@@ -155,25 +160,31 @@ void SharedSessionPaper::io_thread() {
     auto start_time = std::chrono::system_clock::now();
 
 
+    std::list<std::shared_ptr<SharedSession>> shared_sessions;
+
     while (!stop) {
         std::this_thread::sleep_until(start_time + frames{1});
         start_time = std::chrono::system_clock::now();
 
-        {
-            std::list<std::shared_ptr<SharedSession>> shared_sessions;
-            {
-                //make a copy of all the shared session pointers, to keep locktime low
-                std::unique_lock<std::mutex> lock(SharedSession::shared_sessions_mutex);
-                for (const auto &[id, shared_session]: SharedSession::shared_sessions) {
-                    if (shared_session != nullptr)
-                        shared_sessions.push_back(shared_session);
-                }
-            }
+        //store all data in collected sessions to disk (this is allowed to be slow)
+        for (const auto &shared_session: shared_sessions) {
+            auto shared_session_paper = std::static_pointer_cast<SharedSessionPaper>(shared_session);
+            shared_session_paper->store();
+        }
 
-            //store all data to disk (can be slow)
-            for (const auto &shared_session: shared_sessions) {
-                auto shared_session_paper = std::static_pointer_cast<SharedSessionPaper>(shared_session);
-                shared_session_paper->store();
+        //clear our list, this allows sharedsessions without clients to be destroyed.
+        shared_sessions.clear();
+
+        {
+            //make a new copy of all the shared session pointers that are new/still left.
+            //this keeps lock-time low
+            //AND to allow us to save the last data after the last client has left.
+            std::unique_lock<std::mutex> lock(SharedSession::shared_sessions_mutex);
+
+            for (const auto &[id, shared_session_weak]: SharedSession::shared_sessions) {
+                auto shared_session = shared_session_weak.lock();
+                if (shared_session != nullptr)
+                    shared_sessions.push_back(shared_session);
             }
         }
     }
@@ -203,6 +214,16 @@ void SharedSessionPaper::store() {
 //            msg_serialized_ptr->GetSize()
     fs.write(reinterpret_cast<char *>(store_buffer.GetBufferPointer()), store_buffer.GetSize());
 }
+
+//check if shared session is done, and remove it from session table
+//void SharedSessionPaper::check_done() {
+//    std::unique_lock<std::mutex> lock(msg_sessions_mutex);
+//    std::unique_lock<std::mutex> lock(msg_builder_mutex);
+//
+//
+//
+//
+//}
 
 
 

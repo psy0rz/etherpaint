@@ -35,6 +35,8 @@ public:
 
     void addDrawIncrement(const event::DrawIncrement* draw_increment);
 
+    void check_done();
+
     void store();
 //    void stream();
 };

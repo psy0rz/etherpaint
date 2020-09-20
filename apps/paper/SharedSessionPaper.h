@@ -7,6 +7,7 @@
 
 
 #include "messages/SharedSession.h"
+#include <fstream>
 
 class SharedSessionPaper : public SharedSession {
 private:
@@ -14,6 +15,7 @@ private:
     MsgBuilder msg_builder_storage; //to send to storage module (without cursors and non-store increments)
     std::mutex msg_builder_mutex;
 
+    std::fstream fs;
 
     void send_frame();
 
@@ -23,6 +25,8 @@ public:
 
 public:
     static void update_thread();
+    static void io_thread();
+
     inline static bool stop=false;
 
     explicit SharedSessionPaper(const std::string &id);

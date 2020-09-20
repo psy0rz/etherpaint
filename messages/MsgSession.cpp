@@ -20,10 +20,10 @@ void MsgSession::join(const std::string &id) {
 void MsgSession::closed() {
     std::lock_guard<std::mutex> lock(mutex);
     ws = nullptr;
-    if (shared_session != nullptr)
+    if (shared_session != nullptr) {
         shared_session->leave(shared_from_this());
-
-    shared_session = nullptr;
+        shared_session = nullptr;
+    }
 }
 
 MsgSession::MsgSession(uWS::WebSocket<ENABLE_SSL, true> *ws) {

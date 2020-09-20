@@ -165,10 +165,17 @@ int messagerunner(const int argc, const char *argv[]) {
                                                                  << e.what();
                                                             msg_session->enqueue_error(desc.str());
                                                         }
+                                                        catch (std::system_error e) {
+                                                            std::stringstream desc;
+                                                            desc << "System error while handling "
+                                                                 << event::EnumNamesEventUnion()[event_type] << ": "
+                                                                 <<  e.code().message() << ": " << std::strerror(errno);
+                                                            msg_session->enqueue_error(desc.str());
+                                                        }
                                                         catch (std::exception e) {
                                                             std::stringstream desc;
                                                             desc << "Exception while handling "
-                                                                 << event::EnumNamesEventUnion()[event_type];
+                                                                 << event::EnumNamesEventUnion()[event_type] << ":" << e.what();
                                                             msg_session->enqueue_error(desc.str());
 
 #ifndef NDEBUG

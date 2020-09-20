@@ -14,9 +14,14 @@ std::shared_ptr<SharedSession> SharedSession::create(const std::string &id) {
     return (shared_session);
 }
 
-SharedSessionPaper::SharedSessionPaper(const std::string &id) : SharedSession(id), msg_builder(500),
-                                                                msg_builder_storage(500) {
+SharedSessionPaper::SharedSessionPaper(const std::string &id) :
+        SharedSession(id),
+        msg_builder(500),
+        msg_builder_storage(500) {
 
+
+    fs.exceptions(std::ios::failbit | std::ios::badbit);
+    fs.open(id + ".paper", std::ios::in | std::ios::out | std::ios::binary | std::ios::app);
 
 }
 
@@ -43,6 +48,7 @@ void SharedSessionPaper::update_thread() {
         }
     }
 }
+
 
 //send an actual frame to all the connected sessions.
 //called with fps by update_thread
@@ -120,7 +126,6 @@ void SharedSessionPaper::leave(std::shared_ptr<MsgSession> new_msg_session) {
 }
 
 
-
 void SharedSessionPaper::addDrawIncrement(const event::DrawIncrement *draw_increment) {
     std::unique_lock<std::mutex> lock(msg_builder_mutex);
 
@@ -138,23 +143,66 @@ void SharedSessionPaper::addDrawIncrement(const event::DrawIncrement *draw_incre
     }
 
 }
+
+
+//global io thread (slow but shouldn't interfere)
+void SharedSessionPaper::io_thread() {
+
+    const auto interval = 5; //seconds
+
+    using frames = std::chrono::duration<int64_t, std::ratio<interval, 1>>;
+
+    auto start_time = std::chrono::system_clock::now();
+
+
+    while (!stop) {
+        std::this_thread::sleep_until(start_time + frames{1});
+        start_time = std::chrono::system_clock::now();
+
+        {
+            std::list<std::shared_ptr<SharedSession>> shared_sessions;
+            {
+                //make a copy of all the shared session pointers, to keep locktime low
+                std::unique_lock<std::mutex> lock(SharedSession::shared_sessions_mutex);
+                for (const auto &[id, shared_session]: SharedSession::shared_sessions) {
+                    if (shared_session != nullptr)
+                        shared_sessions.push_back(shared_session);
+                }
+            }
+
+            //store all data to disk (can be slow)
+            for (const auto &shared_session: shared_sessions) {
+                auto shared_session_paper = std::static_pointer_cast<SharedSessionPaper>(shared_session);
+                shared_session_paper->store();
+            }
+        }
+    }
+}
+
 //store msg_builder_storage to disk.
 // Called periodicly by 1 global storage thread.
 void SharedSessionPaper::store() {
     //no locking needed: done by one global thread.
 
-    std::unique_ptr<msg_serialized_type> store_buffer;
-
+    msg_serialized_type store_buffer;
     {
         //move buffer, to minimize locking time
         std::unique_lock<std::mutex> lock(msg_builder_mutex);
+
+        if (msg_builder_storage.empty())
+            return;
+
         msg_builder_storage.finishSizePrefixed();
-        store_buffer=std::make_unique<msg_serialized_type>(std::move(msg_builder_storage.builder));
+        store_buffer = std::move(msg_builder_storage.builder);
     }
 
     //now store it to disk, no problem if its slow
+    fs.seekp(0, std::ios_base::end);
 
-
+//    reinterpret_cast<char *>(msg_serialized_ptr->GetBufferPointer()),
+//            msg_serialized_ptr->GetSize()
+    fs.write(reinterpret_cast<char *>(store_buffer.GetBufferPointer()), store_buffer.GetSize());
 }
+
 
 

@@ -48,9 +48,11 @@ int main(const int argc, const char *argv[]) {
     };
 
     std::thread update_thread(SharedSessionPaper::update_thread);
+    std::thread io_thread(SharedSessionPaper::io_thread);
 
     messagerunner(argc, argv);
     update_thread.join();
+    io_thread.join();
 
 }
 

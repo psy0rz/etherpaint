@@ -29,7 +29,7 @@ class MsgSession : public std::enable_shared_from_this<MsgSession> {
 private:
     uWS::WebSocket<ENABLE_SSL, true> *ws;
     uWS::Loop *loop;
-    std::deque<std::shared_ptr<msg_serialized_type>> msg_queue;
+    std::deque<std::shared_ptr<MsgSerialized>> msg_queue;
     std::mutex mutex;
 
 
@@ -66,7 +66,7 @@ public:
     // enqueue message for this websocket, will inform websocket thread to start
     // sending if it isn't already.
     // (called from any thread)
-    void enqueue( const std::shared_ptr<msg_serialized_type> &msg_serialized);
+    void enqueue( const std::shared_ptr<MsgSerialized> &msg_serialized);
     void enqueue( MsgBuilder &msg_builder);
 
     // send error message

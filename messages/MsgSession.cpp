@@ -67,7 +67,7 @@ void MsgSession::send_queue() {
     }
 }
 
-void MsgSession::enqueue(const std::shared_ptr<msg_serialized_type> &msg_serialized) {
+void MsgSession::enqueue(const std::shared_ptr<MsgSerialized> &msg_serialized) {
     std::lock_guard<std::mutex> lock(mutex);
 
     // ws was closed in the meantime
@@ -90,7 +90,7 @@ void MsgSession::enqueue(const std::shared_ptr<msg_serialized_type> &msg_seriali
 void MsgSession::enqueue(MsgBuilder &msg_builder) {
 
     msg_builder.finish();
-    enqueue(std::make_shared<msg_serialized_type>(std::move(msg_builder.builder)));
+    enqueue(std::make_shared<MsgSerialized>(std::move(msg_builder.builder)));
 }
 
 

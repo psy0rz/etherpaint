@@ -40,7 +40,7 @@ void SharedSession::done(const std::string &id) {
 
 
 
-void SharedSession::enqueue( const std::shared_ptr<msg_serialized_type> &msg_serialized) {
+void SharedSession::enqueue( const std::shared_ptr<MsgSerialized> &msg_serialized) {
 
     std::unique_lock<std::mutex> lock(msg_sessions_mutex);
     for (auto &msg_session : msg_sessions) {
@@ -51,7 +51,7 @@ void SharedSession::enqueue( const std::shared_ptr<msg_serialized_type> &msg_ser
 void SharedSession::enqueue(MsgBuilder &msg_builder) {
 
     msg_builder.finish();
-    enqueue(std::make_shared<msg_serialized_type>(std::move(msg_builder.builder)));
+    enqueue(std::make_shared<MsgSerialized>(std::move(msg_builder.builder)));
 }
 
 

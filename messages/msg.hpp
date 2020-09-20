@@ -8,7 +8,7 @@
 
 
 typedef const event::Message *msg_type;
-typedef flatbuffers::FlatBufferBuilder msg_serialized_type;
+typedef flatbuffers::FlatBufferBuilder MsgSerialized;
 
 
 //incremental message builder
@@ -20,7 +20,7 @@ private:
     std::vector<uint8_t> event_types;
 
 public:
-    msg_serialized_type builder;
+    MsgSerialized builder;
 
 
     MsgBuilder(size_t size):builder(size)
@@ -70,6 +70,7 @@ public:
 
 
 };
+
 
 
 

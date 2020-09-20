@@ -77,7 +77,7 @@ void SharedSessionPaper::send_frame() {
 
     if (!msg_builder.empty()) {
         msg_builder.finish();
-        auto msg_serialized = std::make_shared<msg_serialized_type>(std::move(msg_builder.builder));
+        auto msg_serialized = std::make_shared<MsgSerialized>(std::move(msg_builder.builder));
         for (auto &msg_session : msg_sessions) {
             auto msg_session_paper = std::static_pointer_cast<MsgSessionPaper>(msg_session);
 
@@ -218,7 +218,7 @@ void SharedSessionPaper::io_thread() {
 void SharedSessionPaper::store() {
     //no locking needed: done by one global thread.
 
-    msg_serialized_type store_buffer;
+    MsgSerialized store_buffer;
     {
         //move buffer, to minimize locking time
         std::unique_lock<std::mutex> lock(msg_builder_mutex);
@@ -265,7 +265,7 @@ void SharedSessionPaper::stream(const std::shared_ptr<MsgSessionPaper> &msg_sess
     fs.read(reinterpret_cast<char *>(&buflen), sizeof(buflen));
 
     //create buffer, and read actual message
-    auto msg_serialized = std::make_shared<msg_serialized_type>(buflen);
+    auto msg_serialized = std::make_shared<MsgSerialized>(buflen);
     msg_serialized->Finish(event::CreateMessage(*msg_serialized));
 //FIXME: illegal
     fs.read(reinterpret_cast<char *>(msg_serialized->GetBufferPointer()), sizeof(buflen));

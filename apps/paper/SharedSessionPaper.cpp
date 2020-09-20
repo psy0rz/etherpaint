@@ -25,7 +25,7 @@ SharedSessionPaper::SharedSessionPaper(const std::string &id) :
 
 }
 
-//global update thread for shared sessions
+//STATIC global update thread for shared sessions
 void SharedSessionPaper::update_thread() {
 
     const auto fps = 60;
@@ -81,7 +81,7 @@ void SharedSessionPaper::send_frame() {
         for (auto &msg_session : msg_sessions) {
             auto msg_session_paper = std::static_pointer_cast<MsgSessionPaper>(msg_session);
 
-            if (msg_session_paper->live)
+            if (!msg_session_paper->streaming)
                 msg_session_paper->enqueue(msg_serialized);
         }
 
@@ -116,6 +116,9 @@ void SharedSessionPaper::join(std::shared_ptr<MsgSession> new_msg_session) {
             mb.add_event(event::EventUnion::EventUnion_Join,
                          event::CreateJoin(mb.builder, mb.builder.CreateString(this->id), client_id).Union());
             new_msg_session->enqueue(mb);
+
+            //start streaming
+            SharedSessionPaper::start_stream(new_msg_session_paper);
             return;
 
         }
@@ -153,7 +156,7 @@ void SharedSessionPaper::addDrawIncrement(const event::DrawIncrement *draw_incre
 }
 
 
-//global io thread (slow but shouldn't interfere). only called by 1 thread.
+//STATIC global io thread (slow but shouldn't interfere). only called by 1 thread.
 //note: this will keep shared sessions alive until the last data is saved.
 //HOWEVER: it will miss data if a client joins for shorter that interval-time. (which shouldnt matter that much, as long as its short enough)
 void SharedSessionPaper::io_thread() {
@@ -165,20 +168,20 @@ void SharedSessionPaper::io_thread() {
     auto start_time = std::chrono::system_clock::now();
 
 
-    std::list<std::shared_ptr<SharedSession>> shared_sessions;
+    std::list<std::shared_ptr<SharedSession>> store_shared_sessions;
 
     while (!stop) {
         std::this_thread::sleep_until(start_time + frames{1});
         start_time = std::chrono::system_clock::now();
 
         //store all data in collected sessions to disk (this is allowed to be slow)
-        for (const auto &shared_session: shared_sessions) {
+        for (const auto &shared_session: store_shared_sessions) {
             auto shared_session_paper = std::static_pointer_cast<SharedSessionPaper>(shared_session);
             shared_session_paper->store();
         }
 
         //clear our list, this allows sharedsessions without clients to be destroyed.
-        shared_sessions.clear();
+        store_shared_sessions.clear();
 
         {
             //make a new copy of all the shared session pointers that are new/still left.
@@ -189,14 +192,29 @@ void SharedSessionPaper::io_thread() {
             for (const auto &[id, shared_session_weak]: SharedSession::shared_sessions) {
                 auto shared_session = shared_session_weak.lock();
                 if (shared_session != nullptr)
-                    shared_sessions.push_back(shared_session);
+                    store_shared_sessions.push_back(shared_session);
             }
         }
+
+        //stream data to clients
+        {
+
+            std::unique_lock<std::mutex> lock(SharedSessionPaper::streaming_msg_sessions_mutex);
+            for (const auto &msg_session_paper: SharedSessionPaper::streaming_msg_sessions) {
+                if (msg_session_paper->streaming) {
+                    static_pointer_cast<SharedSessionPaper>(msg_session_paper->shared_session)->stream(
+                            msg_session_paper);
+                }
+
+            }
+        }
+
     }
 }
 
+
 //store msg_builder_storage to disk.
-// Called periodicly by 1 global storage thread.
+// Called periodicly by the global storage thread.
 void SharedSessionPaper::store() {
     //no locking needed: done by one global thread.
 
@@ -214,21 +232,69 @@ void SharedSessionPaper::store() {
 
     //now store it to disk, no problem if its slow
     fs.seekp(0, std::ios_base::end);
-
-//    reinterpret_cast<char *>(msg_serialized_ptr->GetBufferPointer()),
-//            msg_serialized_ptr->GetSize()
     fs.write(reinterpret_cast<char *>(store_buffer.GetBufferPointer()), store_buffer.GetSize());
 }
 
-//check if shared session is done, and remove it from session table
-//void SharedSessionPaper::check_done() {
-//    std::unique_lock<std::mutex> lock(msg_sessions_mutex);
-//    std::unique_lock<std::mutex> lock(msg_builder_mutex);
-//
-//
-//
-//
-//}
+//STATIC.
+//add session to global streaming list.
+void SharedSessionPaper::start_stream(const std::shared_ptr<MsgSessionPaper> &msg_session_paper) {
+    std::unique_lock<std::mutex> lock(SharedSessionPaper::streaming_msg_sessions_mutex);
+
+    msg_session_paper->streaming_offset=0;
+    msg_session_paper->streaming=true;
+    SharedSessionPaper::streaming_msg_sessions.push_back(msg_session_paper);
+
+
+}
+
+//STATIC
+//remove sessions from global streaming list
+void SharedSessionPaper::end_stream(const std::shared_ptr<MsgSessionPaper> &msg_session_paper) {
+    std::unique_lock<std::mutex> lock(SharedSessionPaper::streaming_msg_sessions_mutex);
+    SharedSessionPaper::streaming_msg_sessions.remove(msg_session_paper);
+}
+
+// stream next block of data to specified msg_session
+// Called periodicly by the global io-thread.
+void SharedSessionPaper::stream(const std::shared_ptr<MsgSessionPaper> &msg_session_paper) {
+    flatbuffers::uoffset_t buflen;
+
+
+    //read message size from last offset
+    fs.seekg(msg_session_paper->streaming_offset, std::ios::beg);
+    fs.read(reinterpret_cast<char *>(&buflen), sizeof(buflen));
+
+    //create buffer, and read actual message
+    auto msg_serialized = std::make_shared<msg_serialized_type>(buflen);
+    msg_serialized->Finish(event::CreateMessage(*msg_serialized));
+//FIXME: illegal
+    fs.read(reinterpret_cast<char *>(msg_serialized->GetBufferPointer()), sizeof(buflen));
+
+    //verify buffer (to detect corruption)
+    //NOTE: we can skip this if we want the performance?
+    auto verifier = flatbuffers::Verifier(msg_serialized->GetBufferPointer(),
+                                          buflen);
+
+    if (!event::VerifyMessageBuffer(verifier)) {
+        msg_session_paper->enqueue_error("File is corrupt.");
+        msg_session_paper->streaming = false;
+        return;
+    }
+
+    //update streaming offset or end streaming
+    //FIXME: also finish/send msg_buuilder_storage
+    msg_session_paper->streaming_offset = fs.tellg();
+    if (fs.eof())
+        msg_session_paper->streaming = false;
+
+    //send message
+    msg_session_paper->enqueue(msg_serialized);
+
+}
+
+
+
+
 
 
 

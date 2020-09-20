@@ -9,6 +9,8 @@
 #include "messages/SharedSession.h"
 #include <fstream>
 
+#include "MsgSessionPaper.h"
+
 class SharedSessionPaper : public SharedSession {
 private:
     MsgBuilder msg_builder; //to send to clients
@@ -19,27 +21,38 @@ private:
 
     void send_frame();
 
+
 public:
+    explicit SharedSessionPaper(const std::string &id);
+
+    //basic joining/leaving/drawing stuff
     void join(std::shared_ptr<MsgSession> new_msg_session) override;
+    void leave(std::shared_ptr<MsgSession> new_msg_session) override;
+    void addDrawIncrement(const event::DrawIncrement* draw_increment);
 
-
-    static void update_thread();
-    static void io_thread();
 
     inline static bool stop=false;
 
-    explicit SharedSessionPaper(const std::string &id);
+    //global thread sends collected messages to all clients at 60fps
+    static void update_thread();
 
-    void leave(std::shared_ptr<MsgSession> new_msg_session) override;
+    //global thread that calls storage stuff. (storing/streaming)
+    static void io_thread();
+    inline static std::list<std::shared_ptr<MsgSessionPaper>> streaming_msg_sessions;
+    inline static std::mutex streaming_msg_sessions_mutex;
+    static void start_stream(const  std::shared_ptr<MsgSessionPaper> & msg_session_paper);
+    static void end_stream(const std::shared_ptr<MsgSessionPaper> &msg_session_paper);
 
-    void addDrawIncrement(const event::DrawIncrement* draw_increment);
-
-    void check_done();
-
+    //called by io_thread when needed
     void store();
-//    void stream();
+    void stream(const std::shared_ptr<MsgSessionPaper> &msg_session_paper);
 
-    void enqueue_live();
+
+
+
+
+
+
 };
 
 

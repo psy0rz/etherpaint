@@ -48,7 +48,7 @@ public:
     std::shared_ptr<SharedSession> shared_session;
 
     // join a shared session
-    void join(std::shared_ptr<SharedSession> shared_session);
+    virtual void join(std::shared_ptr<SharedSession> shared_session);
     void join(const std::string & id);
 
     // called when ws is closed.

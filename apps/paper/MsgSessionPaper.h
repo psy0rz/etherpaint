@@ -12,12 +12,15 @@ class MsgSessionPaper:public MsgSession {
 public:
     explicit MsgSessionPaper(uWS::WebSocket<ENABLE_SSL, true> *ws);
 
+    void join(std::shared_ptr<SharedSession> shared_session) override;
 
     event::Cursor cursor;
     bool cursor_changed=false;
     uint8_t id=0; //client id
-    bool live=true;
-//    uint32_t stream_offset
+
+    //controlled by SharedSessionPaper::
+    bool streaming=true;
+    flatbuffers::uoffset_t streaming_offset=0;
 
 
 

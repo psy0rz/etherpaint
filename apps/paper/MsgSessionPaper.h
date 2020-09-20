@@ -16,6 +16,8 @@ public:
     event::Cursor cursor;
     bool cursor_changed=false;
     uint8_t id=0; //client id
+    bool live=true;
+//    uint32_t stream_offset
 
 
 

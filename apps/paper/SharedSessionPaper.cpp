@@ -53,34 +53,39 @@ void SharedSessionPaper::update_thread() {
 }
 
 
-//send an actual frame to all the connected sessions.
+//send an actual frame to all the connected sessions that are live
 //called with fps by update_thread
 void SharedSessionPaper::send_frame() {
 
-    std::unique_lock<std::mutex> lock(msg_builder_mutex);
 
-    {
-        std::unique_lock<std::mutex> lock(msg_sessions_mutex);
+    std::unique_lock<std::mutex> lock_sessions(msg_sessions_mutex);
+    std::unique_lock<std::mutex> lock_builder(msg_builder_mutex);
 
-        //add all the changed cursors
-        for (auto &msg_session : msg_sessions) {
-            auto msg_session_paper = std::static_pointer_cast<MsgSessionPaper>(msg_session);
+    //add all the changed cursors
+    for (auto &msg_session : msg_sessions) {
+        auto msg_session_paper = std::static_pointer_cast<MsgSessionPaper>(msg_session);
 
-            if (msg_session_paper->cursor_changed) {
-                msg_session_paper->cursor_changed = false;
-                msg_builder.add_event(
-                        event::EventUnion::EventUnion_Cursor,
-                        msg_builder.builder.CreateStruct<event::Cursor>(msg_session_paper->cursor).Union()
-                );
-            }
-
+        if (msg_session_paper->cursor_changed) {
+            msg_session_paper->cursor_changed = false;
+            msg_builder.add_event(
+                    event::EventUnion::EventUnion_Cursor,
+                    msg_builder.builder.CreateStruct<event::Cursor>(msg_session_paper->cursor).Union()
+            );
         }
     }
 
-    //only send if we have events
-    if (!msg_builder.empty())
-        enqueue(msg_builder);
 
+    if (!msg_builder.empty()) {
+        msg_builder.finish();
+        auto msg_serialized = std::make_shared<msg_serialized_type>(std::move(msg_builder.builder));
+        for (auto &msg_session : msg_sessions) {
+            auto msg_session_paper = std::static_pointer_cast<MsgSessionPaper>(msg_session);
+
+            if (msg_session_paper->live)
+                msg_session_paper->enqueue(msg_serialized);
+        }
+
+    }
 
 }
 
@@ -148,7 +153,7 @@ void SharedSessionPaper::addDrawIncrement(const event::DrawIncrement *draw_incre
 }
 
 
-//global io thread (slow but shouldn't interfere)
+//global io thread (slow but shouldn't interfere). only called by 1 thread.
 //note: this will keep shared sessions alive until the last data is saved.
 //HOWEVER: it will miss data if a client joins for shorter that interval-time. (which shouldnt matter that much, as long as its short enough)
 void SharedSessionPaper::io_thread() {

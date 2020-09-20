@@ -23,7 +23,6 @@ public:
     void join(std::shared_ptr<MsgSession> new_msg_session) override;
 
 
-public:
     static void update_thread();
     static void io_thread();
 
@@ -39,6 +38,8 @@ public:
 
     void store();
 //    void stream();
+
+    void enqueue_live();
 };
 
 

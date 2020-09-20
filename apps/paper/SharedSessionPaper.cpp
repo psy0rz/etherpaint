@@ -77,7 +77,7 @@ void SharedSessionPaper::send_frame() {
 
     if (!msg_builder.empty()) {
         msg_builder.finish();
-        auto msg_serialized = std::make_shared<MsgSerialized>(std::move(msg_builder.builder));
+        auto msg_serialized = std::make_shared<MsgSerialized>(std::move(msg_builder));
         for (auto &msg_session : msg_sessions) {
             auto msg_session_paper = std::static_pointer_cast<MsgSessionPaper>(msg_session);
 
@@ -227,12 +227,12 @@ void SharedSessionPaper::store() {
             return;
 
         msg_builder_storage.finishSizePrefixed();
-        store_buffer = std::move(msg_builder_storage.builder);
+        store_buffer = std::move(msg_builder_storage);
     }
 
     //now store it to disk, no problem if its slow
     fs.seekp(0, std::ios_base::end);
-    fs.write(reinterpret_cast<char *>(store_buffer.GetBufferPointer()), store_buffer.GetSize());
+    fs.write(reinterpret_cast<char *>(store_buffer.data()), store_buffer.size());
 }
 
 //STATIC.
@@ -266,14 +266,12 @@ void SharedSessionPaper::stream(const std::shared_ptr<MsgSessionPaper> &msg_sess
 
     //create buffer, and read actual message
     auto msg_serialized = std::make_shared<MsgSerialized>(buflen);
-    msg_serialized->Finish(event::CreateMessage(*msg_serialized));
-//FIXME: illegal
-    fs.read(reinterpret_cast<char *>(msg_serialized->GetBufferPointer()), sizeof(buflen));
+    fs.read(reinterpret_cast<char *>(msg_serialized->data()), msg_serialized->size());
 
     //verify buffer (to detect corruption)
     //NOTE: we can skip this if we want the performance?
-    auto verifier = flatbuffers::Verifier(msg_serialized->GetBufferPointer(),
-                                          buflen);
+    auto verifier = flatbuffers::Verifier(msg_serialized->data(),
+                                          msg_serialized->size());
 
     if (!event::VerifyMessageBuffer(verifier)) {
         msg_session_paper->enqueue_error("File is corrupt.");

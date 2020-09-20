@@ -53,8 +53,8 @@ void MsgSession::send_queue() {
             msg_queue.pop_back();
 
             std::string_view msg_view(
-                    reinterpret_cast<char *>(msg_serialized_ptr->GetBufferPointer()),
-                    msg_serialized_ptr->GetSize());
+                    reinterpret_cast<char *>(msg_serialized_ptr->data()),
+                    msg_serialized_ptr->size());
 
             auto ok = ws->send(msg_view, uWS::BINARY, true);
 
@@ -90,7 +90,7 @@ void MsgSession::enqueue(const std::shared_ptr<MsgSerialized> &msg_serialized) {
 void MsgSession::enqueue(MsgBuilder &msg_builder) {
 
     msg_builder.finish();
-    enqueue(std::make_shared<MsgSerialized>(std::move(msg_builder.builder)));
+    enqueue(std::make_shared<MsgSerialized>(std::move(msg_builder)));
 }
 
 

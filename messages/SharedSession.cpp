@@ -51,7 +51,7 @@ void SharedSession::enqueue( const std::shared_ptr<MsgSerialized> &msg_serialize
 void SharedSession::enqueue(MsgBuilder &msg_builder) {
 
     msg_builder.finish();
-    enqueue(std::make_shared<MsgSerialized>(std::move(msg_builder.builder)));
+    enqueue(std::make_shared<MsgSerialized>(std::move(msg_builder)));
 }
 
 

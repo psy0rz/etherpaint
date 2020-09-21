@@ -43,15 +43,12 @@ public:
     inline static std::queue<std::shared_ptr<MsgSessionPaper>> need_data_sessions;
     inline static std::mutex need_data_sessions_mutex;
     static void request_data(const  std::shared_ptr<MsgSessionPaper> & msg_session_paper);
+    static void stream_all();
+    static void store_all();
 
     //called by io_thread when needed
     void store();
     void stream(const std::shared_ptr<MsgSessionPaper> &msg_session_paper);
-
-
-
-
-
 
 
 };

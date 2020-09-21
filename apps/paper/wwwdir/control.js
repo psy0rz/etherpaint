@@ -26,7 +26,7 @@ control.start = function () {
     //calculate default zoom for this screen
     const zoom_width = 1920;
     control.zoom_percentage = document.querySelector('#paper-container').clientWidth / zoom_width * 100;
-    paper.setZoom(control.zoom_percentage / 100);
+    // paper.setZoom(control.zoom_percentage / 100);
 
     // control.svg_element.addEventListener('mousemove', control.onMouseMove);
     document.querySelector("#viewer").addEventListener('pointermove', control.onPointerMove, {passive: true});

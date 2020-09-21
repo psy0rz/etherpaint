@@ -9,13 +9,6 @@ class PaperClient {
         this.current_element = undefined;
         this.next_object_id=0;
 
-        //create cursor
-        if (client_id!=0)
-        {
-            this.cursor_svg = paper.scratch_svg.group();
-            this.cursor_svg.path('M-10,0 L10,0 M0,-10 L0,10').stroke('black');
-            this.cursor_svg.text("client " + client_id);
-        }
 
     }
 
@@ -31,6 +24,15 @@ class PaperClient {
     // }
 
     animateCursor() {
+        //create cursor?
+        if (this.client_id!=0 && this.cursor_svg===undefined)
+        {
+            this.cursor_svg = paper.scratch_svg.group();
+            this.cursor_svg.path('M-10,0 L10,0 M0,-10 L0,10').stroke('black');
+            this.cursor_svg.text("client " + this.client_id);
+        }
+
+
         this.cursor_svg.transform({
             translateX: this.cursor_event.x(),
             translateY: this.cursor_event.y()

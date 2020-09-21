@@ -25,6 +25,7 @@ paper.start = function (viewer_element, paper_element, scratch_element, containe
     //start frame timer
     paper.onAnimationFrame();
     setInterval(paper.updateViewport, 1000);
+    paper.setZoom(1);
 
 }
 

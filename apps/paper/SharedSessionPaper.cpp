@@ -172,6 +172,8 @@ void SharedSessionPaper::io_thread() {
 
     while (!stop) {
         std::this_thread::sleep_until(start_time + frames{1});
+
+
         start_time = std::chrono::system_clock::now();
 
         //store all data in collected sessions to disk (this is allowed to be slow)

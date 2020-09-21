@@ -203,7 +203,6 @@ void SharedSessionPaper::store_all() {
 // Called periodicly by the global storage thread.
 void SharedSessionPaper::store() {
     //no locking needed: done by one global thread.
-    DEB("store");
     MsgSerialized store_buffer;
     {
         //move buffer, to minimize locking time

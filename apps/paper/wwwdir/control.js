@@ -102,6 +102,7 @@ control.onPointerUp = function (m) {
     if (control.primaryDown) {
         paper.sendDrawIncrement(event.IncrementalType.PointerEnd, x, y);
         control.primaryDown = false;
+        paper.updateViewport();
     }
 };
 

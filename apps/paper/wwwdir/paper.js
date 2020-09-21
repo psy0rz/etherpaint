@@ -5,11 +5,12 @@
 let paper = {};
 
 
-paper.start = function (viewer_element, paper_element, scratch_element) {
+paper.start = function (viewer_element, paper_element, scratch_element, container_element) {
 
     paper.viewer_element = viewer_element;
     paper.paper_element = paper_element;
     paper.scratch_element = scratch_element;
+    paper.container_element = container_element;
 
     paper.viewer_svg = SVG(viewer_element);
     paper.paper_svg = SVG(paper_element);
@@ -23,6 +24,7 @@ paper.start = function (viewer_element, paper_element, scratch_element) {
 
     //start frame timer
     paper.onAnimationFrame();
+    setInterval(paper.updateViewport, 1000);
 
 }
 
@@ -156,12 +158,10 @@ paper.drawIncrements = function (index) {
             {
                 paper.reverse_increments.push(reverse);
                 // console.log("STORE", increment);
-            }
-            else
-            {
+            } else {
                 // console.log("SKIP", increment);
                 //we dont have a reverse, so remove it from increments
-                paper.increments.splice(paper.increment_index,1);
+                paper.increments.splice(paper.increment_index, 1);
                 paper.increment_index--;
                 paper.target_index--;
                 index--;
@@ -277,13 +277,24 @@ m.handlers[event.EventUnion.Cursor] = (msg, event_index) => {
 }
 
 
+//set viewport to current zoomfactor and bounding box.
+paper.updateViewport = function () {
+    //we want the bounding box width + 1 x "screen size" around.
+    const bbox = paper.paper_svg.bbox();
+    const w = Math.round(bbox.x2 + 1 * paper.container_element.offsetWidth);
+    const h = Math.round(bbox.y2 + 1 * paper.container_element.offsetHeight);
+
+    paper.viewer_element.style.width = (w * paper.zoom_factor) + "px";
+    paper.viewer_element.style.height = (h * paper.zoom_factor) + "px";
+    paper.viewer_svg.viewbox(0, 0, w, h);
+
+}
+
+
 paper.setZoom = function (factor) {
 
-    const paper_size = 6500;
-
-    paper.viewer_element.style.height = (paper_size * factor) + "px";
-    paper.viewer_element.style.width = (paper_size * factor) + "px";
-    paper.viewer_svg.viewbox(0, 0, paper_size, paper_size);
+    paper.zoom_factor = factor;
+    paper.updateViewport();
 
 }
 

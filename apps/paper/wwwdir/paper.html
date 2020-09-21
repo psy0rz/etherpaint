@@ -30,24 +30,6 @@
     <script>
 
 
-        function ping(msg) {
-            m.builder.clear();
-            m.builder.finish(
-                event.Message.createMessage(
-                    m.builder,
-                    event.EventUnion.Echo,
-                    event.Echo.createEcho(
-                        m.builder,
-                        123,
-                        456,
-                        m.builder.createString("payload")
-                    )
-                )
-            );
-            m.send();
-        }
-
-
         function toggleMenu() {
             document.querySelector('#toolmenu').classList.toggle('is-active');
             document.querySelector('.navbar-burger').classList.toggle('is-active');
@@ -89,7 +71,11 @@
             document.querySelector('#paper-container').style.top = document.querySelector("nav").offsetHeight + "px";
 
 
-            paper.start(document.querySelector('#viewer'), document.querySelector('#paper'), document.querySelector("#scratch"));
+            paper.start(
+                document.querySelector('#viewer'),
+                document.querySelector('#paper'),
+                document.querySelector("#scratch"),
+                document.querySelector("#paper-container"));
             control.start();
 
             //start websocket messaging:
@@ -107,7 +93,7 @@
 
 
 </head>
-<body >
+<body>
 
 
 <nav id="mainbar" role="navigation" aria-label="main navigation" class="navbar is-fixed-top">
@@ -233,7 +219,7 @@
     left:0 ;
     right:0;
     bottom:0 ;
-    overflow: scroll;
+    overflow: auto;
     touch-action: none;
 
 ">

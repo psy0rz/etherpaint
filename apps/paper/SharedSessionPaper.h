@@ -9,6 +9,7 @@
 #include "messages/SharedSession.h"
 #include <fstream>
 #include <queue>
+#include <condition_variable>
 
 
 #include "MsgSessionPaper.h"
@@ -42,6 +43,7 @@ public:
     static void io_thread();
     inline static std::queue<std::shared_ptr<MsgSessionPaper>> need_data_sessions;
     inline static std::mutex need_data_sessions_mutex;
+    inline static std::condition_variable need_data_sessions_cv;
     static void request_data(const  std::shared_ptr<MsgSessionPaper> & msg_session_paper);
     static void stream_all();
     static void store_all();

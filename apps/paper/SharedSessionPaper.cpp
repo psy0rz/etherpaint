@@ -8,6 +8,8 @@
 #include "messages/program_error.hpp"
 //#include "msg.hpp"
 
+using namespace std::chrono_literals;
+
 //shared session factory
 std::shared_ptr<SharedSession> SharedSession::create(const std::string &id) {
     std::shared_ptr<SharedSession> shared_session = std::make_shared<SharedSessionPaper>(id);
@@ -158,22 +160,10 @@ void SharedSessionPaper::addDrawIncrement(const event::DrawIncrement *draw_incre
 //calls store_all and stream_all at the right times.
 void SharedSessionPaper::io_thread() {
 
-    const auto interval = 60; //seconds
-
-    using frames = std::chrono::duration<int64_t, std::ratio<1, interval>>;
-
-    auto start_time = std::chrono::system_clock::now();
-
-
-    std::list<std::shared_ptr<SharedSession>> store_shared_sessions;
 
     while (!stop) {
-        std::this_thread::sleep_until(start_time + frames{1});
-        start_time = std::chrono::system_clock::now();
-
+        stream_all(); //runs/waits for 5 seconds
         store_all();
-        stream_all();
-
     }
 }
 
@@ -181,9 +171,9 @@ void SharedSessionPaper::io_thread() {
 //note: this will keep shared sessions alive until the last data is saved.
 //HOWEVER: it will miss data if a client joins for shorter that interval-time. (which shouldnt matter that much, as long as its short enough)
 //STATIC, called by io-thread, periodicly.
+//The lest often you call it, the bigger the blocks will be. (more efficient)
 void SharedSessionPaper::store_all() {
     static std::list<std::shared_ptr<SharedSession>> store_shared_sessions;
-
 
     //store all data in collected sessions to disk (this is allowed to be slow)
     for (const auto &shared_session: store_shared_sessions) {
@@ -213,7 +203,7 @@ void SharedSessionPaper::store_all() {
 // Called periodicly by the global storage thread.
 void SharedSessionPaper::store() {
     //no locking needed: done by one global thread.
-
+    DEB("store");
     MsgSerialized store_buffer;
     {
         //move buffer, to minimize locking time
@@ -232,45 +222,49 @@ void SharedSessionPaper::store() {
 }
 
 
+//STATIC, called by msgsessionpaper when its queue is empty and it wants more streaming data blocks
+void SharedSessionPaper::request_data(const std::shared_ptr<MsgSessionPaper> &msg_session_paper) {
+    std::unique_lock<std::mutex> lock(need_data_sessions_mutex);
+    need_data_sessions.push(msg_session_paper);
+    need_data_sessions_cv.notify_one();
+
+}
+
 //calls stream() for all clients in the need_data_sessions list.
 //STATIC, called by global IO thread.
 void SharedSessionPaper::stream_all() {
 
-    std::unique_lock<std::mutex> lock(SharedSessionPaper::need_data_sessions_mutex);
+    std::unique_lock<std::mutex> lock(need_data_sessions_mutex);
 
-    while (!SharedSessionPaper::need_data_sessions.empty()) {
-        auto msg_session_paper = SharedSessionPaper::need_data_sessions.front();
-        if (msg_session_paper->streaming && msg_session_paper->shared_session != nullptr) {
-            try {
-                static_pointer_cast<SharedSessionPaper>(msg_session_paper->shared_session)->stream(
-                        msg_session_paper);
-            }
-            catch (std::system_error e) {
-                std::stringstream desc;
-                desc << "IO error while reading data: "
-                     << e.code().message() << ": " << std::strerror(errno);
-                msg_session_paper->enqueue_error(desc.str());
-                msg_session_paper->streaming = false;
-            }
-            catch (std::exception e) {
-                std::stringstream desc;
-                desc << "Exception while reading data: " << e.what();
-                msg_session_paper->enqueue_error(desc.str());
-                msg_session_paper->streaming = false;
+    auto timeout = std::chrono::system_clock::now() + 5s;
+
+    while (need_data_sessions_cv.wait_until(lock, timeout) != std::cv_status::timeout) {
+        {
+            while (!need_data_sessions.empty()) {
+                auto msg_session_paper = need_data_sessions.front();
+                if (msg_session_paper->streaming && msg_session_paper->shared_session != nullptr) {
+                    try {
+                        static_pointer_cast<SharedSessionPaper>(msg_session_paper->shared_session)->stream(
+                                msg_session_paper);
+                    }
+                    catch (std::system_error e) {
+                        std::stringstream desc;
+                        desc << "IO error while reading data: "
+                             << e.code().message() << ": " << std::strerror(errno);
+                        msg_session_paper->enqueue_error(desc.str());
+                        msg_session_paper->streaming = false;
+                    }
+                    catch (std::exception e) {
+                        std::stringstream desc;
+                        desc << "Exception while reading data: " << e.what();
+                        msg_session_paper->enqueue_error(desc.str());
+                        msg_session_paper->streaming = false;
+                    }
+                }
+                SharedSessionPaper::need_data_sessions.pop();
             }
         }
-        SharedSessionPaper::need_data_sessions.pop();
     }
-
-}
-
-
-//STATIC, called by msgsessionpaper when its queue is empty and it wants more streaming data blocks
-void SharedSessionPaper::request_data(const std::shared_ptr<MsgSessionPaper> &msg_session_paper) {
-    std::unique_lock<std::mutex> lock(SharedSessionPaper::need_data_sessions_mutex);
-
-    SharedSessionPaper::need_data_sessions.push(msg_session_paper);
-
 }
 
 

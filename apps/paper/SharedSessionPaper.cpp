@@ -117,8 +117,6 @@ void SharedSessionPaper::join(std::shared_ptr<MsgSession> new_msg_session) {
                          event::CreateJoin(mb.builder, mb.builder.CreateString(this->id), client_id).Union());
             new_msg_session->enqueue(mb);
 
-            //start streaming
-            SharedSessionPaper::start_stream(new_msg_session_paper);
             return;
 
         }
@@ -161,9 +159,9 @@ void SharedSessionPaper::addDrawIncrement(const event::DrawIncrement *draw_incre
 //HOWEVER: it will miss data if a client joins for shorter that interval-time. (which shouldnt matter that much, as long as its short enough)
 void SharedSessionPaper::io_thread() {
 
-    const auto interval = 5; //seconds
+    const auto interval = 60; //seconds
 
-    using frames = std::chrono::duration<int64_t, std::ratio<interval, 1>>;
+    using frames = std::chrono::duration<int64_t, std::ratio<1,interval>>;
 
     auto start_time = std::chrono::system_clock::now();
 
@@ -200,14 +198,30 @@ void SharedSessionPaper::io_thread() {
 
         //stream data to clients
         {
-
-            std::unique_lock<std::mutex> lock(SharedSessionPaper::streaming_msg_sessions_mutex);
-            for (const auto &msg_session_paper: SharedSessionPaper::streaming_msg_sessions) {
-                if (msg_session_paper->streaming) {
-                    static_pointer_cast<SharedSessionPaper>(msg_session_paper->shared_session)->stream(
-                            msg_session_paper);
+            std::unique_lock<std::mutex> lock(SharedSessionPaper::need_data_sessions_mutex);
+            while (!SharedSessionPaper::need_data_sessions.empty()) {
+                auto msg_session_paper = SharedSessionPaper::need_data_sessions.front();
+                if (msg_session_paper->streaming && msg_session_paper->shared_session!=nullptr) {
+                    try
+                    {
+                        static_pointer_cast<SharedSessionPaper>(msg_session_paper->shared_session)->stream(
+                                msg_session_paper);
+                    }
+                    catch (std::system_error e) {
+                        std::stringstream desc;
+                        desc << "IO error while reading data: "
+                             <<  e.code().message() << ": " << std::strerror(errno);
+                        msg_session_paper->enqueue_error(desc.str());
+                        msg_session_paper->streaming=false;
+                    }
+                    catch (std::exception e) {
+                        std::stringstream desc;
+                        desc << "Exception while reading data: " << e.what();
+                        msg_session_paper->enqueue_error(desc.str());
+                        msg_session_paper->streaming=false;
+                    }
                 }
-
+                SharedSessionPaper::need_data_sessions.pop();
             }
         }
 
@@ -238,29 +252,28 @@ void SharedSessionPaper::store() {
 }
 
 //STATIC.
-//add session to global streaming list.
-void SharedSessionPaper::start_stream(const std::shared_ptr<MsgSessionPaper> &msg_session_paper) {
-    std::unique_lock<std::mutex> lock(SharedSessionPaper::streaming_msg_sessions_mutex);
+//called by msgsessionpaper when its queue is empty and it wants more data
+void SharedSessionPaper::request_data(const std::shared_ptr<MsgSessionPaper> &msg_session_paper) {
+    std::unique_lock<std::mutex> lock(SharedSessionPaper::need_data_sessions_mutex);
 
-    msg_session_paper->streaming_offset=0;
-    msg_session_paper->streaming=true;
-    SharedSessionPaper::streaming_msg_sessions.push_back(msg_session_paper);
-
+    SharedSessionPaper::need_data_sessions.push(msg_session_paper);
 
 }
 
-//STATIC
-//remove sessions from global streaming list
-void SharedSessionPaper::end_stream(const std::shared_ptr<MsgSessionPaper> &msg_session_paper) {
-    std::unique_lock<std::mutex> lock(SharedSessionPaper::streaming_msg_sessions_mutex);
-    SharedSessionPaper::streaming_msg_sessions.remove(msg_session_paper);
-}
 
 // stream next block of data to specified msg_session
 // Called periodicly by the global io-thread.
 void SharedSessionPaper::stream(const std::shared_ptr<MsgSessionPaper> &msg_session_paper) {
     flatbuffers::uoffset_t buflen;
 
+    //get current size
+    fs.seekg(0, std::ios::end);
+    flatbuffers::uoffset_t length = fs.tellg();
+    if (msg_session_paper->streaming_offset>=length) {
+        //FIXME: send last part that is in msg_builder_storage
+        msg_session_paper->streaming = false;
+        return;
+    }
 
     //read message size from last offset
     fs.seekg(msg_session_paper->streaming_offset, std::ios::beg);
@@ -276,16 +289,11 @@ void SharedSessionPaper::stream(const std::shared_ptr<MsgSessionPaper> &msg_sess
                                           msg_serialized->size());
 
     if (!event::VerifyMessageBuffer(verifier)) {
-        msg_session_paper->enqueue_error("File is corrupt.");
-        msg_session_paper->streaming = false;
-        return;
+        throw(program_error("File is corrupt"));
     }
 
     //update streaming offset or end streaming
-    //FIXME: also finish/send msg_buuilder_storage
-    msg_session_paper->streaming_offset = fs.tellg();
-    if (fs.eof())
-        msg_session_paper->streaming = false;
+    msg_session_paper->streaming_offset += sizeof(buflen) + buflen;
 
     //send message
     msg_session_paper->enqueue(msg_serialized);

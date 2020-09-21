@@ -63,6 +63,10 @@ public:
     //(called from ws thread)
     void send_queue();
 
+    //called when queue is empty. override this if you need to get informed, default implementation is empty.
+    //(called from ws thread)
+    virtual void queue_low(){ };
+
     // enqueue message for this websocket, will inform websocket thread to start
     // sending if it isn't already.
     // (called from any thread)

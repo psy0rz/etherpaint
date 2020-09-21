@@ -20,6 +20,9 @@ public:
 
     //controlled by SharedSessionPaper::
     bool streaming=true;
+
+    void queue_low() override;
+
     flatbuffers::uoffset_t streaming_offset=0;
 
 

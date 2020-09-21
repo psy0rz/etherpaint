@@ -8,6 +8,8 @@
 
 #include "messages/SharedSession.h"
 #include <fstream>
+#include <queue>
+
 
 #include "MsgSessionPaper.h"
 
@@ -38,10 +40,9 @@ public:
 
     //global thread that calls storage stuff. (storing/streaming)
     static void io_thread();
-    inline static std::list<std::shared_ptr<MsgSessionPaper>> streaming_msg_sessions;
-    inline static std::mutex streaming_msg_sessions_mutex;
-    static void start_stream(const  std::shared_ptr<MsgSessionPaper> & msg_session_paper);
-    static void end_stream(const std::shared_ptr<MsgSessionPaper> &msg_session_paper);
+    inline static std::queue<std::shared_ptr<MsgSessionPaper>> need_data_sessions;
+    inline static std::mutex need_data_sessions_mutex;
+    static void request_data(const  std::shared_ptr<MsgSessionPaper> & msg_session_paper);
 
     //called by io_thread when needed
     void store();

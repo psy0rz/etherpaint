@@ -17,6 +17,7 @@ void MsgSession::join(const std::string &id) {
     join(SharedSession::get(id));
 }
 
+// (called from ws thread)
 void MsgSession::closed() {
     std::lock_guard<std::mutex> lock(mutex);
     ws = nullptr;
@@ -26,6 +27,7 @@ void MsgSession::closed() {
     }
 }
 
+// (called from ws thread)
 MsgSession::MsgSession(uWS::WebSocket<ENABLE_SSL, true> *ws) {
     this->ws = ws;
     // uwebsocket is single threaded, but supports deffering from other threads
@@ -39,32 +41,44 @@ MsgSession::~MsgSession() {
     DEB("Destroyed msg session");;
 }
 
+// (called from ws thread)
 void MsgSession::send_queue() {
-    std::lock_guard<std::mutex> lock(mutex);
+    bool queue_low=false;
 
-    // ws was closed in the meantime
-    if (ws == nullptr)
-        return;
+    {
+        std::lock_guard<std::mutex> lock(mutex);
 
-    // int before = msg_queue.size();
-    ws->cork([this]() {
-        while (!msg_queue.empty() && !ws->getBufferedAmount()) {
-            auto msg_serialized_ptr = msg_queue.back();
-            msg_queue.pop_back();
+        // ws was closed in the meantime
+        if (ws == nullptr)
+            return;
 
-            std::string_view msg_view(
-                    reinterpret_cast<char *>(msg_serialized_ptr->data()),
-                    msg_serialized_ptr->size());
+        // int before = msg_queue.size();
+        ws->cork([this]() {
+            while (!msg_queue.empty() && !ws->getBufferedAmount()) {
+                auto msg_serialized_ptr = msg_queue.back();
+                msg_queue.pop_back();
 
-            auto ok = ws->send(msg_view, uWS::BINARY, true);
+                std::string_view msg_view(
+                        reinterpret_cast<char *>(msg_serialized_ptr->data()),
+                        msg_serialized_ptr->size());
 
-            if (!ok)
-                break;
+                auto ok = ws->send(msg_view, uWS::BINARY, true);
+
+                if (!ok)
+                    break;
+            }
+        });
+        if (msg_queue.size() != 0) {
+            DEB("got backpresure, messages left in queue: " << msg_queue.size());
+
+        } else {
+            queue_low = true;
         }
-    });
-    if (msg_queue.size() != 0) {
-        DEB("got backpresure, messages left in queue: " << msg_queue.size());
     }
+
+    //do this unlocked
+    if (queue_low)
+        this->queue_low();
 }
 
 void MsgSession::enqueue(const std::shared_ptr<MsgSerialized> &msg_serialized) {

@@ -18,6 +18,18 @@ MsgSessionPaper::MsgSessionPaper(uWS::WebSocket<false, true> *ws) : MsgSession(w
 
 void MsgSessionPaper::join(std::shared_ptr<SharedSession> shared_session) {
     MsgSession::join(shared_session);
+    streaming=true;
+    streaming_offset=0;
+    SharedSessionPaper::request_data(std::static_pointer_cast<MsgSessionPaper>(shared_from_this()));
 
+
+
+}
+
+void MsgSessionPaper::queue_low() {
+    if (streaming) {
+
+        SharedSessionPaper::request_data(std::static_pointer_cast<MsgSessionPaper>(shared_from_this()));
+    }
 
 }

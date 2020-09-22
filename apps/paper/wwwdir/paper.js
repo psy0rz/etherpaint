@@ -25,7 +25,7 @@ paper.start = function (viewer_element, paper_element, scratch_element, containe
     //start frame timer
     paper.onAnimationFrame();
     setInterval(paper.updateViewport, 1000);
-    paper.setZoom(1);
+    // paper.setZoom(1);
 
 }
 
@@ -218,6 +218,12 @@ paper.onAnimationFrame = function (s) {
         return;
     }
 
+    if (paper.want_zoom_factor!=paper.zoom_factor)
+    {
+        paper.zoom_factor=paper.want_zoom_factor;
+        paper.updateViewport();
+    }
+
     //DRAW stuff
 
     //let all changed clients do their incremental draw and cursor stuff:
@@ -285,8 +291,8 @@ paper.updateViewport = function () {
     const w = Math.round(bbox.x2 + 1 * paper.container_element.offsetWidth);
     const h = Math.round(bbox.y2 + 1 * paper.container_element.offsetHeight);
 
-    paper.viewer_element.style.width = (w * paper.zoom_factor) + "px";
-    paper.viewer_element.style.height = (h * paper.zoom_factor) + "px";
+    paper.viewer_element.style.width = Math.round(w * paper.zoom_factor) + "px";
+    paper.viewer_element.style.height = Math.round(h * paper.zoom_factor) + "px";
     paper.viewer_svg.viewbox(0, 0, w, h);
 
 }
@@ -294,8 +300,9 @@ paper.updateViewport = function () {
 
 paper.setZoom = function (factor) {
 
-    paper.zoom_factor = factor;
-    paper.updateViewport();
+    paper.want_zoom_factor = factor;
+    // paper.zoom_factor = factor;
+    // paper.updateViewport();
 
 }
 

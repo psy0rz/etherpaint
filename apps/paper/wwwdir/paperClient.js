@@ -59,6 +59,7 @@ class PaperClient {
                         reverse=[event.IncrementalType.Delete];
 
                         this.current_element = paper.paper_svg.polyline([[p1,p2]]);
+                        // this.current_element = paper.paper_svg.path("M"+p1+","+p2);
                         this.current_element.stroke('black').fill('none');
                         this.current_element.node.id=this.getObjectIdStr(this.next_object_id);
                         this.next_object_id++;
@@ -87,6 +88,10 @@ class PaperClient {
                             p.x = p1;
                             p.y = p2;
                             this.current_element.node.points.appendItem(p);
+
+                            // //test with path
+                            // reverse=[event.IncrementalType.DeletePoint ];
+                            // this.current_element.node.setAttribute('d',this.current_element.node.attributes.d.value+"L"+p1+","+p2);
 
                             break;
                         case event.DrawType.Rectangle:

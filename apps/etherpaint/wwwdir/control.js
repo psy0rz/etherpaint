@@ -13,6 +13,9 @@ control.Modes =
     };
 
 control.mode = control.Modes.Point;
+control.send_draw_type = event.DrawType.PolyLine;
+control.send_draw_color = event.DrawType.PolyLine;
+
 control.last_x = 0;
 control.last_y = 0;
 
@@ -26,7 +29,7 @@ control.start = function () {
     //calculate default zoom for this screen
     const zoom_width = 1920;
     // control.zoom_percentage = document.querySelector('#paper-container').clientWidth / zoom_width * 100;
-    control.zoom_percentage=100;
+    control.zoom_percentage = 100;
     paper.setZoom(control.zoom_percentage / 100);
 
     // control.svg_element.addEventListener('mousemove', control.onMouseMove);
@@ -48,10 +51,19 @@ control.onPointerDown = function (m) {
 
     paper.sendCursor(x, y);
 
+    //do we need to send any selects?
+    if (control.send_draw_type !== undefined) {
+        paper.sendDrawIncrement(event.IncrementalType.SelectDrawType, control.send_draw_type);
+        control.send_draw_type = undefined;
+
+    }
+
 
     if (m.buttons & 1) {
         control.primaryDown = true;
-        paper.sendDrawIncrement(event.IncrementalType.PointerStart, x, y);
+        if (control.mode == control.Modes.Draw) {
+            paper.sendDrawIncrement(event.IncrementalType.PointerStart, x, y);
+        }
     }
 
     m.preventDefault();
@@ -67,8 +79,8 @@ control.onPointerMove = function (m) {
     //last cursor location, dont need all the coalesced events.
     paper.sendCursor(x, y);
 
-    //button pressed?
-    if (control.primaryDown) {
+    //button pressed in drawmode?
+    if (control.primaryDown && control.mode == control.Modes.Draw) {
         if (m.getCoalescedEvents) {
             for (const coalesced of m.getCoalescedEvents()) {
                 let point = paper.viewer_svg.point(coalesced.pageX, coalesced.pageY);
@@ -101,9 +113,12 @@ control.onPointerUp = function (m) {
     control.last_y = y;
 
     if (control.primaryDown) {
-        paper.sendDrawIncrement(event.IncrementalType.PointerEnd, x, y);
+        if (control.mode == control.Modes.Draw) {
+
+            paper.sendDrawIncrement(event.IncrementalType.PointerEnd, x, y);
+            paper.updateViewport();
+        }
         control.primaryDown = false;
-        paper.updateViewport();
     }
 };
 
@@ -111,7 +126,9 @@ control.onPointerCancel = function (m) {
     //calculate action svg paper location
     const point = paper.viewer_svg.point(m.pageX, m.pageY);
 
-    paper.sendDrawIncrement(event.IncrementalType.PointerCancel, point.x, point.y);
+    if (control.mode == control.Modes.Draw) {
+        paper.sendDrawIncrement(event.IncrementalType.PointerCancel, point.x, point.y);
+    }
 };
 
 
@@ -131,8 +148,7 @@ control.highlightTool = function (activate) {
 
 control.onClickToolPointer = function (e) {
     control.highlightTool(e);
-
-    paper.sendDrawIncrement(event.IncrementalType.SelectDrawMode, event.DrawMode.Point);
+    control.mode=control.Modes.Point;
 
 };
 
@@ -148,17 +164,16 @@ control.onClickToolPolyline = function (e) {
     // control.mode=control.Modes.Draw;
     // control.selected.drawType=event.DrawType.PolyLine;
     paper.viewer_element.style.touchAction = "manipulation";
-
-    paper.sendDrawIncrement(event.IncrementalType.SelectDrawType, event.DrawType.PolyLine);
-    paper.sendDrawIncrement(event.IncrementalType.SelectDrawMode, event.DrawMode.Draw);
+    control.mode=control.Modes.Draw;
+    control.send_draw_type=event.DrawType.PolyLine;
 };
 
 control.onClickToolRect = function (e) {
     control.highlightTool(e);
     paper.viewer_element.style.touchAction = "manipulation";
 
-    paper.sendDrawIncrement(event.IncrementalType.SelectDrawType, event.DrawType.Rectangle);
-    paper.sendDrawIncrement(event.IncrementalType.SelectDrawMode, event.DrawMode.Draw);
+    control.mode=control.Modes.Draw;
+    control.send_draw_type=event.DrawType.Rectangle;
 };
 
 

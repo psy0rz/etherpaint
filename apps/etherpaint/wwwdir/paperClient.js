@@ -9,6 +9,8 @@ class PaperClient {
         this.current_element = undefined;
         this.next_object_id=0;
 
+        this.draw_type=undefined;
+
 
     }
 
@@ -50,11 +52,11 @@ class PaperClient {
 
         switch (type) {
             case event.IncrementalType.SelectDrawType:
-                reverse=[event.IncrementalType.SelectDrawType, this.drawtype];
-                this.drawtype = p1;
+                reverse=[event.IncrementalType.SelectDrawType, this.draw_type];
+                this.draw_type = p1;
                 break;
             case event.IncrementalType.PointerStart:
-                switch (this.drawtype) {
+                switch (this.draw_type) {
                     case event.DrawType.PolyLine:
                         reverse=[event.IncrementalType.Delete];
 
@@ -81,7 +83,7 @@ class PaperClient {
             case event.IncrementalType.PointerMove:
                 if (this.current_element) {
 
-                    switch (this.drawtype) {
+                    switch (this.draw_type) {
                         case event.DrawType.PolyLine:
                             reverse=[event.IncrementalType.DeletePoint, this.current_element.node.points.length ];
                             let p = paper.paper_svg.node.createSVGPoint();
@@ -115,7 +117,7 @@ class PaperClient {
             case event.IncrementalType.PointerEnd:
                 if (this.current_element) {
 
-                    switch (this.drawtype) {
+                    switch (this.draw_type) {
                         // case event.DrawType.PolyLine:
                         //     reverse=[event.IncrementalType.DeletePoint, this.current_element.node.points.length ];
                         //     let p = paper.scratch_svg.node.createSVGPoint();

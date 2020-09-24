@@ -1,5 +1,5 @@
 #i had some issues with git cloning in 3.16
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.16)
 project(messages)
 include(GNUInstallDirs)
 
@@ -22,13 +22,14 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
         )
 
 
-############################# clone/build uwebsockets
-include("uwebsockets.cmake")
-add_dependencies(${PROJECT_NAME} uwebsockets)
 
 ############################# clone/build flatbuffers flatc compiler
 include("flatbuffers.cmake")
 add_dependencies(${PROJECT_NAME} flatbuffers)
+
+############################# clone/build uwebsockets
+include("uwebsockets.cmake")
+add_dependencies(${PROJECT_NAME} uwebsockets)
 
 
 ############################# flatc compile .fbs to .h

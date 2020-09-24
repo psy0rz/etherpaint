@@ -26,6 +26,13 @@
     <script src="paper.js"></script>
     <script src="paperClient.js"></script>
 
+    <style>
+        .selected {
+            stroke: blue;
+            stroke-dasharray: 10 5 1 5;
+        }
+    </style>
+
 
     <script>
 
@@ -101,6 +108,7 @@
 
         <div class="navbar-item">
             <div class="field is-grouped " id="tools">
+                <p class="control" >test</p>
                 <p class="control">
                     <a class="button is-primary" onclick="control.onClickToolPointer(this)">
                         <span class="icon">
@@ -112,11 +120,11 @@
                             <i class="fas fa-pen" aria-hidden="true"></i>
                         </span>
                     </a>
-<!--                    <a class="button" onclick="control.onClickToolCircle(this)">-->
-<!--                        <span class="icon">-->
-<!--                            <i class="far fa-circle" aria-hidden="true"></i>-->
-<!--                        </span>-->
-<!--                    </a>-->
+                    <!--                    <a class="button" onclick="control.onClickToolCircle(this)">-->
+                    <!--                        <span class="icon">-->
+                    <!--                            <i class="far fa-circle" aria-hidden="true"></i>-->
+                    <!--                        </span>-->
+                    <!--                    </a>-->
                     <a class="button" onclick="control.onClickToolRect(this)">
                         <span class="icon">
                             <i class="far fa-square" aria-hidden="true"></i>
@@ -129,18 +137,18 @@
                     </a>
                 </p>
 
-<!--                <p class="control 		">-->
-<!--                    <a class="button" onclick="control.onClickUndo(this)">-->
-<!--                        <span class="icon">-->
-<!--                            <i class="fas fa-undo" aria-hidden="true"></i>-->
-<!--                        </span>-->
-<!--                    </a>-->
-<!--                    <a class="button" onclick="control.onClickRedo(this)">-->
-<!--                        <span class="icon">-->
-<!--                            <i class="fas fa-redo" aria-hidden="true"></i>-->
-<!--                        </span>-->
-<!--                    </a>-->
-<!--                </p>-->
+                <!--                <p class="control 		">-->
+                <!--                    <a class="button" onclick="control.onClickUndo(this)">-->
+                <!--                        <span class="icon">-->
+                <!--                            <i class="fas fa-undo" aria-hidden="true"></i>-->
+                <!--                        </span>-->
+                <!--                    </a>-->
+                <!--                    <a class="button" onclick="control.onClickRedo(this)">-->
+                <!--                        <span class="icon">-->
+                <!--                            <i class="fas fa-redo" aria-hidden="true"></i>-->
+                <!--                        </span>-->
+                <!--                    </a>-->
+                <!--                </p>-->
 
                 <p class="control">
                     <a class="button" onclick="control.onClickZoomOut(this)">

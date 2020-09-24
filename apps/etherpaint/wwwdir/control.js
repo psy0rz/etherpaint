@@ -8,7 +8,7 @@ control.Modes =
     {
         Point: 1,
         Draw: 2,
-        Remove: 3,
+        Delete: 3,
         Select: 4
     };
 
@@ -40,6 +40,30 @@ control.start = function () {
 
 }
 
+control.deselectAll = function () {
+    for (const e of document.querySelectorAll(".selected")) {
+        e.classList.remove("selected");
+    }
+
+}
+
+control.select = function (target) {
+
+    if (target.id != 'viewer') {
+
+        //select
+        target.classList.add("selected");
+
+    }
+}
+
+control.deleteSelected = function () {
+    for (const e of document.querySelectorAll(".selected")) {
+        e.classList.remove("selected"); //deselect as well (its hidden now)
+        paper.sendDeleteElement(e);
+    }
+}
+
 control.onPointerDown = function (m) {
     //calculate action svg paper location
     const point = paper.viewer_svg.point(m.pageX, m.pageY);
@@ -51,7 +75,7 @@ control.onPointerDown = function (m) {
 
     paper.sendCursor(x, y);
 
-    //do we need to send any selects?
+    //do we need to send any tool-selects?
     if (control.send_draw_type !== undefined) {
         paper.sendDrawIncrement(event.IncrementalType.SelectDrawType, control.send_draw_type);
         control.send_draw_type = undefined;
@@ -61,48 +85,63 @@ control.onPointerDown = function (m) {
 
     if (m.buttons & 1) {
         control.primaryDown = true;
-        if (control.mode == control.Modes.Draw) {
-            paper.sendDrawIncrement(event.IncrementalType.PointerStart, x, y);
+        switch (control.mode) {
+            case control.Modes.Draw:
+                paper.sendDrawIncrement(event.IncrementalType.PointerStart, x, y);
+                break;
+            case control.Modes.Delete:
+                control.deleteSelected();
+                break;
+
         }
     }
 
     m.preventDefault();
 };
 
-control.onPointerMove = function (m) {
 
-    //calculate action svg paper location
+//de-coalesced events
+control.onPointerMove_ = function (m) {
+    //calculate actual svg paper location
     const point = paper.viewer_svg.point(m.pageX, m.pageY);
     const x = Math.round(point.x);
     const y = Math.round(point.y);
+    if (x != control.last_x || y != control.last_y) {
 
-    //last cursor location, dont need all the coalesced events.
-    paper.sendCursor(x, y);
+        //update latest cursor location
+        paper.sendCursor(x, y);
 
-    //button pressed in drawmode?
-    if (control.primaryDown && control.mode == control.Modes.Draw) {
-        if (m.getCoalescedEvents) {
-            for (const coalesced of m.getCoalescedEvents()) {
-                let point = paper.viewer_svg.point(coalesced.pageX, coalesced.pageY);
-                const x = Math.round(point.x);
-                const y = Math.round(point.y);
-                if (x != control.last_x || y != control.last_y) {
+        switch (control.mode) {
+            case control.Modes.Draw:
+                if (control.primaryDown)
                     paper.sendDrawIncrement(event.IncrementalType.PointerMove, x, y);
-                    control.last_x = x;
-                    control.last_y = y;
+                break;
+            case control.Modes.Delete:
+                if (m.target.id != 'viewer') {
+                    control.deselectAll();
+                    control.select(m.target);
+                    if (control.primaryDown)
+                        control.deleteSelected();
                 }
-            }
-        } else {
-            if (x != control.last_x || y != control.last_y) {
-
-                paper.sendDrawIncrement(event.IncrementalType.PointerMove, x, y);
-                control.last_x = x;
-                control.last_y = y;
-            }
+                break;
 
         }
+
+        control.last_x = x;
+        control.last_y = y;
+    }
+}
+
+control.onPointerMove = function (m) {
+    if (m.getCoalescedEvents) {
+        for (const coalesced of m.getCoalescedEvents()) {
+            control.onPointerMove_(coalesced);
+        }
+    } else {
+        control.onPointerMove_(m);
     }
 };
+
 
 control.onPointerUp = function (m) {
     //calculate action svg paper location
@@ -148,7 +187,7 @@ control.highlightTool = function (activate) {
 
 control.onClickToolPointer = function (e) {
     control.highlightTool(e);
-    control.mode=control.Modes.Point;
+    control.mode = control.Modes.Point;
 
 };
 
@@ -164,16 +203,22 @@ control.onClickToolPolyline = function (e) {
     // control.mode=control.Modes.Draw;
     // control.selected.drawType=event.DrawType.PolyLine;
     paper.viewer_element.style.touchAction = "manipulation";
-    control.mode=control.Modes.Draw;
-    control.send_draw_type=event.DrawType.PolyLine;
+    control.mode = control.Modes.Draw;
+    control.send_draw_type = event.DrawType.PolyLine;
 };
 
 control.onClickToolRect = function (e) {
     control.highlightTool(e);
     paper.viewer_element.style.touchAction = "manipulation";
 
-    control.mode=control.Modes.Draw;
-    control.send_draw_type=event.DrawType.Rectangle;
+    control.mode = control.Modes.Draw;
+    control.send_draw_type = event.DrawType.Rectangle;
+};
+
+control.onClickToolDelete = function (e) {
+    control.highlightTool(e);
+    control.mode = control.Modes.Delete;
+
 };
 
 

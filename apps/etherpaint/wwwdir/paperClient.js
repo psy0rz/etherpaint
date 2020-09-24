@@ -7,9 +7,9 @@ class PaperClient {
 
         //current svg element we're building/modfiying
         this.current_element = undefined;
-        this.next_object_id=0;
+        this.next_object_id = 0;
 
-        this.draw_type=undefined;
+        this.draw_type = undefined;
 
 
     }
@@ -27,8 +27,7 @@ class PaperClient {
 
     animateCursor() {
         //create cursor?
-        if (this.client_id!=0 && this.cursor_svg===undefined)
-        {
+        if (this.client_id != 0 && this.cursor_svg === undefined) {
             this.cursor_svg = paper.scratch_svg.group();
             this.cursor_svg.path('M-10,0 L10,0 M0,-10 L0,10').stroke('black');
             this.cursor_svg.text("client " + this.client_id);
@@ -41,38 +40,37 @@ class PaperClient {
         });
     }
 
-    getObjectIdStr(id)
-    {
-        return("c"+this.client_id+"o"+id);
+    getObjectIdStr(id) {
+        return ("c" + this.client_id + "o" + id);
     }
 
     //execute a drawing increment, and retrun the reverse for undo/timeslider purposes.
     drawIncrement(type, p1, p2, p3) {
-        let reverse=undefined;
+        let reverse = undefined;
 
         switch (type) {
             case event.IncrementalType.SelectDrawType:
-                reverse=[event.IncrementalType.SelectDrawType, this.draw_type];
+                reverse = [event.IncrementalType.SelectDrawType, this.draw_type];
                 this.draw_type = p1;
                 break;
             case event.IncrementalType.PointerStart:
                 switch (this.draw_type) {
                     case event.DrawType.PolyLine:
-                        reverse=[event.IncrementalType.Delete];
+                        reverse = [event.IncrementalType.Delete];
 
-                        this.current_element = paper.paper_svg.polyline([[p1,p2]]);
+                        this.current_element = paper.paper_svg.polyline([[p1, p2]]);
                         // this.current_element = paper.paper_svg.path("M"+p1+","+p2);
                         this.current_element.stroke('black').fill('none');
-                        this.current_element.node.id=this.getObjectIdStr(this.next_object_id);
+                        this.current_element.node.id = this.getObjectIdStr(this.next_object_id);
                         this.next_object_id++;
 
                         break;
                     case event.DrawType.Rectangle:
-                        reverse=[event.IncrementalType.Delete];
+                        reverse = [event.IncrementalType.Delete];
 
-                        this.current_element = paper.paper_svg.rect().move(p1,p2);
+                        this.current_element = paper.paper_svg.rect().move(p1, p2);
                         this.current_element.stroke('black').fill('none');
-                        this.current_element.node.id=this.getObjectIdStr(this.next_object_id);
+                        this.current_element.node.id = this.getObjectIdStr(this.next_object_id);
                         this.next_object_id++;
 
                         break;
@@ -85,7 +83,7 @@ class PaperClient {
 
                     switch (this.draw_type) {
                         case event.DrawType.PolyLine:
-                            reverse=[event.IncrementalType.DeletePoint, this.current_element.node.points.length ];
+                            reverse = [event.IncrementalType.DeletePoint, this.current_element.node.points.length];
                             let p = paper.paper_svg.node.createSVGPoint();
                             p.x = p1;
                             p.y = p2;
@@ -105,8 +103,8 @@ class PaperClient {
                             // ];
                             // console.log("MOLVE", p1, this.current_element.attr().x);
 
-                            this.current_element.attr('width',  p1-this.current_element.attr().x );
-                            this.current_element.attr('height',  p2-this.current_element.attr().y );
+                            this.current_element.attr('width', p1 - this.current_element.attr().x);
+                            this.current_element.attr('height', p2 - this.current_element.attr().y);
 
                             break;
                         default:
@@ -128,13 +126,13 @@ class PaperClient {
                         //     break;
                         case event.DrawType.Rectangle:
 // console.log("END", p1, this.current_element.attr().x);
-                            reverse=[event.IncrementalType.PointerMove,
+                            reverse = [event.IncrementalType.PointerMove,
                                 this.current_element.attr().x,
                                 this.current_element.attr().y
                             ];
 
-                            this.current_element.attr('width',  p1-this.current_element.attr().x );
-                            this.current_element.attr('height',  p2-this.current_element.attr().y );
+                            this.current_element.attr('width', p1 - this.current_element.attr().x);
+                            this.current_element.attr('height', p2 - this.current_element.attr().y);
 
                             break;
                         default:
@@ -143,26 +141,37 @@ class PaperClient {
                 }
                 break;
             case event.IncrementalType.DeletePoint:
-                let point=this.current_element.node.points[p1];
-                reverse=[event.IncrementalType.PointerMove, point[0], point[1] ];
+                let point = this.current_element.node.points[p1];
+                reverse = [event.IncrementalType.PointerMove, point[0], point[1]];
                 this.current_element.node.points.removeItem(p1);
                 break;
 
             case event.IncrementalType.Delete:
                 this.next_object_id--;
                 this.current_element.remove();
-                this.current_element=SVG(document.querySelector("#"+this.getObjectIdStr(this.next_object_id-1)));
+                this.current_element = SVG(document.querySelector("#" + this.getObjectIdStr(this.next_object_id - 1)));
 
                 break;
 
-
+            case event.IncrementalType.Archive: {
+                reverse=[event.IncrementalType.Unarchive, p1, p2 ,p3];
+                const idStr="#c"+p1+"o"+p2;
+                const e = SVG(document.querySelector(idStr)).hide();
+                break;
+            }
+            case event.IncrementalType.Unarchive: {
+                reverse=[event.IncrementalType.Archive, p1, p2 ,p3];
+                const idStr="#c"+p1+"o"+p2;
+                const e = SVG(document.querySelector(idStr)).show();
+                break;
+            }
 
 
             default:
                 break;
         }
 
-        return(reverse);
+        return (reverse);
 
     }
 }

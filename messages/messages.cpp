@@ -79,6 +79,19 @@ int messagerunner(const int argc, const char *argv[]) {
                     uWS::TemplatedApp<ENABLE_SSL>({.key_file_name = "/home/psy/key.pem",
                                                           .cert_file_name = "/home/psy/cert.pem",
                                                           .passphrase = ""})
+                            .get("/",
+                                 [](auto *res, auto *req) {
+                                     DEB("get " << req->getUrl())
+                                     auto file = file_cacher.get(std::string("/index.html"));
+
+                                     if (file == file_cacher.m_cached_files.end()) {
+                                         res->writeStatus("404");
+                                         res->end("not found");
+                                     } else
+                                         res->end(file->second->m_view);
+
+                                     return;
+                                 })
                             .get("/*",
                                  [](auto *res, auto *req) {
 //                                     DEB("get " << req->getUrl())

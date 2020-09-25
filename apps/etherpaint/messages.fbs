@@ -10,7 +10,6 @@ union EventUnion {
     Join,
     Leave,
     Cursor,
-    DrawObject,
     DrawIncrement
 
 }
@@ -79,13 +78,6 @@ struct DrawColor
   b: uint8;
 }
 
-enum DrawMode:byte
-{
-    Draw,
-    Erase,
-    Point,
-    Move
-}
 
 
 enum IncrementalType:byte
@@ -97,7 +89,6 @@ enum IncrementalType:byte
     Delete,
     DeletePoint,
     SelectDrawType,
-    SelectDrawMode,
     SelectDrawColor,
     //the undo-able form of delete:
     Archive,
@@ -117,18 +108,5 @@ struct DrawIncrement
 
 
 
-/// final complete object, commited to database. server will assign object_id when 0
-table DrawObject
-{
-    client_id: uint8;
-    object_id: uint32;
-    /// when deleting an object, you should specify all the needed information to reverse the delete as well. e.g. all the points and color settings.
-    remove: bool;
-    type: DrawType;
-    points: [DrawPoint];
-    color: DrawColor;
-}
-
-// grouping: deal with this later. needs seperate events i think
 
 root_type Message;

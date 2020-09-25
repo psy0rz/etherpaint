@@ -218,9 +218,8 @@ paper.onAnimationFrame = function (s) {
         return;
     }
 
-    if (paper.want_zoom_factor!=paper.zoom_factor)
-    {
-        paper.zoom_factor=paper.want_zoom_factor;
+    if (paper.want_zoom_factor != paper.zoom_factor) {
+        paper.zoom_factor = paper.want_zoom_factor;
         paper.updateViewport();
     }
 
@@ -306,3 +305,13 @@ paper.setZoom = function (factor) {
 
 }
 
+
+//send a "delete" (archive) for specified target element
+paper.sendDeleteElement = function (target) {
+    const matches = target.id.match(/c(\d*)o(\d*)/);
+    if (matches) {
+        const client_id = matches[1];
+        const object_id = matches[2];
+        paper.sendDrawIncrement(event.IncrementalType.Archive, client_id, object_id);
+    }
+}

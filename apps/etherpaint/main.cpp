@@ -18,7 +18,7 @@ int main(const int argc, const char *argv[]) {
 
     };
 
-    //Cursor update
+    //Cursor update received
     handlers[event::EventUnion_Cursor] = [](const std::shared_ptr<MsgSession> &msg_session, const msg_type &msg,
                                             auto event_index) {
         const auto &msg_session_paper = std::static_pointer_cast<MsgSessionPaper>(msg_session);
@@ -33,7 +33,7 @@ int main(const int argc, const char *argv[]) {
 
     };
 
-    //Incremental draw
+    //Incremental draw received
     handlers[event::EventUnion_DrawIncrement] = [](const std::shared_ptr<MsgSession> &msg_session, const msg_type &msg,
                                                    auto event_index) {
         const auto &msg_session_paper = std::static_pointer_cast<MsgSessionPaper>(msg_session);

@@ -49,7 +49,7 @@ public:
     static void store_all();
 
     //called by io_thread when needed
-    void store();
+    void store(const std::shared_ptr<MsgSessionPaper> &end_msg_session_paper=nullptr);
     void stream(const std::shared_ptr<MsgSessionPaper> &msg_session_paper);
 
 

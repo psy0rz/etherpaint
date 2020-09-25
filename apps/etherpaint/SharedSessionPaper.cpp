@@ -201,23 +201,46 @@ void SharedSessionPaper::store_all() {
 
 //store msg_builder_storage to disk.
 // Called periodicly by the global storage thread.
-void SharedSessionPaper::store() {
+// Also called by stream() to end a specific stream.
+void SharedSessionPaper::store(const std::shared_ptr<MsgSessionPaper> &end_msg_session_paper) {
     //no locking needed: done by one global thread.
-    MsgSerialized store_buffer;
+    auto store_buffer = std::make_shared<MsgSerialized>();
     {
         //move buffer, to minimize locking time
         std::unique_lock<std::mutex> lock(msg_builder_mutex);
 
         if (msg_builder_storage.empty())
-            return;
+        {
+            if (end_msg_session_paper!= nullptr) {
+                end_msg_session_paper->streaming = false; //it missed nothing, so end streaming
+//                DEB("boring END");
 
-        msg_builder_storage.finishSizePrefixed();
-        store_buffer = std::move(msg_builder_storage);
+            }
+            return;
+        }
+
+        msg_builder_storage.finish();
+        *store_buffer = std::move(msg_builder_storage);
+
+        //a stream to end?
+        if (end_msg_session_paper!= nullptr)
+        {
+            //send the part we missed during streaming and end it
+            end_msg_session_paper->enqueue(store_buffer);
+            end_msg_session_paper->streaming=false;
+//            DEB("buffered END");
+        }
     }
 
     //now store it to disk, no problem if its slow
     fs.seekp(0, std::ios_base::end);
-    fs.write(reinterpret_cast<char *>(store_buffer.data()), store_buffer.size());
+
+    //write length prefix
+    flatbuffers::uoffset_t buflen=store_buffer->size();
+    fs.write(reinterpret_cast<char *>(&buflen), sizeof(buflen));
+
+    //write data
+    fs.write(reinterpret_cast<char *>(store_buffer->data()), store_buffer->size());
 }
 
 
@@ -276,8 +299,9 @@ void SharedSessionPaper::stream(const std::shared_ptr<MsgSessionPaper> &msg_sess
     fs.seekg(0, std::ios::end);
     flatbuffers::uoffset_t length = fs.tellg();
     if (msg_session_paper->streaming_offset >= length) {
-        //FIXME: send last part that is in msg_builder_storage
-        msg_session_paper->streaming = false;
+        //enf of file:
+        //store and send the stuff thats still in the storage buffer and end streaming:
+        store(msg_session_paper);
         return;
     }
 
@@ -298,7 +322,7 @@ void SharedSessionPaper::stream(const std::shared_ptr<MsgSessionPaper> &msg_sess
         throw (program_error("File is corrupt"));
     }
 
-    //update streaming offset or end streaming
+    //update streaming offset
     msg_session_paper->streaming_offset += sizeof(buflen) + buflen;
 
     //send message

@@ -30,30 +30,25 @@ control.start = function () {
     const zoom_width = 1920;
     // control.zoom_percentage = document.querySelector('#paper-container').clientWidth / zoom_width * 100;
     control.zoom_percentage = 100;
-    paper.setZoom(control.zoom_percentage / 100);
+    paper.setZoom(control.zoom_percentage / 100, 0, 0);
 
-    // control.svg_element.addEventListener('mousemove', control.onMouseMove);
-    document.querySelector("#viewer").addEventListener('pointermove', control.onPointerMove, {passive: true});
+    //pinch zoom/pan
+    control.hammer = new Hammer(document.querySelector("#viewer"), {});
+    control.hammer.get('pinch').set({enable: true});
+    control.hammer.on('pinch', control.onPinch);
+    control.hammer.on('pinchstart', control.onPinchStart);
+
+    //regular pointer stuff
+    document.querySelector("#viewer").addEventListener('pointermove', control.onPointerMove, {passive: false});
     document.querySelector("#viewer").addEventListener('pointerdown', control.onPointerDown, {passive: false});
     document.querySelector("#viewer").addEventListener('pointerup', control.onPointerUp, {passive: true});
     document.querySelector("#viewer").addEventListener('pointercancel', control.onPointerCancel, {passive: true});
 
     //we DONT want pointer captures (happens on mobile)
-    document.querySelector("#viewer").addEventListener('gotpointercapture', function(m)
-    {
+    document.querySelector("#viewer").addEventListener('gotpointercapture', function (m) {
         m.target.releasePointerCapture(m.pointerId);
 
     });
-
-    // var hammertime = new Hammer(document.querySelector("#viewer"), {});
-    // hammertime.on('pan', function(ev) {
-    //     document.querySelector("#debug").innerText=ev.target.id;
-    //
-    // });
-    // hammertime.on('hammer.input', function(ev) {
-    //     console.log(ev);
-    //
-    // });
 
 }
 
@@ -81,9 +76,37 @@ control.deleteSelected = function () {
     }
 }
 
+//pinch pan/zoom stuff
+control.onPinchStart = function (ev) {
+    control.lastDeltaX = 0;
+    control.lastDeltaY = 0;
+    control.lastScale = 1;
+
+}
+
+control.onPinch = function (ev) {
+
+    //zoom snap
+    let snappedScale;
+    if (ev.scale > 0.9 && ev.scale < 1.1)
+        snappedScale=1;
+    else
+        snappedScale=ev.scale;
+
+    control.zoom_percentage = control.zoom_percentage / control.lastScale * snappedScale;
+    control.lastScale = snappedScale;
+
+    paper.setZoom(control.zoom_percentage / 100, ev.center.x, ev.center.y);
+
+    paper.offsetPan(-(ev.deltaX - control.lastDeltaX), -(ev.deltaY - control.lastDeltaY));
+
+    control.lastDeltaX = ev.deltaX;
+    control.lastDeltaY = ev.deltaY;
+}
+
 control.onPointerDown = function (m) {
-    m.stopPropagation();
-    m.preventDefault();
+    // m.stopPropagation();
+    // m.preventDefault();
 
 
     //calculate action svg paper location
@@ -124,7 +147,7 @@ control.onPointerDown = function (m) {
 control.onPointerMove_ = function (m) {
 
 
-    m.stopPropagation();
+    // m.stopPropagation();
 //  document.querySelector("#tdebug").innerText=m.target.id;
 
 
@@ -158,7 +181,7 @@ control.onPointerMove_ = function (m) {
 }
 
 control.onPointerMove = function (m) {
-    m.stopPropagation();
+    // m.stopPropagation();
 
     if (m.getCoalescedEvents) {
         for (const coalesced of m.getCoalescedEvents()) {
@@ -252,13 +275,15 @@ control.onClickToolDelete = function (e) {
 
 
 control.onClickZoomOut = function (e) {
+
     control.zoom_percentage = control.zoom_percentage - 10;
-    paper.setZoom(control.zoom_percentage / 100);
+    paper.setZoom(control.zoom_percentage / 100, 250, 250);
 };
 
 control.onClickZoomIn = function (e) {
+    paper.paper_svg.rect(10, 10).move(250, 250).stroke('red');
     control.zoom_percentage = control.zoom_percentage + 10;
-    paper.setZoom(control.zoom_percentage / 100);
+    paper.setZoom(control.zoom_percentage / 100, 250, 250);
 };
 
 

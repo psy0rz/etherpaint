@@ -218,10 +218,10 @@ paper.onAnimationFrame = function (s) {
         return;
     }
 
-    if (paper.want_zoom_factor != paper.zoom_factor) {
-        paper.zoom_factor = paper.want_zoom_factor;
-        paper.updateViewport();
-    }
+    // if (paper.want_zoom_factor != paper.zoom_factor) {
+    //     paper.zoom_factor = paper.want_zoom_factor;
+    //     paper.updateViewport();
+    // }
 
     //DRAW stuff
 
@@ -290,18 +290,53 @@ paper.updateViewport = function () {
     const w = Math.round(bbox.x2 + 1 * paper.container_element.offsetWidth);
     const h = Math.round(bbox.y2 + 1 * paper.container_element.offsetHeight);
 
+    paper.viewer_svg.viewbox(0, 0, w, h);
     paper.viewer_element.style.width = Math.round(w * paper.zoom_factor) + "px";
     paper.viewer_element.style.height = Math.round(h * paper.zoom_factor) + "px";
-    paper.viewer_svg.viewbox(0, 0, w, h);
 
 }
 
+// paper.offsetZoom=function(offsetFactor)
+// {
+//     paper.setZoom(paper.zoom_factor+offsetFactor);
+// }
 
-paper.setZoom = function (factor) {
+paper.offsetPan = function (x, y) {
 
-    paper.want_zoom_factor = factor;
-    // paper.zoom_factor = factor;
-    // paper.updateViewport();
+    //snap
+    if (paper.viewer_element.parentNode.scrollLeft + x < 1)
+        paper.viewer_element.parentNode.scrollLeft = 0;
+    else
+        paper.viewer_element.parentNode.scrollLeft += x;
+
+
+    if (paper.viewer_element.parentNode.scrollLeft + y < 1)
+        paper.viewer_element.parentNode.scrollLeft =0;
+    else
+        paper.viewer_element.parentNode.scrollTop += y;
+
+}
+
+//x and y are the center of the zoom
+paper.setZoom = function (factor, x, y) {
+
+    // paper.want_zoom_factor = factor;
+    // paper.want_zoom_x = x;
+    // paper.want_zoom_y = y;
+    const origLeft = (paper.viewer_element.parentNode.scrollLeft + x) / paper.zoom_factor;
+    const origTop = (paper.viewer_element.parentNode.scrollTop + y) / paper.zoom_factor;
+    const diff = (factor - paper.zoom_factor);
+
+    paper.zoom_factor = factor;
+    paper.updateViewport();
+
+// setTimeout(function() {
+    //correct scroll so that zoom_x and y stay at the same place
+    // paper.viewer_element.parentNode.scrollLeft += Math.round(paper.viewer_element.parentNode.scrollLeft * diff);//-paper.want_zoom_x;
+    // paper.viewer_element.parentNode.scrollTop += Math.round(paper.viewer_element.parentNode.scrollTop * diff);//-paper.want_zoom_y;
+    paper.viewer_element.parentNode.scrollLeft = (origLeft * factor) - x;
+    paper.viewer_element.parentNode.scrollTop = (origTop * factor) - y;
+// },1000);
 
 }
 

@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1">-->
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
 
     <!-- external frameworks -->
     <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.0/dist/svg.min.js"></script>
@@ -12,6 +13,9 @@
     <!--    <script src="https://unpkg.com/onsenui/js/onsenui.min.js"></script>-->
     <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css">
+
+
+<!--    <script src="https://hammerjs.github.io/dist/hammer.min.js"></script>-->
 
 
     <!-- standard flatbuffers js API -->
@@ -31,6 +35,13 @@
             stroke: blue;
             stroke-dasharray: 10 5 1 5;
         }
+
+        /*polyline {*/
+        /*    touch-action: none;*/
+        /*    user-select: none;*/
+        /*    pointer-events: none;*/
+
+        /*}*/
     </style>
 
 
@@ -108,7 +119,8 @@
 
         <div class="navbar-item">
             <div class="field is-grouped " id="tools">
-                <p class="control" >test</p>
+                <p class="control" id="debug"></p>
+                <p class="control" id="tdebug">target</p>
                 <p class="control">
                     <a class="button is-primary" onclick="control.onClickToolPointer(this)">
                         <span class="icon">
@@ -207,7 +219,7 @@
                     </a>
                 </p>
                 <p class="control" style="width: 500px">
-                    <input id="history-slider" style='width: 100%' type="range" id="points" name="points" min="0"
+                    <input id="history-slider" style='width: 100%' type="range" min="0"
                            max="1000" oninput="control.onInputHistory(this)">
                 </p>
 
@@ -229,6 +241,7 @@
     bottom:0 ;
     overflow: auto;
     touch-action: none;
+user-select: none;
 
 ">
 
@@ -239,6 +252,8 @@
                 left: 0;
                 right:0;
                 overflow:hidden;
+    touch-action: none;
+user-select: none;
 
                     ">
 

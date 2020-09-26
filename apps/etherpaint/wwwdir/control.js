@@ -38,6 +38,23 @@ control.start = function () {
     document.querySelector("#viewer").addEventListener('pointerup', control.onPointerUp, {passive: true});
     document.querySelector("#viewer").addEventListener('pointercancel', control.onPointerCancel, {passive: true});
 
+    //we DONT want pointer captures (happens on mobile)
+    document.querySelector("#viewer").addEventListener('gotpointercapture', function(m)
+    {
+        m.target.releasePointerCapture(m.pointerId);
+
+    });
+
+    // var hammertime = new Hammer(document.querySelector("#viewer"), {});
+    // hammertime.on('pan', function(ev) {
+    //     document.querySelector("#debug").innerText=ev.target.id;
+    //
+    // });
+    // hammertime.on('hammer.input', function(ev) {
+    //     console.log(ev);
+    //
+    // });
+
 }
 
 control.deselectAll = function () {
@@ -65,6 +82,10 @@ control.deleteSelected = function () {
 }
 
 control.onPointerDown = function (m) {
+    m.stopPropagation();
+    m.preventDefault();
+
+
     //calculate action svg paper location
     const point = paper.viewer_svg.point(m.pageX, m.pageY);
     const x = Math.round(point.x);
@@ -96,12 +117,17 @@ control.onPointerDown = function (m) {
         }
     }
 
-    m.preventDefault();
 };
 
 
 //de-coalesced events
 control.onPointerMove_ = function (m) {
+
+
+    m.stopPropagation();
+//  document.querySelector("#tdebug").innerText=m.target.id;
+
+
     //calculate actual svg paper location
     const point = paper.viewer_svg.point(m.pageX, m.pageY);
     const x = Math.round(point.x);
@@ -110,7 +136,6 @@ control.onPointerMove_ = function (m) {
 
         //update latest cursor location
         paper.sendCursor(x, y);
-
         switch (control.mode) {
             case control.Modes.Draw:
                 if (control.primaryDown)
@@ -133,6 +158,8 @@ control.onPointerMove_ = function (m) {
 }
 
 control.onPointerMove = function (m) {
+    m.stopPropagation();
+
     if (m.getCoalescedEvents) {
         for (const coalesced of m.getCoalescedEvents()) {
             control.onPointerMove_(coalesced);
@@ -140,6 +167,8 @@ control.onPointerMove = function (m) {
     } else {
         control.onPointerMove_(m);
     }
+
+
 };
 
 
@@ -202,14 +231,14 @@ control.onClickToolPolyline = function (e) {
     control.highlightTool(e);
     // control.mode=control.Modes.Draw;
     // control.selected.drawType=event.DrawType.PolyLine;
-    paper.viewer_element.style.touchAction = "manipulation";
+    // paper.viewer_element.style.touchAction = "manipulation";
     control.mode = control.Modes.Draw;
     control.send_draw_type = event.DrawType.PolyLine;
 };
 
 control.onClickToolRect = function (e) {
     control.highlightTool(e);
-    paper.viewer_element.style.touchAction = "manipulation";
+    // paper.viewer_element.style.touchAction = "manipulation";
 
     control.mode = control.Modes.Draw;
     control.send_draw_type = event.DrawType.Rectangle;

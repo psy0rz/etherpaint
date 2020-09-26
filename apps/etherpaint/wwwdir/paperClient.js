@@ -156,13 +156,17 @@ class PaperClient {
             case event.IncrementalType.Archive: {
                 reverse=[event.IncrementalType.Unarchive, p1, p2 ,p3];
                 const idStr="#c"+p1+"o"+p2;
-                const e = SVG(document.querySelector(idStr)).hide();
+                const e = SVG(document.querySelector(idStr));
+                if (e)
+                    e.hide();
                 break;
             }
             case event.IncrementalType.Unarchive: {
                 reverse=[event.IncrementalType.Archive, p1, p2 ,p3];
                 const idStr="#c"+p1+"o"+p2;
-                const e = SVG(document.querySelector(idStr)).show();
+                const e = SVG(document.querySelector(idStr));
+                if (e)
+                    e.show();
                 break;
             }
 

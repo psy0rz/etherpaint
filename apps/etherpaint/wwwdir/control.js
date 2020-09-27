@@ -82,9 +82,14 @@ control.onPinchStart = function (ev) {
     control.lastDeltaY = 0;
     control.lastScale = 1;
 
+
+//    cancel current drawing action
+    control.primaryDown=false;
+
 }
 
 control.onPinch = function (ev) {
+    control.primaryDown=false;
 
     //zoom snap
     let snappedScale;
@@ -108,6 +113,8 @@ control.onPointerDown = function (m) {
     // m.stopPropagation();
     // m.preventDefault();
 
+    if (!m.isPrimary)
+        return;
 
     //calculate action svg paper location
     const point = paper.viewer_svg.point(m.pageX, m.pageY);
@@ -145,6 +152,8 @@ control.onPointerDown = function (m) {
 
 //de-coalesced events
 control.onPointerMove_ = function (m) {
+    if (!m.isPrimary)
+        return;
 
 
     // m.stopPropagation();
@@ -183,6 +192,9 @@ control.onPointerMove_ = function (m) {
 control.onPointerMove = function (m) {
     // m.stopPropagation();
 
+    if (!m.isPrimary)
+        return;
+
     if (m.getCoalescedEvents) {
         for (const coalesced of m.getCoalescedEvents()) {
             control.onPointerMove_(coalesced);
@@ -196,6 +208,9 @@ control.onPointerMove = function (m) {
 
 
 control.onPointerUp = function (m) {
+    if (!m.isPrimary)
+        return;
+
     //calculate action svg paper location
     const point = paper.viewer_svg.point(m.pageX, m.pageY);
     const x = Math.round(point.x);
@@ -214,6 +229,9 @@ control.onPointerUp = function (m) {
 };
 
 control.onPointerCancel = function (m) {
+    if (!m.isPrimary)
+        return;
+
     //calculate action svg paper location
     const point = paper.viewer_svg.point(m.pageX, m.pageY);
 
@@ -277,13 +295,13 @@ control.onClickToolDelete = function (e) {
 control.onClickZoomOut = function (e) {
 
     control.zoom_percentage = control.zoom_percentage - 10;
-    paper.setZoom(control.zoom_percentage / 100, 250, 250);
+    paper.setZoom(control.zoom_percentage / 100,0,0);
 };
 
 control.onClickZoomIn = function (e) {
     paper.paper_svg.rect(10, 10).move(250, 250).stroke('red');
     control.zoom_percentage = control.zoom_percentage + 10;
-    paper.setZoom(control.zoom_percentage / 100, 250, 250);
+    paper.setZoom(control.zoom_percentage / 100, 0,0);
 };
 
 

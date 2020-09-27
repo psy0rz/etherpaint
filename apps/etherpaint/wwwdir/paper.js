@@ -303,6 +303,9 @@ paper.updateViewport = function () {
 
 paper.offsetPan = function (x, y) {
 
+    if (x==0 && y==0)
+        return;
+
     //snap
     if (paper.viewer_element.parentNode.scrollLeft + x < 1)
         paper.viewer_element.parentNode.scrollLeft = 0;
@@ -320,12 +323,15 @@ paper.offsetPan = function (x, y) {
 //x and y are the center of the zoom
 paper.setZoom = function (factor, x, y) {
 
+    const diff = (factor - paper.zoom_factor);
+    if (diff==0)
+        return;
+
     // paper.want_zoom_factor = factor;
     // paper.want_zoom_x = x;
     // paper.want_zoom_y = y;
     const origLeft = (paper.viewer_element.parentNode.scrollLeft + x) / paper.zoom_factor;
     const origTop = (paper.viewer_element.parentNode.scrollTop + y) / paper.zoom_factor;
-    const diff = (factor - paper.zoom_factor);
 
     paper.zoom_factor = factor;
     paper.updateViewport();

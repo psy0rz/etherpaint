@@ -37,6 +37,7 @@ control.start = function () {
     control.hammer.get('pinch').set({enable: true});
     control.hammer.on('pinch', control.onPinch);
     control.hammer.on('pinchstart', control.onPinchStart);
+    control.hammer.on('pinchend', control.onPinchEnd);
 
     //regular pointer stuff
     document.querySelector("#viewer").addEventListener('pointermove', control.onPointerMove, {passive: false});
@@ -91,23 +92,33 @@ control.onPinchStart = function (ev) {
 control.onPinch = function (ev) {
     control.primaryDown=false;
 
+    // console.log("wtf");
+    // console.log(ev.deltaX, ev.deltaY);
+    //
     //zoom snap
     let snappedScale;
-    if (ev.scale > 0.9 && ev.scale < 1.1)
+    if (ev.scale > 0.8 && ev.scale < 1.2)
         snappedScale=1;
     else
         snappedScale=ev.scale;
 
     control.zoom_percentage = control.zoom_percentage / control.lastScale * snappedScale;
     control.lastScale = snappedScale;
-
     paper.setZoom(control.zoom_percentage / 100, ev.center.x, ev.center.y);
-
     paper.offsetPan(-(ev.deltaX - control.lastDeltaX), -(ev.deltaY - control.lastDeltaY));
 
     control.lastDeltaX = ev.deltaX;
     control.lastDeltaY = ev.deltaY;
+
+
 }
+
+control.onPinchEnd = function (ev) {
+
+    paper.setPanVelocity(-ev.velocityX, -ev.velocityY);
+
+}
+
 
 control.onPointerDown = function (m) {
     // m.stopPropagation();
@@ -116,10 +127,16 @@ control.onPointerDown = function (m) {
     if (!m.isPrimary)
         return;
 
+    // console.log("DOWN", m.pageX, m.pageY);
+
+
     //calculate action svg paper location
     const point = paper.viewer_svg.point(m.pageX, m.pageY);
     const x = Math.round(point.x);
     const y = Math.round(point.y);
+
+    if (x<0 || y<0)
+        return;
 
     control.last_x = x;
     control.last_y = y;
@@ -164,6 +181,10 @@ control.onPointerMove_ = function (m) {
     const point = paper.viewer_svg.point(m.pageX, m.pageY);
     const x = Math.round(point.x);
     const y = Math.round(point.y);
+
+    if (x<0 || y<0)
+        return;
+
     if (x != control.last_x || y != control.last_y) {
 
         //update latest cursor location
@@ -211,10 +232,16 @@ control.onPointerUp = function (m) {
     if (!m.isPrimary)
         return;
 
+    // console.log("UP", m.pageX, m.pageY);
+
     //calculate action svg paper location
     const point = paper.viewer_svg.point(m.pageX, m.pageY);
     const x = Math.round(point.x);
     const y = Math.round(point.y);
+
+    if (x<0 || y<0)
+        return;
+
     control.last_x = x;
     control.last_y = y;
 
@@ -231,6 +258,8 @@ control.onPointerUp = function (m) {
 control.onPointerCancel = function (m) {
     if (!m.isPrimary)
         return;
+
+    // console.log("CANCEL", m.pageX, m.pageY);
 
     //calculate action svg paper location
     const point = paper.viewer_svg.point(m.pageX, m.pageY);
@@ -293,13 +322,15 @@ control.onClickToolDelete = function (e) {
 
 
 control.onClickZoomOut = function (e) {
+    if (control.zoom_percentage<20)
+        return;
 
     control.zoom_percentage = control.zoom_percentage - 10;
     paper.setZoom(control.zoom_percentage / 100,0,0);
 };
 
 control.onClickZoomIn = function (e) {
-    paper.paper_svg.rect(10, 10).move(250, 250).stroke('red');
+    // paper.paper_svg.rect(10, 10).move(250, 250).stroke('red');
     control.zoom_percentage = control.zoom_percentage + 10;
     paper.setZoom(control.zoom_percentage / 100, 0,0);
 };

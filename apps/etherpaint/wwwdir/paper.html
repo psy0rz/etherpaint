@@ -234,7 +234,6 @@
     right:0;
     bottom:0 ;
     overflow: auto;
-    touch-action: none;
 user-select: none;
 padding: 0px;
 margin: 0px;
@@ -249,12 +248,17 @@ margin: 0px;
                 right:0;
                 overflow:hidden;
     touch-action: none;
+      /*scroll-behavior:            auto;*/
+/*overflow-scrolling: touch;*/
+
 user-select: none;
 border-style: solid;
-bolder-color: #aaaaaa;
+border-color: #aaaaaa;
 border-width: 5px;
 padding: 0px;
 margin: 0px;
+width:10000px;
+height:10000px;
 
                     ">
 
@@ -276,21 +280,18 @@ margin: 0px;
             <path d="M 0 45 L45 45 L45 0" stroke="#444444" fill="none"></path>
         </svg>
 
-<!--        <div style="background:red">moi</div>-->
 
-        <svg id="scratch" style="pointer-events: none;">
-        </svg>
-
-
+        <!-- actual paper -->
         <svg id="paper" style="color-rendering: optimizeSpeed; ">
         </svg>
 
+        <!-- scratch buffer for cursors and objects-in-action -->
+        <svg id="scratch" style="pointer-events: none;">
+        </svg>
 
     </svg>
 
 </div>
-<!-- actual paper -->
-<!-- scratch buffer for cursors and objects-in-action -->
 
 <!--    </div>-->
 <!--</section>-->

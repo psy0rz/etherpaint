@@ -20,6 +20,7 @@ paper.start = function (viewer_element, paper_element, scratch_element, containe
     // paper.paper_svg.text("Alleen pencil en history slider werken. ").attr('font-size', '200%');
 
 
+
     paper.clear();
     //paper.setZoom(1);
 
@@ -47,6 +48,8 @@ paper.clear = function () {
     paper.velocityX = 0;
     paper.velocityY = 0;
 
+    paper.zoom_factor = 1;
+    paper.zoom_update_factor = 1;
 
 }
 
@@ -214,20 +217,27 @@ paper.slideTo = function (index) {
 
 }
 
+//handle pinch zoom/panning on mobile
+//much more complicated than you would have hoped :)
+paper.animatePanZoom = function ()
+{
+    //zoom stuff
+    if (paper.zoom_update_factor!=paper.zoom_factor) {
 
-//draw data and send collected data
-// paper.cursors = {};
-// paper.cursor_events = {};
-// paper.cursor_changed_clients = new Set();
-paper.onAnimationFrame = function (s) {
+        //calculate curerently unzoomed coordinates of zoom-point
+        const origLeft = (paper.scrollLeft + paper.zoom_x) / paper.zoom_factor;
+        const origTop = (paper.scrollTop + paper.zoom_y) / paper.zoom_factor;
 
+        //actually do the zoom
+        paper.zoom_factor=paper.zoom_update_factor;
+        paper.viewer_svg.viewbox(0, 0, Math.round(paper.viewer_element.scrollWidth / paper.zoom_factor), Math.round(paper.viewer_element.scrollWidth / paper.zoom_factor));
 
-    //only if we are connected
-    if (!m.ws || m.ws.readyState !== 1) {
-        window.requestAnimationFrame(paper.onAnimationFrame);
-        return;
+        //recaclulate new zoomed coordinates of zoom-point
+        paper.scrollLeft = (origLeft * paper.zoom_factor) - paper.zoom_x;
+        paper.scrollTop = (origTop * paper.zoom_factor) - paper.zoom_y;
     }
 
+    //velocity panning (flinging)
     if (paper.velocityX > 1) {
         paper.scrollLeft += paper.velocityX;
         paper.velocityX -= 1;
@@ -245,6 +255,7 @@ paper.onAnimationFrame = function (s) {
     }
 
 
+    //actual pan execution
     if (paper.viewer_container.scrollLeft != paper.scrollLeft || paper.viewer_container.scrollTop != paper.scrollTop) {
         if (paper.scrollLeft<0)
         {
@@ -262,10 +273,23 @@ paper.onAnimationFrame = function (s) {
         paper.viewer_container.scrollTo(paper.scrollLeft, paper.scrollTop);
     }
 
-    // if (paper.want_zoom_factor != paper.zoom_factor) {
-    //     paper.zoom_factor = paper.want_zoom_factor;
-    //     paper.updateViewport();
-    // }
+
+}
+
+//draw data and send collected data
+// paper.cursors = {};
+// paper.cursor_events = {};
+// paper.cursor_changed_clients = new Set();
+paper.onAnimationFrame = function (s) {
+
+
+    //only if we are connected
+    if (!m.ws || m.ws.readyState !== 1) {
+        window.requestAnimationFrame(paper.onAnimationFrame);
+        return;
+    }
+
+    paper.animatePanZoom();
 
     //DRAW stuff
 
@@ -335,7 +359,7 @@ paper.updateViewport = function () {
     // const w = Math.round(bbox.x2 + 1 * paper.container_element.offsetWidth);
     // const h = Math.round(bbox.y2 + 1 * paper.container_element.offsetHeight);
 
-    paper.viewer_svg.viewbox(0, 0, Math.round(paper.viewer_element.scrollWidth / paper.zoom_factor), Math.round(paper.viewer_element.scrollWidth / paper.zoom_factor));
+    // paper.viewer_svg.viewbox(0, 0, Math.round(paper.viewer_element.scrollWidth / paper.zoom_factor), Math.round(paper.viewer_element.scrollWidth / paper.zoom_factor));
     // paper.viewer_element.style.width = Math.round(w * paper.zoom_factor) + "px";
     // paper.viewer_element.style.height = Math.round(h * paper.zoom_factor) + "px";
 
@@ -381,26 +405,14 @@ paper.setPanVelocity = function (x, y) {
 //x and y are the center of the zoom
 paper.setZoom = function (factor, x, y) {
 
-    const diff = (factor - paper.zoom_factor);
+    const diff = (factor - paper.zoom_update_factor);
     if (diff == 0)
         return;
 
-    // paper.want_zoom_factor = factor;
-    // paper.want_zoom_x = x;
-    // paper.want_zoom_y = y;
-    const origLeft = (paper.scrollLeft + x) / paper.zoom_factor;
-    const origTop = (paper.scrollTop + y) / paper.zoom_factor;
+    paper.zoom_update_factor=factor;
+    paper.zoom_x=x;
+    paper.zoom_y=y;
 
-    paper.zoom_factor = factor;
-    paper.updateViewport();
-
-// setTimeout(function() {
-    //correct scroll so that zoom_x and y stay at the same place
-    // paper.viewer_element.parentNode.scrollLeft += Math.round(paper.viewer_element.parentNode.scrollLeft * diff);//-paper.want_zoom_x;
-    // paper.viewer_element.parentNode.scrollTop += Math.round(paper.viewer_element.parentNode.scrollTop * diff);//-paper.want_zoom_y;
-    paper.scrollLeft = (origLeft * factor) - x;
-    paper.scrollTop = (origTop * factor) - y;
-// },1000);
 
 }
 

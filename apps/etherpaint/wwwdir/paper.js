@@ -47,6 +47,7 @@ paper.clear = function () {
     paper.scrollTop = 0;
     paper.velocityX = 0;
     paper.velocityY = 0;
+    paper.panning=false;
 
     paper.zoom_factor = 1;
     paper.zoom_update_factor = 1;
@@ -224,6 +225,13 @@ paper.animatePanZoom = function ()
     //zoom stuff
     if (paper.zoom_update_factor!=paper.zoom_factor) {
 
+        if (!paper.panning)
+        {
+            //get current coords (on desktop)
+            paper.scrollLeft=paper.viewer_container.scrollLeft;
+            paper.scrollTop=paper.viewer_container.scrollTop;
+        }
+
         //calculate curerently unzoomed coordinates of zoom-point
         const origLeft = (paper.scrollLeft + paper.zoom_x) / paper.zoom_factor;
         const origTop = (paper.scrollTop + paper.zoom_y) / paper.zoom_factor;
@@ -235,44 +243,51 @@ paper.animatePanZoom = function ()
         //recaclulate new zoomed coordinates of zoom-point
         paper.scrollLeft = (origLeft * paper.zoom_factor) - paper.zoom_x;
         paper.scrollTop = (origTop * paper.zoom_factor) - paper.zoom_y;
-    }
-
-    //velocity panning (flinging)
-    if (paper.velocityX > 1) {
-        paper.scrollLeft += paper.velocityX;
-        paper.velocityX -= 1;
-    } else if (paper.velocityX < -1) {
-        paper.scrollLeft += paper.velocityX;
-        paper.velocityX += 1;
-    }
-
-    if (paper.velocityY > 1) {
-        paper.scrollTop += paper.velocityY;
-        paper.velocityY -= 1;
-    } else if (paper.velocityY < -1) {
-        paper.scrollTop += paper.velocityY;
-        paper.velocityY += 1;
+        paper.panning=true;
     }
 
 
-    //actual pan execution
-    if (paper.viewer_container.scrollLeft != paper.scrollLeft || paper.viewer_container.scrollTop != paper.scrollTop) {
-        if (paper.scrollLeft<0)
-        {
-            paper.scrollLeft=0;
-            paper.velocityX=0;
+    if (paper.panning) {
+        //velocity panning (flinging)
+        if (paper.velocityX > 1) {
+            paper.scrollLeft += paper.velocityX;
+            paper.velocityX -= 1;
+        } else if (paper.velocityX < -1) {
+            paper.scrollLeft += paper.velocityX;
+            paper.velocityX += 1;
         }
 
-        if (paper.scrollTop<0)
-        {
-            paper.scrollTop=0;
-            paper.velocityY=0;
+        if (paper.velocityY > 1) {
+            paper.scrollTop += paper.velocityY;
+            paper.velocityY -= 1;
+        } else if (paper.velocityY < -1) {
+            paper.scrollTop += paper.velocityY;
+            paper.velocityY += 1;
         }
 
-        // console.log("SCROLLTO", paper.scrollLeft, paper.scrollTop);
-        paper.viewer_container.scrollTo(paper.scrollLeft, paper.scrollTop);
-    }
 
+        //actual pan execution
+        if (Math.round(paper.viewer_container.scrollLeft != Math.round(paper.scrollLeft)) || Math.round(paper.viewer_container.scrollTop) != Math.round(paper.scrollTop)) {
+            if (paper.scrollLeft < 0) {
+                paper.scrollLeft = 0;
+                paper.velocityX = 0;
+            }
+
+            if (paper.scrollTop < 0) {
+                paper.scrollTop = 0;
+                paper.velocityY = 0;
+            }
+
+            // console.log("SCROLLTO", paper.scrollLeft, paper.scrollTop);
+            paper.viewer_container.scrollTo(Math.round(paper.scrollLeft), Math.round(paper.scrollTop));
+
+        }
+        else
+        {
+            //we dont want to upset regular scrolling on desktop browsers. so stop updating scroll position we're done:
+            paper.panning=false;
+        }
+    }
 
 }
 
@@ -387,8 +402,12 @@ paper.offsetPan = function (x, y) {
     // else
     //     paper.viewer_element.parentNode.scrollTop += y;
 
+
+
     paper.scrollLeft += x;
     paper.scrollTop += y;
+    paper.panning=true;
+
     // console.log(paper.scrollTop, paper.scrollLeft);
     paper.velocityX = 0;
     paper.velocityY = 0;
@@ -400,6 +419,7 @@ paper.setPanVelocity = function (x, y) {
 
     paper.velocityX = x * 17; //1000ms/60fps
     paper.velocityY = y * 17;
+    paper.panning=true;
 }
 
 //x and y are the center of the zoom

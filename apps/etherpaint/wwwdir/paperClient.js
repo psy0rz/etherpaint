@@ -60,7 +60,7 @@ class PaperClient {
 
                         this.current_element = paper.paper_svg.polyline([[p1, p2]]);
                         // this.current_element = paper.paper_svg.path("M"+p1+","+p2);
-                        this.current_element.stroke('black').fill('none');
+                        this.current_element.stroke('black').fill('none').attr('stroke-width', 2);
                         this.current_element.node.id = this.getObjectIdStr(this.next_object_id);
                         this.next_object_id++;
 

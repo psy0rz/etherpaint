@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html >
+<html>
 
 <head>
     <meta charset="utf-8">
@@ -71,16 +71,20 @@
             //     console.log("GA");
             //     toggleFullScreen();
             // });
-            window.scrollTo(0,1);
+            window.scrollTo(0, 1);
 
-            let hidable_values=[];
-            $('.hidable-tool').each(function()
-            {
-                $(this).hide();
+            let hidable_values = [];
+            let skipped = false;
+            $('.hidable-tool').each(function () {
+                if (!skipped)
+                    skipped = true
+                else
+                    $(this).hide();
+
                 hidable_values.push({
-                    name:  this.title,
+                    name: this.title,
                     value: this.id,
-                    icon: $("i",this)[0].className
+                    icon: $("i", this)[0].className
                 })
             })
 
@@ -89,7 +93,7 @@
                     {
                         onChange: function (value, text, $choice) {
                             $(".hidable-tool").hide();
-                            $("#"+value).click().addClass("active").show();
+                            $("#" + value).click().addClass("active").show();
 
                         },
                         values: hidable_values
@@ -162,9 +166,12 @@
             <!--            <div class="ui button"><i class="circle outline icon"></i></div>-->
             <div class="ui button"><i class="eraser icon"></i></div>
 
-            <div class="ui button hidable-tool" id="tool-pointer" title="Pointer"><i class="mouse pointer icon"></i></div>
-            <div class="ui button hidable-tool" id="tool-rectangle" title="Rectangle"><i class="square outline icon"></i></div>
-            <div class="ui button hidable-tool" id="tool-circle" title="Circle"><i class="circle outline icon"></i></div>
+            <div class="ui button hidable-tool" id="tool-pointer" title="Pointer"><i class="mouse pointer icon"></i>
+            </div>
+            <div class="ui button hidable-tool" id="tool-rectangle" title="Rectangle"><i
+                    class="square outline icon"></i></div>
+            <div class="ui button hidable-tool" id="tool-circle" title="Circle"><i class="circle outline icon"></i>
+            </div>
             <div class="ui button hidable-tool" id="tool-image" title='Image'><i class="image icon"></i></div>
 
             <div class="ui icon dropdown button">
@@ -173,26 +180,49 @@
                 <!--                </span>-->
                 <i class="dropdown icon"></i>
 
-<!--                <div class="menu two column">-->
-<!--                    <div class="item" show="tool-square">-->
-<!--                        <i class="mouse pointer icon"></i>-->
-<!--                        Pointer-->
-<!--                    </div>-->
-<!--                    <div class="item">-->
-<!--                        <i class="square outline icon"></i>-->
-<!--                        Rectangle-->
-<!--                    </div>-->
-<!--                    <div class="item">-->
-<!--                        <i class="circle outline icon"></i>-->
-<!--                        Circle-->
-<!--                    </div>-->
-<!--                    <div class="item">-->
-<!--                        <i class="image icon"></i>-->
-<!--                        Image-->
-<!--                    </div>-->
-<!--                </div>-->
+                <!--                <div class="menu two column">-->
+                <!--                    <div class="item" show="tool-square">-->
+                <!--                        <i class="mouse pointer icon"></i>-->
+                <!--                        Pointer-->
+                <!--                    </div>-->
+                <!--                    <div class="item">-->
+                <!--                        <i class="square outline icon"></i>-->
+                <!--                        Rectangle-->
+                <!--                    </div>-->
+                <!--                    <div class="item">-->
+                <!--                        <i class="circle outline icon"></i>-->
+                <!--                        Circle-->
+                <!--                    </div>-->
+                <!--                    <div class="item">-->
+                <!--                        <i class="image icon"></i>-->
+                <!--                        Image-->
+                <!--                    </div>-->
+                <!--                </div>-->
             </div>
+
+
         </div>
+        <div class="ui icon buttons">
+
+            <div class="ui button"><i class="undo icon"></i></div>
+            <div class="ui button"><i class="redo icon"></i></div>
+            <!--            <div class="ui button"><i class="history icon"></i></div>-->
+
+        </div>
+        <div class="ui basic icon button">
+            <svg style="width:20px; height:10px">
+                <path d="M 0 5 L20 5 " stroke="#ff0000" stroke-width="2px"></path>
+
+            </svg>
+
+        </div>
+        <!--                        <div class="ui button"><i class="zoom out icon"></i></div>-->
+
+        <!--        <div class="ui icon buttons">-->
+        <!--                        <div class="ui button"><i class="zoom out icon"></i></div>-->
+        <!--                        <div class="ui  button"><i class="zoom in icon"></i></div>-->
+
+        <!--        </div>-->
     </div>
 </div>
 

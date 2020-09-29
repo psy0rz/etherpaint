@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="has-navbar-fixed-top">
+<html >
 
 <head>
     <meta charset="utf-8">
@@ -7,12 +7,14 @@
     <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
 
     <!-- external frameworks -->
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.7/dist/semantic.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.7/dist/semantic.min.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.0/dist/svg.min.js"></script>
-    <!--    <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsenui.css">-->
-    <!--    <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsen-css-components.min.css">-->
-    <!--    <script src="https://unpkg.com/onsenui/js/onsenui.min.js"></script>-->
-    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css">
+    <!--    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>-->
+    <!--    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css">-->
 
 
     <script src="https://hammerjs.github.io/dist/hammer.min.js"></script>
@@ -43,45 +45,89 @@
     <script>
 
 
-        function toggleMenu() {
-            document.querySelector('#toolmenu').classList.toggle('is-active');
-            document.querySelector('.navbar-burger').classList.toggle('is-active');
-
-        }
+        // function toggleMenu() {
+        //     document.querySelector('#toolmenu').classList.toggle('is-active');
+        //     document.querySelector('.navbar-burger').classList.toggle('is-active');
+        //
+        // }
 
         window.addEventListener('load', (event) => {
 
-            //move toolbar tools around according to screen width
-            new ResizeObserver(function () {
-                const burger = document.querySelector("#mainbar .burger");
-                for (const e of document.querySelectorAll("#mainbar .control")) {
-                    // e.classList.remove("is-hidden");
-                    // console.log(e.offsetLeft+e.offsetWidth, document.querySelector("#mainbar").offsetWidth);
+            function toggleFullScreen() {
+                var doc = window.document;
+                var docEl = doc.documentElement;
+
+                var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+                var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+                if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+                    requestFullScreen.call(docEl);
+                } else {
+                    // cancelFullScreen.call(doc);
                 }
+            }
 
+            // $('#paper-container').on('click', function() {
+            //     console.log("GA");
+            //     toggleFullScreen();
+            // });
+            window.scrollTo(0,1);
 
-                var nodesArray = Array.prototype.slice.call(document.querySelectorAll("#mainbar .control"));
-                for (const e of nodesArray.reverse()) {
-                    e.classList.remove("is-hidden");
-                    const right = e.offsetLeft + e.offsetWidth;
-                    if (right > document.querySelector("#mainbar").offsetWidth - 10) {
+            let hidable_values=[];
+            $('.hidable-tool').each(function()
+            {
+                $(this).hide();
+                hidable_values.push({
+                    name:  this.title,
+                    value: this.id,
+                    icon: $("i",this)[0].className
+                })
+            })
 
-                        // e.classList.add("is-hidden");
+            $('.ui.dropdown')
+                .dropdown(
+                    {
+                        onChange: function (value, text, $choice) {
+                            $(".hidable-tool").hide();
+                            $("#"+value).click().addClass("active").show();
 
+                        },
+                        values: hidable_values
                     }
-                    // console.log(e.offsetLeft+e.offsetWidth, document.querySelector("#mainbar").offsetWidth);
-                }
+                );
 
 
-            }).observe(document.querySelector("#mainbar"));
+            //move toolbar tools around according to screen width
+            // new ResizeObserver(function () {
+            //     const burger = document.querySelector("#mainbar .burger");
+            //     for (const e of document.querySelectorAll("#mainbar .control")) {
+            //         // e.classList.remove("is-hidden");
+            //         // console.log(e.offsetLeft+e.offsetWidth, document.querySelector("#mainbar").offsetWidth);
+            //     }
+            //
+            //
+            //     var nodesArray = Array.prototype.slice.call(document.querySelectorAll("#mainbar .control"));
+            //     for (const e of nodesArray.reverse()) {
+            //         e.classList.remove("is-hidden");
+            //         const right = e.offsetLeft + e.offsetWidth;
+            //         if (right > document.querySelector("#mainbar").offsetWidth - 10) {
+            //
+            //             // e.classList.add("is-hidden");
+            //
+            //         }
+            //         // console.log(e.offsetLeft+e.offsetWidth, document.querySelector("#mainbar").offsetWidth);
+            //     }
+            //
+            //
+            // }).observe(document.querySelector("#mainbar"));
 
-            // controlHamburgers();
-            document.querySelector(".navbar-burger").addEventListener('click', () => {
-                toggleMenu();
-            });
+            // // controlHamburgers();
+            // document.querySelector(".navbar-burger").addEventListener('click', () => {
+            //     toggleMenu();
+            // });
 
             //make sure paper starts after toolbar
-            document.querySelector('#paper-container').style.top = document.querySelector("nav").offsetHeight + "px";
+            // document.querySelector('#paper-container').style.top = document.querySelector("nav").offsetHeight + "px";
 
 
             paper.start(
@@ -108,119 +154,87 @@
 </head>
 <body>
 
+<div class="ui top fixed menu">
+    <div class="item">
+        <div class="ui icon buttons">
+            <div class="ui button"><i class="pen icon"></i></div>
+            <!--            <div class="ui button"><i class="square outline icon"></i></div>-->
+            <!--            <div class="ui button"><i class="circle outline icon"></i></div>-->
+            <div class="ui button"><i class="eraser icon"></i></div>
 
-<nav id="mainbar" role="navigation" aria-label="main navigation" class="navbar is-fixed-top">
-    <div class="navbar-brand ">
+            <div class="ui button hidable-tool" id="tool-pointer" title="Pointer"><i class="mouse pointer icon"></i></div>
+            <div class="ui button hidable-tool" id="tool-rectangle" title="Rectangle"><i class="square outline icon"></i></div>
+            <div class="ui button hidable-tool" id="tool-circle" title="Circle"><i class="circle outline icon"></i></div>
+            <div class="ui button hidable-tool" id="tool-image" title='Image'><i class="image icon"></i></div>
 
-        <div class="navbar-item">
-            <div class="field is-grouped " id="tools">
-                <p class="control" id="debug" style="font-size: 80%">0.2alpha</p>
-                <p class="control">
-                    <a class="button is-primary" onclick="control.onClickToolPointer(this)">
-                        <span class="icon">
-                            <i class="fas fa-hand-point-up" aria-hidden="true"></i>
-                        </span>
-                    </a>
-                    <a class="button" onclick="control.onClickToolPolyline(this)">
-                        <span class="icon">
-                            <i class="fas fa-pen" aria-hidden="true"></i>
-                        </span>
-                    </a>
-                    <!--                    <a class="button" onclick="control.onClickToolCircle(this)">-->
-                    <!--                        <span class="icon">-->
-                    <!--                            <i class="far fa-circle" aria-hidden="true"></i>-->
-                    <!--                        </span>-->
-                    <!--                    </a>-->
-                    <a class="button" onclick="control.onClickToolRect(this)">
-                        <span class="icon">
-                            <i class="far fa-square" aria-hidden="true"></i>
-                        </span>
-                    </a>
-                    <a class="button" onclick="control.onClickToolDelete(this)">
-                        <span class="icon">
-                            <i class="fas fa-eraser" aria-hidden="true"></i>
-                        </span>
-                    </a>
-                </p>
+            <div class="ui icon dropdown button">
+                <!--                <span class="text">-->
+                <!--                    <i class="draw icon"></i>-->
+                <!--                </span>-->
+                <i class="dropdown icon"></i>
 
-                <!--                <p class="control 		">-->
-                <!--                    <a class="button" onclick="control.onClickUndo(this)">-->
-                <!--                        <span class="icon">-->
-                <!--                            <i class="fas fa-undo" aria-hidden="true"></i>-->
-                <!--                        </span>-->
-                <!--                    </a>-->
-                <!--                    <a class="button" onclick="control.onClickRedo(this)">-->
-                <!--                        <span class="icon">-->
-                <!--                            <i class="fas fa-redo" aria-hidden="true"></i>-->
-                <!--                        </span>-->
-                <!--                    </a>-->
-                <!--                </p>-->
-
-                <p class="control">
-                    <a class="button" onclick="control.onClickZoomOut(this)">
-                        <span class="icon">
-                            <i class="fas fa-search-minus" aria-hidden="true"></i>
-                        </span>
-                    </a>
-                    <a class="button" onclick="control.onClickZoomIn(this)">
-                        <span class="icon">
-                            <i class="fas fa-search-plus" aria-hidden="true"></i>
-                        </span>
-                    </a>
-
-
-                </p>
-
-                <p class="control">
-                    <a class="button" onclick="control.onClickHistory(this);toggleMenu()">
-                        <span class="icon">
-                            <i class="fas fa-history" aria-hidden="true"></i>
-                        </span>
-                    </a>
-                </p>
-
-            </div>
-        </div>
-
-        <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false">
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-        </a>
-    </div>
-
-
-    <div id="toolmenu" class="navbar-menu">
-        <div class="navbar-end">
-            <div class="navbar-item">
-
+<!--                <div class="menu two column">-->
+<!--                    <div class="item" show="tool-square">-->
+<!--                        <i class="mouse pointer icon"></i>-->
+<!--                        Pointer-->
+<!--                    </div>-->
+<!--                    <div class="item">-->
+<!--                        <i class="square outline icon"></i>-->
+<!--                        Rectangle-->
+<!--                    </div>-->
+<!--                    <div class="item">-->
+<!--                        <i class="circle outline icon"></i>-->
+<!--                        Circle-->
+<!--                    </div>-->
+<!--                    <div class="item">-->
+<!--                        <i class="image icon"></i>-->
+<!--                        Image-->
+<!--                    </div>-->
+<!--                </div>-->
             </div>
         </div>
     </div>
-</nav>
+</div>
 
-<!--History slider-->
-<nav role="navigation" id="history" class="navbar is-fixed-top is-hidden">
-    <div class="navbar-brand ">
-        <div class="navbar-item">
-            <div class="field is-grouped">
+<!--<div class="ui left fixed vertical menu compact">-->
+<!--    <div class="vertical item">-->
+<!--        <div class="ui icon vertical buttons">-->
+<!--            <div class="ui button "><i class="hand point up icon"></i></div>-->
+<!--            <div class="ui button"><i class="pen icon"></i></div>-->
+<!--            <div class="ui button"><i class="square outline icon"></i></div>-->
+<!--            <div class="ui button"><i class="circle outline icon"></i></div>-->
+<!--            <div class="ui button"><i class="circle eraser icon"></i></div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--    <div class="vertical item">-->
+<!--        <div class="ui icon vertical buttons">-->
+<!--            <div class="ui button "><i class="hand point up icon"></i></div>-->
+<!--            <div class="ui button"><i class="pen icon"></i></div>-->
+<!--            <div class="ui button"><i class="square outline icon"></i></div>-->
+<!--            <div class="ui button"><i class="circle outline icon"></i></div>-->
+<!--            <div class="ui button"><i class="circle eraser icon"></i></div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
 
-                <p class="control">
-                    <a class="button" onclick="control.onClickHistoryClose(this)">
-                        <span class="icon">
-                            <i class="fas fa-window-close" aria-hidden="true"></i>
-                        </span>
-                    </a>
-                </p>
-                <p class="control" style="width: 500px">
-                    <input id="history-slider" style='width: 100%' type="range" min="0"
-                           max="1000" oninput="control.onInputHistory(this)">
-                </p>
+<!--<div class="ui bottom fixed menu">-->
+<!--    <div class="item">-->
 
-            </div>
+<!--        <div class="ui icon buttons">-->
+<!--            <div class="ui button"><i class="undo icon"></i></div>-->
+<!--            <div class="ui button"><i class="redo icon"></i></div>-->
+<!--            <div class="ui button"><i class="history icon"></i></div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--    <div class="item">-->
+<!--        <div class="ui icon  buttons">-->
+<!--            <div class="ui button"><i class="zoom out icon"></i></div>-->
+<!--            <div class="ui  button"><i class="zoom in icon"></i></div>-->
 
-        </div>
-</nav>
+<!--        </div>-->
+<!--        <div class="top floating ui label">100%</div>-->
+<!--    </div>-->
+<!--</div>-->
 
 
 <!--<section class="section">-->
@@ -228,11 +242,11 @@
 
 <!-- Your page content here. -->
 <div id="paper-container" style="
-    position:fixed;
-    top:0;
-    left:0 ;
-    right:0;
-    bottom:0 ;
+    /*position:fixed;*/
+    /*top:0;*/
+    /*left:0 ;*/
+    /*right:0;*/
+    /*bottom:0 ;*/
     overflow: auto;
 user-select: none;
 padding: 0px;
@@ -243,9 +257,9 @@ margin: 0px;
     <!-- viewer, handles mouseevents, zooming and panning -->
     <svg id="viewer"
          style="
-                position: absolute;
-                left: 0;
-                right:0;
+                /*position: absolute;*/
+                /*left: 0;*/
+                /*right:0;*/
                 overflow:hidden;
     touch-action: none;
       /*scroll-behavior:            auto;*/

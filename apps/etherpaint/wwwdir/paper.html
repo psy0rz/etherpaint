@@ -31,6 +31,7 @@
     <script src="control.js"></script>
     <script src="paper.js"></script>
     <script src="paperClient.js"></script>
+    <script src="test.js"></script>
 
     <style>
         .selected {
@@ -225,9 +226,9 @@
         <!--        </div>-->
 
         <div class="ui icon buttons">
-            <div class="ui button" onclick="paper.testRecord(this)"><i class="record icon"></i></div>
-            <div class="ui button" onclick="paper.testPlay(this)"><i class="play icon"></i></div>
-            <div class="ui button" onclick="paper.testStop(this)"><i class="stop icon"></i></div>
+            <div class="ui button" onclick="test.startRecord()"><i class="record icon"></i></div>
+            <div class="ui button" onclick="test.stop()"><i class="stop icon"></i></div>
+            <div class="ui button" onclick="test.startPlayback()"><i class="play icon"></i></div>
         </div>
     </div>
 </div>

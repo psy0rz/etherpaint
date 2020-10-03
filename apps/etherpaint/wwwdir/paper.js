@@ -2,7 +2,7 @@
 
 //actual paper handling stuff. sends/receives events and reads/writes to SVG
 
-let paper = {};
+const paper = {};
 
 
 paper.start = function (viewer_element, paper_element, scratch_element, container_element) {

@@ -2,7 +2,7 @@
 
 //basic control stuff for the GUI
 
-var control = {};
+const control = {};
 
 control.Modes =
     {

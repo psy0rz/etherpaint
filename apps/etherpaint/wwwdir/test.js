@@ -13,7 +13,7 @@ test.playbackIndex = -1;
 //record a message nad timestamp
 test.record = function (message) {
     if (test.recording) {
-        test.buffer.push([Date.now() - test.last_time, Array.from(message)]);
+        test.buffer.push([Date.now() - test.last_time, message]);
         test.last_time = Date.now();
     }
 }
@@ -42,12 +42,16 @@ test.startPlayback = function () {
 
 test.playback = function () {
     if (test.playbackIndex !== -1) {
-        // console.log(test.playbackIndex);
-        m.ws.send(new Uint8Array(test.buffer[test.playbackIndex][1]));
-        if (test.playbackIndex === test.buffer.length-1)
-            test.playbackIndex = -1;
-        else {
-            window.setTimeout(test.playback, test.buffer[test.playbackIndex][0])
+        window.setTimeout(test.playback, test.buffer[test.playbackIndex][0])
+        const m = test.buffer[test.playbackIndex][1];
+        if (m.length === 2)
+            paper.sendCursor(m[0], m[1]);
+        else
+            paper.sendDrawIncrement(m[0], m[1], m[2], m[3]);
+        if (test.playbackIndex === test.buffer.length - 1) {
+            //loop
+            test.playbackIndex = 0;
+        } else {
             test.playbackIndex++;
         }
 

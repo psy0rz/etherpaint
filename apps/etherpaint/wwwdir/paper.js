@@ -94,6 +94,8 @@ paper.sendCursor = function (x, y) {
         paper.cursor_x = x;
         paper.cursor_y = y;
         paper.cursor_moved = true;
+        if (test.recording)
+            test.record([x,y]);
 
 
     }
@@ -125,6 +127,9 @@ paper.sendDrawIncrement = function (type, p1, p2, p3) {
             p3,
             reverse !== undefined
         ));
+
+    if (test.recording)
+        test.record([type, p1, p2, p3]);
 }
 
 

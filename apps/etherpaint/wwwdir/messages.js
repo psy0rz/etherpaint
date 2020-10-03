@@ -35,9 +35,7 @@ m.send = function () {
         )
     );
 
-    const uint8array=m.builder.asUint8Array();
-    m.ws.send(uint8array);
-    test.record(uint8array);
+    m.ws.send(m.builder.asUint8Array());
 
     m.start_message();
 }

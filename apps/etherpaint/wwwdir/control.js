@@ -360,3 +360,4 @@ control.onClickHistoryClose = function (e) {
 control.onInputHistory = function (e) {
     paper.target_index = e.value;
 }
+

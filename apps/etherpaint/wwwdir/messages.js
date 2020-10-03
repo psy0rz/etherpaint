@@ -36,6 +36,9 @@ m.send = function () {
     );
 
     m.ws.send(m.builder.asUint8Array());
+
+
+
     m.start_message();
 }
 

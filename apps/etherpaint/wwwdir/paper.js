@@ -446,3 +446,4 @@ paper.sendDeleteElement = function (target) {
         paper.sendDrawIncrement(event.IncrementalType.Archive, client_id, object_id);
     }
 }
+

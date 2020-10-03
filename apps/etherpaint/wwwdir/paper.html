@@ -161,10 +161,10 @@
 <div class="ui top fixed menu">
     <div class="item">
         <div class="ui icon buttons">
-            <div class="ui button"><i class="pen icon"></i></div>
+            <div class="ui button" onclick='control.onClickToolPolyline(this)'><i class="pen icon"></i></div>
             <!--            <div class="ui button"><i class="square outline icon"></i></div>-->
             <!--            <div class="ui button"><i class="circle outline icon"></i></div>-->
-            <div class="ui button"><i class="eraser icon"></i></div>
+            <div class="ui button" onclick='control.onClickToolDelete(this)'><i class="eraser icon"></i></div>
 
             <div class="ui button hidable-tool" id="tool-pointer" title="Pointer"><i class="mouse pointer icon"></i>
             </div>
@@ -223,6 +223,12 @@
         <!--                        <div class="ui  button"><i class="zoom in icon"></i></div>-->
 
         <!--        </div>-->
+
+        <div class="ui icon buttons">
+            <div class="ui button" onclick="paper.testRecord(this)"><i class="record icon"></i></div>
+            <div class="ui button" onclick="paper.testPlay(this)"><i class="play icon"></i></div>
+            <div class="ui button" onclick="paper.testStop(this)"><i class="stop icon"></i></div>
+        </div>
     </div>
 </div>
 

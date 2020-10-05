@@ -93,9 +93,12 @@
                 .dropdown(
                     {
                         onChange: function (value, text, $choice) {
-                            $(".hidable-tool").hide();
-                            $("#" + value).click().addClass("active").show();
 
+                            $(".hidable-tool").hide();
+                            $("#" + value).addClass("active").show();
+                            $("#" + value).trigger('click');
+
+                            // $('.ui.dropdown').dropdown('hide');
                         },
                         values: hidable_values
                     }
@@ -161,44 +164,24 @@
 
 <div class="ui top fixed menu">
     <div class="item">
-        <div class="ui icon buttons">
-            <div class="ui button" onclick='control.onClickToolPolyline(this)'><i class="pen icon"></i></div>
-            <!--            <div class="ui button"><i class="square outline icon"></i></div>-->
-            <!--            <div class="ui button"><i class="circle outline icon"></i></div>-->
-            <div class="ui button" onclick='control.onClickToolDelete(this)'><i class="eraser icon"></i></div>
+        <div class="ui icon buttons tools">
+            <div class="ui button onClick tool polyline"><i class="pen icon"></i></div>
 
-            <div class="ui button hidable-tool" id="tool-pointer" title="Pointer"><i class="mouse pointer icon"></i>
+            <div class="ui button onClick tool delete"><i class="eraser icon"></i></div>
+
+            <div class="ui button hidable-tool onClick tool pointer" id="tool-pointer" title="Pointer"><i
+                    class="mouse pointer icon"></i>
             </div>
-            <div class="ui button hidable-tool" id="tool-rectangle" title="Rectangle"><i
+            <div class="ui button hidable-tool onClick tool rect" id="tool-rectangle" title="Rectangle"><i
                     class="square outline icon"></i></div>
-            <div class="ui button hidable-tool" id="tool-circle" title="Circle"><i class="circle outline icon"></i>
+
+            <div class="ui button hidable-tool onClick tool circle" id="tool-circle" title="Circle"><i class="circle outline icon"></i>
             </div>
             <div class="ui button hidable-tool" id="tool-image" title='Image'><i class="image icon"></i></div>
 
             <div class="ui icon dropdown button">
-                <!--                <span class="text">-->
-                <!--                    <i class="draw icon"></i>-->
-                <!--                </span>-->
                 <i class="dropdown icon"></i>
 
-                <!--                <div class="menu two column">-->
-                <!--                    <div class="item" show="tool-square">-->
-                <!--                        <i class="mouse pointer icon"></i>-->
-                <!--                        Pointer-->
-                <!--                    </div>-->
-                <!--                    <div class="item">-->
-                <!--                        <i class="square outline icon"></i>-->
-                <!--                        Rectangle-->
-                <!--                    </div>-->
-                <!--                    <div class="item">-->
-                <!--                        <i class="circle outline icon"></i>-->
-                <!--                        Circle-->
-                <!--                    </div>-->
-                <!--                    <div class="item">-->
-                <!--                        <i class="image icon"></i>-->
-                <!--                        Image-->
-                <!--                    </div>-->
-                <!--                </div>-->
             </div>
 
 

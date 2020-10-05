@@ -51,7 +51,40 @@ control.start = function () {
 
     });
 
+
+    $('.onClick.tool.pointer').on('click', function () {
+        control.highlightTool(this);
+        control.mode = control.Modes.Point;
+    });
+
+
+    $('.onClick.tool.polyline').on('click', function () {
+        control.highlightTool(this);
+        control.mode = control.Modes.Draw;
+        control.send_draw_type = event.DrawType.PolyLine;
+    });
+
+    $('.onClick.tool.rect').on('click', function () {
+        control.highlightTool(this);
+        control.mode = control.Modes.Draw;
+        control.send_draw_type = event.DrawType.Rectangle;
+    });
+
+    $('.onClick.tool.delete').on('click', function () {
+        control.highlightTool(this);
+        control.mode = control.Modes.Delete;
+
+    });
+
+
 }
+
+control.highlightTool = function (e) {
+    //deselct others
+    $('.onClick.tool').removeClass('active');
+    $(e).addClass('active');
+}
+
 
 control.deselectAll = function () {
     for (const e of document.querySelectorAll(".selected")) {
@@ -85,12 +118,12 @@ control.onPinchStart = function (ev) {
 
 
 //    cancel current drawing action
-    control.primaryDown=false;
+    control.primaryDown = false;
 
 }
 
 control.onPinch = function (ev) {
-    control.primaryDown=false;
+    control.primaryDown = false;
 
     // console.log("wtf");
     // console.log(ev.deltaX, ev.deltaY);
@@ -98,9 +131,9 @@ control.onPinch = function (ev) {
     //zoom snap
     let snappedScale;
     if (ev.scale > 0.8 && ev.scale < 1.2)
-        snappedScale=1;
+        snappedScale = 1;
     else
-        snappedScale=ev.scale;
+        snappedScale = ev.scale;
 
     control.zoom_percentage = control.zoom_percentage / control.lastScale * snappedScale;
     control.lastScale = snappedScale;
@@ -135,7 +168,7 @@ control.onPointerDown = function (m) {
     const x = Math.round(point.x);
     const y = Math.round(point.y);
 
-    if (x<0 || y<0)
+    if (x < 0 || y < 0)
         return;
 
     control.last_x = x;
@@ -182,7 +215,7 @@ control.onPointerMove_ = function (m) {
     const x = Math.round(point.x);
     const y = Math.round(point.y);
 
-    if (x<0 || y<0)
+    if (x < 0 || y < 0)
         return;
 
     if (x != control.last_x || y != control.last_y) {
@@ -239,7 +272,7 @@ control.onPointerUp = function (m) {
     const x = Math.round(point.x);
     const y = Math.round(point.y);
 
-    if (x<0 || y<0)
+    if (x < 0 || y < 0)
         return;
 
     control.last_x = x;
@@ -270,69 +303,24 @@ control.onPointerCancel = function (m) {
 };
 
 
-control.highlightTool = function (activate) {
-    // document.querySelectorAll('#tools ons-toolbar-button').forEach(function(e)
-    // {
-    //     e.setAttribute("modifier", "");
-    // })
-    //deselct others
-    document.querySelectorAll('#tools .button').forEach(function (e) {
-        e.classList.remove("is-primary");
-    })
-    activate.classList.add("is-primary");
-
-}
-
-
-control.onClickToolPointer = function (e) {
-    control.highlightTool(e);
-    control.mode = control.Modes.Point;
-
-};
-
-
 // control.onClickToolSelect = function (e) {
 //     control.highlightTool(e);
 //     control.mode=control.Modes.Select;
 // };
 
 
-control.onClickToolPolyline = function (e) {
-    control.highlightTool(e);
-    // control.mode=control.Modes.Draw;
-    // control.selected.drawType=event.DrawType.PolyLine;
-    // paper.viewer_element.style.touchAction = "manipulation";
-    control.mode = control.Modes.Draw;
-    control.send_draw_type = event.DrawType.PolyLine;
-};
-
-control.onClickToolRect = function (e) {
-    control.highlightTool(e);
-    // paper.viewer_element.style.touchAction = "manipulation";
-
-    control.mode = control.Modes.Draw;
-    control.send_draw_type = event.DrawType.Rectangle;
-};
-
-control.onClickToolDelete = function (e) {
-    control.highlightTool(e);
-    control.mode = control.Modes.Delete;
-
-};
-
-
 control.onClickZoomOut = function (e) {
-    if (control.zoom_percentage<20)
+    if (control.zoom_percentage < 20)
         return;
 
     control.zoom_percentage = control.zoom_percentage - 10;
-    paper.setZoom(control.zoom_percentage / 100,0,0);
+    paper.setZoom(control.zoom_percentage / 100, 0, 0);
 };
 
 control.onClickZoomIn = function (e) {
     // paper.paper_svg.rect(10, 10).move(250, 250).stroke('red');
     control.zoom_percentage = control.zoom_percentage + 10;
-    paper.setZoom(control.zoom_percentage / 100, 0,0);
+    paper.setZoom(control.zoom_percentage / 100, 0, 0);
 };
 
 

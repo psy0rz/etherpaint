@@ -41,7 +41,7 @@
 
 
     </style>
-
+  
 
     <script>
 
@@ -135,7 +135,7 @@
             // });
 
             //make sure paper starts after toolbar
-            // document.querySelector('#paper-container').style.top = document.querySelector("nav").offsetHeight + "px";
+            document.querySelector('#paper-container').style.top = document.querySelector("#topbar").offsetHeight + "px";
 
 
             paper.start(
@@ -160,9 +160,9 @@
 
 
 </head>
-<body>
+<body style="overflow: hidden">
 
-<div class="ui top fixed menu">
+<div id="topbar" class="ui top fixed menu">
     <div class="item">
         <div class="ui icon buttons tools">
             <div class="ui button onClick tool polyline"><i class="pen icon"></i></div>
@@ -262,17 +262,18 @@
 
 <!-- Your page content here. -->
 <div id="paper-container" style="
-    /*position:fixed;*/
-    /*top:0;*/
-    /*left:0 ;*/
-    /*right:0;*/
-    /*bottom:0 ;*/
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0 ;
     overflow: auto;
-user-select: none;
-padding: 0px;
-margin: 0px;
-
+    user-select: none;
+    padding: 0px;
+    margin: 0px;
 ">
+
+
 
     <!-- viewer, handles mouseevents, zooming and panning -->
     <svg id="viewer"

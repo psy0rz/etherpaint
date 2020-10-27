@@ -1,0 +1,15 @@
+#!/bin/bash
+
+echo "BAM"
+cd apps/etherpaint/cmake-build-debug/
+
+killall paper
+
+./paper &
+
+
+wait
+echo "BACKGROUND DONE!"
+
+
+

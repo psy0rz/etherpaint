@@ -76,6 +76,11 @@ control.start = function () {
 
     });
 
+    $('.onClick.tool.undo').on('click', function () {
+
+
+    });
+
 
 }
 

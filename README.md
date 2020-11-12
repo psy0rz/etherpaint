@@ -1,4 +1,4 @@
-## Demo
+## Etherpaint demo
 
 Alpha version is running at: http://internet-paper.com/
 

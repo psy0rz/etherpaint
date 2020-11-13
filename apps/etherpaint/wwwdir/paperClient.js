@@ -1,5 +1,27 @@
 'use strict';
 
+/*
+actie:                berekende reverse:
+1 select rood           select none
+2 drzw line 1,2         del obj1
+3 select groen          select rood
+4 draw square  3,4      delete obj2
+undo 1                  redo 1
+
+
+
+
+5 draw square  5,5      delete obj2
+undo 1                  redo 1
+undo 1                  redo 1
+
+
+
+
+
+
+ */
+
 class PaperClient {
     constructor(client_id) {
         this.client_id = client_id;
@@ -44,7 +66,7 @@ class PaperClient {
         return ("c" + this.client_id + "o" + id);
     }
 
-    //execute a drawing increment, and retrun the reverse for undo/timeslider purposes.
+    //execute a drawing increment, and return the reverse for undo/timeslider purposes.
     drawIncrement(type, p1, p2, p3) {
         let reverse = undefined;
 

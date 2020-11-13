@@ -101,6 +101,7 @@ paper.sendCursor = function (x, y) {
     }
 }
 
+//this is main function that is called from control.js to send actual drawing commands.
 paper.sendDrawIncrement = function (type, p1, p2, p3) {
 
     // console.log(type, p1, p2, p3);
@@ -108,8 +109,10 @@ paper.sendDrawIncrement = function (type, p1, p2, p3) {
     //TODO: make sure it happens in animation frame
     //local echo (and determining if event has to be stored/undoable)
     const reverse = paper.echo_client.drawIncrement(type, p1, p2, p3);
+
+
+    //delete temporary object if there is any
     if (type === event.IncrementalType.PointerEnd) {
-        //delete temporary object
         if (paper.echo_client.current_element) {
             paper.echo_client.current_element.remove();
             paper.echo_client.current_element = undefined;
@@ -220,6 +223,12 @@ paper.slideTo = function (index) {
         // console.log("REV");
     } else if (paper.increment_index < index)
         paper.drawIncrements(index);
+
+}
+
+
+paper.undo = function()
+{
 
 }
 

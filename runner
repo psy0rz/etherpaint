@@ -5,7 +5,7 @@ cd apps/etherpaint/cmake-build-debug/
 
 killall paper
 
-#make 
+make 
 ./paper &
 
 

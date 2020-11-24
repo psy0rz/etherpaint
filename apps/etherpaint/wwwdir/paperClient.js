@@ -1,5 +1,6 @@
 'use strict';
 
+
 /*
 actie:                berekende reverse:
 1 select rood           select none
@@ -22,10 +23,14 @@ undo 1                  redo 1
 
  */
 
+
+//keep per-client state (cursors, colors, tool type etc) and do the actual svg stuff
+
 class PaperClient {
-    constructor(client_id) {
+    constructor(client_id, paper_svg, scratch_svg) {
         this.client_id = client_id;
-        // this.increment_events = [];
+        this.paper_svg=paper_svg;
+        this.scratch_svg=scratch_svg;
 
         //current svg element we're building/modfiying
         this.current_element = undefined;
@@ -50,7 +55,7 @@ class PaperClient {
     animateCursor() {
         //create cursor?
         if (this.client_id != 0 && this.cursor_svg === undefined) {
-            this.cursor_svg = paper.scratch_svg.group();
+            this.cursor_svg = this.scratch_svg.group();
             this.cursor_svg.path('M-10,0 L10,0 M0,-10 L0,10').stroke('black');
             this.cursor_svg.text("client " + this.client_id);
         }
@@ -80,8 +85,8 @@ class PaperClient {
                     case event.DrawType.PolyLine:
                         reverse = [event.IncrementalType.Delete];
 
-                        this.current_element = paper.paper_svg.polyline([[p1, p2]]);
-                        // this.current_element = paper.paper_svg.path("M"+p1+","+p2);
+                        this.current_element = this.paper_svg.polyline([[p1, p2]]);
+                        // this.current_element = this.paper_svg.path("M"+p1+","+p2);
                         this.current_element.stroke('black').fill('none').attr('stroke-width', 2);
                         this.current_element.node.id = this.getObjectIdStr(this.next_object_id);
                         this.next_object_id++;
@@ -90,7 +95,7 @@ class PaperClient {
                     case event.DrawType.Rectangle:
                         reverse = [event.IncrementalType.Delete];
 
-                        this.current_element = paper.paper_svg.rect().move(p1, p2);
+                        this.current_element = this.paper_svg.rect().move(p1, p2);
                         this.current_element.stroke('black').fill('none').attr('stroke-width', 2);
                         this.current_element.node.id = this.getObjectIdStr(this.next_object_id);
                         this.next_object_id++;
@@ -106,7 +111,7 @@ class PaperClient {
                     switch (this.draw_type) {
                         case event.DrawType.PolyLine:
                             reverse = [event.IncrementalType.DeletePoint, this.current_element.node.points.length];
-                            let p = paper.paper_svg.node.createSVGPoint();
+                            let p = this.paper_svg.node.createSVGPoint();
                             p.x = p1;
                             p.y = p2;
                             this.current_element.node.points.appendItem(p);
@@ -140,7 +145,7 @@ class PaperClient {
                     switch (this.draw_type) {
                         // case event.DrawType.PolyLine:
                         //     reverse=[event.IncrementalType.DeletePoint, this.current_element.node.points.length ];
-                        //     let p = paper.scratch_svg.node.createSVGPoint();
+                        //     let p = this.scratch_svg.node.createSVGPoint();
                         //     p.x = p1;
                         //     p.y = p2;
                         //     this.current_element.node.points.appendItem(p);

@@ -93,6 +93,8 @@ enum IncrementalType:byte
     //the undo-able form of delete:
     Archive,
     Unarchive,
+    Undo,
+    Redo
 }
 
 /// used for small incremental drawing actions in the scratch path. temporary for visual effect only.

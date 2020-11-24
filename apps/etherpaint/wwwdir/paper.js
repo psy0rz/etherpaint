@@ -34,12 +34,11 @@ paper.start = function (viewer_element, paper_element, scratch_element, containe
 paper.clear = function () {
     paper.paper_svg.clear();
     paper.scratch_svg.clear();
-    paper.clients = {};
-    paper.increments = [];
-    paper.reverse_increments = [];
-    paper.increment_index = -1;
+    // paper.increments = [];
+    // paper.reverse_increments = [];
+    // paper.increment_index = -1;
     paper.target_index = -1;
-    paper.changed_clients = new Set();
+    // paper.changed_clients = new Set();
     paper.paused = false;
     paper.echo_client = paper.getClient(0);
 
@@ -51,6 +50,8 @@ paper.clear = function () {
 
     paper.zoom_factor = 1;
     paper.zoom_update_factor = 1;
+
+    paper.paper_draw=new PaperDraw(paper.paper_svg, paper.scratch_svg);
 
 }
 
@@ -77,15 +78,6 @@ m.handlers[event.EventUnion.Join] = function (msg, event_index) {
 
 }
 
-//find or create PaperClient
-paper.getClient = function (client_id) {
-    let client = paper.clients[client_id];
-    if (!client)
-        client = paper.clients[client_id] = new PaperClient(client_id);
-
-    return (client);
-
-}
 
 //update cursor info (onFrameTimer will send it when its time)
 paper.sendCursor = function (x, y) {
@@ -139,11 +131,9 @@ paper.sendDrawIncrement = function (type, p1, p2, p3) {
 //received an incremental draw
 m.handlers[event.EventUnion.DrawIncrement] = function (msg, event_index) {
     const draw_increment_event = msg.events(event_index, new event.DrawIncrement());
-    const client_id = draw_increment_event.clientId();
 
-    // const client=paper.getClient(client_id);
-    paper.increments.push([
-        client_id,
+    paper.paper_draw.addIncrement(
+        draw_increment_event.clientId(),
         draw_increment_event.type(),
         draw_increment_event.p1(),
         draw_increment_event.p2(),
@@ -151,15 +141,12 @@ m.handlers[event.EventUnion.DrawIncrement] = function (msg, event_index) {
         draw_increment_event.store()
     ]);
 
-    // console.log("received: client=", client_id, "type=", draw_increment_event.type(), "parameters",  draw_increment_event.p1(),   draw_increment_event.p2(),  draw_increment_event.p3())
 
-    if (!paper.paused)
-        paper.target_index = paper.increments.length - 1;
 
-    // client.drawIncrementEvent(draw_increment);
-    // paper.changed_clients.add(client);
 
 }
+
+
 
 //draw increments until index. also store reverse increments or delete increments if they dont have a reverse.
 //increments without a reverse are usually only for visual effect. (e.g. when drawing a rectangle)
@@ -320,16 +307,8 @@ paper.onAnimationFrame = function (s) {
 
     paper.animatePanZoom();
 
-    //DRAW stuff
+    paper.paper_draw.draw();
 
-    //let all changed clients do their incremental draw and cursor stuff:
-    for (const client of paper.changed_clients) {
-        client.animateCursor();
-    }
-    paper.changed_clients.clear();
-
-
-    paper.slideTo(paper.target_index);
 
 
     //SEND stuff
@@ -358,7 +337,7 @@ paper.onAnimationFrame = function (s) {
     }
 
 
-    window.requestAnimationFrame(paper.onAnimationFrame);
+   window.requestAnimationFrame(paper.onAnimationFrame);
     //testing:
     // setTimeout(paper.onAnimationFrame, 1000);
 }
@@ -370,11 +349,8 @@ m.handlers[event.EventUnion.Cursor] = (msg, event_index) => {
     const cursor_event = msg.events(event_index, new event.Cursor());
     const client_id = cursor_event.clientId();
 
-    // paper.cursor_events[client_id] = cursor_event;
-    // paper.cursor_changed_clients.add(client_id);
-    const client = paper.getClient(client_id);
-    client.cursorEvent(cursor_event);
-    paper.changed_clients.add(client);
+    paper.paper_draw.updateCursor(client_id, cursor_event);
+
 
 
 }

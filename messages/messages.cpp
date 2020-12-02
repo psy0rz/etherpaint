@@ -79,36 +79,28 @@ int messagerunner(const int argc, const char *argv[]) {
                     uWS::TemplatedApp<ENABLE_SSL>({.key_file_name = "/home/psy/key.pem",
                                                           .cert_file_name = "/home/psy/cert.pem",
                                                           .passphrase = ""})
-                            .get("/",
-                                 [](auto *res, auto *req) {
-                                     DEB("get " << req->getUrl())
-                                     auto file = file_cacher.get(std::string("/index.html"));
-
-                                     if (file == file_cacher.m_cached_files.end()) {
-                                         res->writeStatus("404");
-                                         res->end("not found");
-                                     } else
-                                         res->end(file->second->m_view);
-
-                                     return;
-                                 })
                             .get("/*",
                                  [](auto *res, auto *req) {
-//                                     DEB("get " << req->getUrl())
-                                     auto file = file_cacher.get(std::string(req->getUrl()));
+                                     auto file_name = std::string(req->getUrl());
+
+                                     if (file_name=="/")
+                                         file_name="/index.html";
+
+                                     auto file = file_cacher.get(file_name);
 
                                      if (file == file_cacher.m_cached_files.end()) {
                                          res->writeStatus("404");
                                          res->end("not found");
-                                     } else
+                                     } else {
+                                         res->writeHeader("Content-Type", file->second->m_content_type);
                                          res->end(file->second->m_view);
-
+                                     }
                                      return;
                                  })
                             .ws<PerSocketData>(
                                     "/ws",
                                     {
-                                          .compression = uWS::SHARED_COMPRESSOR,
+                                            .compression = uWS::SHARED_COMPRESSOR,
 //                                            .compression = uWS::DISABLED,
                                             .maxPayloadLength = 10024,
                                             .idleTimeout = 1000,
@@ -182,13 +174,14 @@ int messagerunner(const int argc, const char *argv[]) {
                                                             std::stringstream desc;
                                                             desc << "System error while handling "
                                                                  << event::EnumNamesEventUnion()[event_type] << ": "
-                                                                 <<  e.code().message() << ": " << std::strerror(errno);
+                                                                 << e.code().message() << ": " << std::strerror(errno);
                                                             msg_session->enqueue_error(desc.str());
                                                         }
                                                         catch (std::exception e) {
                                                             std::stringstream desc;
                                                             desc << "Exception while handling "
-                                                                 << event::EnumNamesEventUnion()[event_type] << ":" << e.what();
+                                                                 << event::EnumNamesEventUnion()[event_type] << ":"
+                                                                 << e.what();
                                                             msg_session->enqueue_error(desc.str());
 
 #ifndef NDEBUG

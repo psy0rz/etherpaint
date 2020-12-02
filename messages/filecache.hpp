@@ -37,6 +37,7 @@ public:
 
         m_content_type = content_type_map.at(m_path.extension());
 
+
         std::ifstream file(m_path, std::ios::binary | std::ios::ate);
         file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 

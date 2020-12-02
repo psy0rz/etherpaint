@@ -29,7 +29,7 @@
 
     <!-- paper app stuff -->
     <script src="control.js"></script>
-    <script src="paper.js"></script>
+<!--    <script src="paper.js" type="module"></script>-->
     <script src="paperClient.js"></script>
     <script src="test.js"></script>
 
@@ -43,8 +43,8 @@
     </style>
   
 
-    <script>
-
+    <script type="module">
+        import paper from "./paper.js";
 
         // function toggleMenu() {
         //     document.querySelector('#toolmenu').classList.toggle('is-active');
@@ -143,7 +143,7 @@
                 document.querySelector('#paper'),
                 document.querySelector("#scratch"),
                 document.querySelector("#paper-container"));
-            control.start();
+            control.start(paper);
 
             //start websocket messaging:
             m.start(function () {

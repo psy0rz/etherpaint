@@ -2,8 +2,8 @@
 
 //actual paper handling stuff. sends/receives events and reads/writes to SVG
 
-const paper = {};
-
+import PaperDraw from "./paperDraw.js";
+export const paper = {};
 
 paper.start = function (viewer_element, paper_element, scratch_element, container_element) {
 
@@ -19,9 +19,10 @@ paper.start = function (viewer_element, paper_element, scratch_element, containe
 
     // paper.paper_svg.text("Alleen pencil en history slider werken. ").attr('font-size', '200%');
 
+    paper.paper_draw = new PaperDraw(paper.paper_svg, paper.scratch_svg);
 
 
-    paper.clear();
+    paper.paper_draw.clear();
     //paper.setZoom(1);
 
     //start frame timer
@@ -37,21 +38,20 @@ paper.clear = function () {
     // paper.increments = [];
     // paper.reverse_increments = [];
     // paper.increment_index = -1;
-    paper.target_index = -1;
+    // paper.target_index = -1;
     // paper.changed_clients = new Set();
-    paper.paused = false;
-    paper.echo_client = paper.getClient(0);
+    // paper.paused = false;
+    paper.echo_client = paper.paper_draw.getClient(0);
 
     paper.scrollLeft = 0;
     paper.scrollTop = 0;
     paper.velocityX = 0;
     paper.velocityY = 0;
-    paper.panning=false;
+    paper.panning = false;
 
     paper.zoom_factor = 1;
     paper.zoom_update_factor = 1;
 
-    paper.paper_draw=new PaperDraw(paper.paper_svg, paper.scratch_svg);
 
 }
 
@@ -87,7 +87,7 @@ paper.sendCursor = function (x, y) {
         paper.cursor_y = y;
         paper.cursor_moved = true;
         if (test.recording)
-            test.record([x,y]);
+            test.record([x, y]);
 
 
     }
@@ -125,6 +125,7 @@ paper.sendDrawIncrement = function (type, p1, p2, p3) {
 
     if (test.recording)
         test.record([type, p1, p2, p3]);
+
 }
 
 
@@ -139,98 +140,26 @@ m.handlers[event.EventUnion.DrawIncrement] = function (msg, event_index) {
         draw_increment_event.p2(),
         draw_increment_event.p3(),
         draw_increment_event.store()
-    ]);
-
-
+    )
 
 
 }
 
 
-
-//draw increments until index. also store reverse increments or delete increments if they dont have a reverse.
-//increments without a reverse are usually only for visual effect. (e.g. when drawing a rectangle)
-//pay attention to performance in this one
-paper.drawIncrements = function (index) {
-    while (paper.increment_index < index) {
-
-        paper.increment_index++;
-
-        const increment = paper.increments[paper.increment_index];
-        const client = paper.getClient(increment[0]);
-        let reverse = [increment[0]]; //client_id
-        reverse = reverse.concat(client.drawIncrement(increment[1], increment[2], increment[3], increment[4]));
-
-        //we have more items than the reverse array?
-        if (paper.increment_index === paper.reverse_increments.length) {
-            //should we store it?
-            if (increment[5]) //"store"
-            {
-                paper.reverse_increments.push(reverse);
-                // console.log("STORE", increment);
-            } else {
-                // console.log("SKIP", increment);
-                //we dont have a reverse, so remove it from increments
-                paper.increments.splice(paper.increment_index, 1);
-                paper.increment_index--;
-                paper.target_index--;
-                index--;
-            }
-        }
-
-        // console.log("drawn: i=",paper.increment_index, index, increment);
-
-    }
-
-    // console.log("increments", index, paper.increment_index);
-}
-
-paper.drawReverseIncrements = function (index) {
-    while (paper.increment_index > index) {
-
-        const increment = paper.reverse_increments[paper.increment_index];
-        if (!(increment === undefined)) {
-            const client = paper.getClient(increment[0]);
-
-            client.drawIncrement(increment[1], increment[2], increment[3], increment[4]);
-        }
-
-        paper.increment_index = paper.increment_index - 1;
-
-    }
-
-}
-
-
-paper.slideTo = function (index) {
-
-    // console.log("SLIDE", paper.increment_index, index);
-    if (paper.increment_index > index) {
-        paper.drawReverseIncrements(index);
-        // console.log("REV");
-    } else if (paper.increment_index < index)
-        paper.drawIncrements(index);
-
-}
-
-
-paper.undo = function()
-{
+paper.undo = function () {
 
 }
 
 //handle pinch zoom/panning on mobile
 //much more complicated than you would have hoped :)
-paper.animatePanZoom = function ()
-{
+paper.animatePanZoom = function () {
     //zoom stuff
-    if (paper.zoom_update_factor!=paper.zoom_factor) {
+    if (paper.zoom_update_factor != paper.zoom_factor) {
 
-        if (!paper.panning)
-        {
+        if (!paper.panning) {
             //get current coords (on desktop)
-            paper.scrollLeft=paper.viewer_container.scrollLeft;
-            paper.scrollTop=paper.viewer_container.scrollTop;
+            paper.scrollLeft = paper.viewer_container.scrollLeft;
+            paper.scrollTop = paper.viewer_container.scrollTop;
         }
 
         //calculate curerently unzoomed coordinates of zoom-point
@@ -238,13 +167,13 @@ paper.animatePanZoom = function ()
         const origTop = (paper.scrollTop + paper.zoom_y) / paper.zoom_factor;
 
         //actually do the zoom
-        paper.zoom_factor=paper.zoom_update_factor;
+        paper.zoom_factor = paper.zoom_update_factor;
         paper.viewer_svg.viewbox(0, 0, Math.round(paper.viewer_element.scrollWidth / paper.zoom_factor), Math.round(paper.viewer_element.scrollWidth / paper.zoom_factor));
 
         //recaclulate new zoomed coordinates of zoom-point
         paper.scrollLeft = (origLeft * paper.zoom_factor) - paper.zoom_x;
         paper.scrollTop = (origTop * paper.zoom_factor) - paper.zoom_y;
-        paper.panning=true;
+        paper.panning = true;
     }
 
 
@@ -282,11 +211,9 @@ paper.animatePanZoom = function ()
             // console.log("SCROLLTO", paper.scrollLeft, paper.scrollTop);
             paper.viewer_container.scrollTo(Math.round(paper.scrollLeft), Math.round(paper.scrollTop));
 
-        }
-        else
-        {
+        } else {
             //we dont want to upset regular scrolling on desktop browsers. so stop updating scroll position we're done:
-            paper.panning=false;
+            paper.panning = false;
         }
     }
 
@@ -308,7 +235,6 @@ paper.onAnimationFrame = function (s) {
     paper.animatePanZoom();
 
     paper.paper_draw.draw();
-
 
 
     //SEND stuff
@@ -337,7 +263,7 @@ paper.onAnimationFrame = function (s) {
     }
 
 
-   window.requestAnimationFrame(paper.onAnimationFrame);
+    window.requestAnimationFrame(paper.onAnimationFrame);
     //testing:
     // setTimeout(paper.onAnimationFrame, 1000);
 }
@@ -350,8 +276,6 @@ m.handlers[event.EventUnion.Cursor] = (msg, event_index) => {
     const client_id = cursor_event.clientId();
 
     paper.paper_draw.updateCursor(client_id, cursor_event);
-
-
 
 }
 
@@ -393,10 +317,9 @@ paper.offsetPan = function (x, y) {
     //     paper.viewer_element.parentNode.scrollTop += y;
 
 
-
     paper.scrollLeft += x;
     paper.scrollTop += y;
-    paper.panning=true;
+    paper.panning = true;
 
     // console.log(paper.scrollTop, paper.scrollLeft);
     paper.velocityX = 0;
@@ -409,7 +332,7 @@ paper.setPanVelocity = function (x, y) {
 
     paper.velocityX = x * 17; //1000ms/60fps
     paper.velocityY = y * 17;
-    paper.panning=true;
+    paper.panning = true;
 }
 
 //x and y are the center of the zoom
@@ -419,9 +342,9 @@ paper.setZoom = function (factor, x, y) {
     if (diff == 0)
         return;
 
-    paper.zoom_update_factor=factor;
-    paper.zoom_x=x;
-    paper.zoom_y=y;
+    paper.zoom_update_factor = factor;
+    paper.zoom_x = x;
+    paper.zoom_y = y;
 
 
 }
@@ -437,3 +360,4 @@ paper.sendDeleteElement = function (target) {
     }
 }
 
+export default paper;

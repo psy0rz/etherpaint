@@ -24,13 +24,15 @@ control.selected = {};
 
 
 //called when page is ready
-control.start = function () {
+control.start = function (paper) {
+    
+    control.paper=paper;
 
     //calculate default zoom for this screen
     const zoom_width = 1920;
     // control.zoom_percentage = document.querySelector('#paper-container').clientWidth / zoom_width * 100;
     control.zoom_percentage = 100;
-    paper.setZoom(control.zoom_percentage / 100, 0, 0);
+    control.paper.setZoom(control.zoom_percentage / 100, 0, 0);
 
     //pinch zoom/pan
     control.hammer = new Hammer(document.querySelector("#viewer"), {});
@@ -111,7 +113,7 @@ control.select = function (target) {
 control.deleteSelected = function () {
     for (const e of document.querySelectorAll(".selected")) {
         e.classList.remove("selected"); //deselect as well (its hidden now)
-        paper.sendDeleteElement(e);
+        control.paper.sendDeleteElement(e);
     }
 }
 
@@ -142,8 +144,8 @@ control.onPinch = function (ev) {
 
     control.zoom_percentage = control.zoom_percentage / control.lastScale * snappedScale;
     control.lastScale = snappedScale;
-    paper.setZoom(control.zoom_percentage / 100, ev.center.x, ev.center.y);
-    paper.offsetPan(-(ev.deltaX - control.lastDeltaX), -(ev.deltaY - control.lastDeltaY));
+    control.paper.setZoom(control.zoom_percentage / 100, ev.center.x, ev.center.y);
+    control.paper.offsetPan(-(ev.deltaX - control.lastDeltaX), -(ev.deltaY - control.lastDeltaY));
 
     control.lastDeltaX = ev.deltaX;
     control.lastDeltaY = ev.deltaY;
@@ -153,7 +155,7 @@ control.onPinch = function (ev) {
 
 control.onPinchEnd = function (ev) {
 
-    paper.setPanVelocity(-ev.velocityX, -ev.velocityY);
+    control.paper.setPanVelocity(-ev.velocityX, -ev.velocityY);
 
 }
 
@@ -169,7 +171,7 @@ control.onPointerDown = function (m) {
 
 
     //calculate action svg paper location
-    const point = paper.viewer_svg.point(m.pageX, m.pageY);
+    const point = control.paper.viewer_svg.point(m.pageX, m.pageY);
     const x = Math.round(point.x);
     const y = Math.round(point.y);
 
@@ -179,11 +181,11 @@ control.onPointerDown = function (m) {
     control.last_x = x;
     control.last_y = y;
 
-    paper.sendCursor(x, y);
+    control.paper.sendCursor(x, y);
 
     //do we need to send any tool-selects?
     if (control.send_draw_type !== undefined) {
-        paper.sendDrawIncrement(event.IncrementalType.SelectDrawType, control.send_draw_type);
+        control.paper.sendDrawIncrement(event.IncrementalType.SelectDrawType, control.send_draw_type);
         control.send_draw_type = undefined;
 
     }
@@ -193,7 +195,7 @@ control.onPointerDown = function (m) {
         control.primaryDown = true;
         switch (control.mode) {
             case control.Modes.Draw:
-                paper.sendDrawIncrement(event.IncrementalType.PointerStart, x, y);
+                control.paper.sendDrawIncrement(event.IncrementalType.PointerStart, x, y);
                 break;
             case control.Modes.Delete:
                 control.deleteSelected();
@@ -216,7 +218,7 @@ control.onPointerMove_ = function (m) {
 
 
     //calculate actual svg paper location
-    const point = paper.viewer_svg.point(m.pageX, m.pageY);
+    const point = control.paper.viewer_svg.point(m.pageX, m.pageY);
     const x = Math.round(point.x);
     const y = Math.round(point.y);
 
@@ -226,11 +228,11 @@ control.onPointerMove_ = function (m) {
     if (x != control.last_x || y != control.last_y) {
 
         //update latest cursor location
-        paper.sendCursor(x, y);
+        control.paper.sendCursor(x, y);
         switch (control.mode) {
             case control.Modes.Draw:
                 if (control.primaryDown)
-                    paper.sendDrawIncrement(event.IncrementalType.PointerMove, x, y);
+                    control.paper.sendDrawIncrement(event.IncrementalType.PointerMove, x, y);
                 break;
             case control.Modes.Delete:
                 if (m.target.id != 'viewer') {
@@ -273,7 +275,7 @@ control.onPointerUp = function (m) {
     // console.log("UP", m.pageX, m.pageY);
 
     //calculate action svg paper location
-    const point = paper.viewer_svg.point(m.pageX, m.pageY);
+    const point = control.paper.viewer_svg.point(m.pageX, m.pageY);
     const x = Math.round(point.x);
     const y = Math.round(point.y);
 
@@ -286,8 +288,8 @@ control.onPointerUp = function (m) {
     if (control.primaryDown) {
         if (control.mode == control.Modes.Draw) {
 
-            paper.sendDrawIncrement(event.IncrementalType.PointerEnd, x, y);
-            paper.updateViewport();
+            control.paper.sendDrawIncrement(event.IncrementalType.PointerEnd, x, y);
+            control.paper.updateViewport();
         }
         control.primaryDown = false;
     }
@@ -300,10 +302,10 @@ control.onPointerCancel = function (m) {
     // console.log("CANCEL", m.pageX, m.pageY);
 
     //calculate action svg paper location
-    const point = paper.viewer_svg.point(m.pageX, m.pageY);
+    const point = control.paper.viewer_svg.point(m.pageX, m.pageY);
 
     if (control.mode == control.Modes.Draw) {
-        paper.sendDrawIncrement(event.IncrementalType.PointerCancel, point.x, point.y);
+        control.paper.sendDrawIncrement(event.IncrementalType.PointerCancel, point.x, point.y);
     }
 };
 
@@ -319,13 +321,13 @@ control.onClickZoomOut = function (e) {
         return;
 
     control.zoom_percentage = control.zoom_percentage - 10;
-    paper.setZoom(control.zoom_percentage / 100, 0, 0);
+    control.paper.setZoom(control.zoom_percentage / 100, 0, 0);
 };
 
 control.onClickZoomIn = function (e) {
-    // paper.paper_svg.rect(10, 10).move(250, 250).stroke('red');
+    // control.paper.paper_svg.rect(10, 10).move(250, 250).stroke('red');
     control.zoom_percentage = control.zoom_percentage + 10;
-    paper.setZoom(control.zoom_percentage / 100, 0, 0);
+    control.paper.setZoom(control.zoom_percentage / 100, 0, 0);
 };
 
 
@@ -338,19 +340,19 @@ m.handlers[event.EventUnion.Error] = (msg, event_index) => {
 
 control.onClickHistory = function (e) {
     document.querySelector("#history").classList.remove("is-hidden");
-    document.querySelector("#history-slider").max = paper.increments.length - 1;
-    document.querySelector("#history-slider").value = paper.increments.length - 1;
+    document.querySelector("#history-slider").max = control.paper.increments.length - 1;
+    document.querySelector("#history-slider").value = control.paper.increments.length - 1;
 
-    paper.paused = true;
+    control.paper.paused = true;
 };
 
 control.onClickHistoryClose = function (e) {
     document.querySelector("#history").classList.add("is-hidden");
-    paper.paused = false;
-    paper.target_index = paper.increments.length - 1;
+    control.paper.paused = false;
+    control.paper.target_index = control.paper.increments.length - 1;
 };
 
 control.onInputHistory = function (e) {
-    paper.target_index = e.value;
+    control.paper.target_index = e.value;
 }
 

@@ -1,32 +1,7 @@
 'use strict';
 
-
-/*
-actie:                berekende reverse:
-1 select rood           select none
-2 drzw line 1,2         del obj1
-3 select groen          select rood
-4 draw square  3,4      delete obj2
-undo 1                  redo 1
-
-
-
-
-5 draw square  5,5      delete obj2
-undo 1                  redo 1
-undo 1                  redo 1
-
-
-
-
-
-
- */
-
-
 //keep per-client state (cursors, colors, tool type etc) and do the actual svg stuff
-
-class PaperClient {
+export default class PaperClient {
     constructor(client_id, paper_svg, scratch_svg) {
         this.client_id = client_id;
         this.paper_svg=paper_svg;

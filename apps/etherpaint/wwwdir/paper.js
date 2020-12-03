@@ -3,6 +3,7 @@
 //actual paper handling stuff. sends/receives events and reads/writes to SVG
 
 import PaperDraw from "./paperDraw.js";
+
 export const paper = {};
 
 paper.start = function (viewer_element, paper_element, scratch_element, container_element) {

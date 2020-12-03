@@ -1,5 +1,7 @@
 'use strict';
 
+import PaperClient from "./paperClient.js";
+
 export default class PaperDraw {
 
     constructor(paper_svg, scratch_svg) {

@@ -14,10 +14,11 @@ export default class PaperPanZoom {
         this.scrollTop = 0;
         this.velocityX = 0;
         this.velocityY = 0;
-        this.panning = false;
 
         this.zoom_factor = 1;
         this.zoom_update_factor = 1;
+
+        this.animating = false;
 
         //calculate default zoom for this screen
         // const zoom_width = 1920;
@@ -36,7 +37,7 @@ export default class PaperPanZoom {
             this.lastScale = 1;
 
             //    cancel current drawing action
-            this.primaryDown = false;
+            // this.primaryDown = false;
         });
 
 
@@ -95,6 +96,8 @@ export default class PaperPanZoom {
         this.velocityX = 0;
         this.velocityY = 0;
 
+        this.requestAnimate();
+
     }
 
     //in pixel/ms
@@ -103,6 +106,9 @@ export default class PaperPanZoom {
         this.velocityX = x * 17; //1000ms/60fps
         this.velocityY = y * 17;
         this.panning = true;
+
+        this.requestAnimate();
+
     }
 
     //x and y are the center of the zoom
@@ -115,19 +121,30 @@ export default class PaperPanZoom {
         this.zoom_update_factor = factor;
         this.zoom_x = x;
         this.zoom_y = y;
+
+        this.requestAnimate();
+    }
+
+    requestAnimate() {
+        if (!this.animating) {
+            window.requestAnimationFrame(this.animate.bind(this));
+            this.animating = true;
+        }
     }
 
     //handle pinch zoom/panning on mobile
     //much more complicated than you would have hoped :)
     animate() {
+        this.animating = false;
+
         //zoom stuff
         if (this.zoom_update_factor != this.zoom_factor) {
 
-            if (!this.panning) {
-                //get current coords (on desktop)
-                this.scrollLeft = this.viewer_container.scrollLeft;
-                this.scrollTop = this.viewer_container.scrollTop;
-            }
+            // if (!this.panning) {
+            //     //get current coords (on desktop)
+            // this.scrollLeft = this.viewer_container.scrollLeft;
+            // this.scrollTop = this.viewer_container.scrollTop;
+            // }
 
             //calculate curerently unzoomed coordinates of zoom-point
             const origLeft = (this.scrollLeft + this.zoom_x) / this.zoom_factor;
@@ -140,49 +157,45 @@ export default class PaperPanZoom {
             //recaclulate new zoomed coordinates of zoom-point
             this.scrollLeft = (origLeft * this.zoom_factor) - this.zoom_x;
             this.scrollTop = (origTop * this.zoom_factor) - this.zoom_y;
-            this.panning = true;
+
         }
 
 
-        if (this.panning) {
-            //velocity panning (flinging)
-            if (this.velocityX > 1) {
-                this.scrollLeft += this.velocityX;
-                this.velocityX -= 1;
-            } else if (this.velocityX < -1) {
-                this.scrollLeft += this.velocityX;
-                this.velocityX += 1;
-            }
-
-            if (this.velocityY > 1) {
-                this.scrollTop += this.velocityY;
-                this.velocityY -= 1;
-            } else if (this.velocityY < -1) {
-                this.scrollTop += this.velocityY;
-                this.velocityY += 1;
-            }
-
-
-            //actual pan execution
-            if (Math.round(this.viewer_container.scrollLeft != Math.round(this.scrollLeft)) || Math.round(this.viewer_container.scrollTop) != Math.round(this.scrollTop)) {
-                if (this.scrollLeft < 0) {
-                    this.scrollLeft = 0;
-                    this.velocityX = 0;
-                }
-
-                if (this.scrollTop < 0) {
-                    this.scrollTop = 0;
-                    this.velocityY = 0;
-                }
-
-                // console.log("SCROLLTO", this.scrollLeft, this.scrollTop);
-                this.viewer_container.scrollTo(Math.round(this.scrollLeft), Math.round(this.scrollTop));
-
-            } else {
-                //we dont want to upset regular scrolling on desktop browsers. so stop updating scroll position we're done:
-                this.panning = false;
-            }
+        //velocity panning (flinging)
+        if (this.velocityX > 1) {
+            this.scrollLeft += this.velocityX;
+            this.velocityX -= 1;
+        } else if (this.velocityX < -1) {
+            this.scrollLeft += this.velocityX;
+            this.velocityX += 1;
         }
+
+        if (this.velocityY > 1) {
+            this.scrollTop += this.velocityY;
+            this.velocityY -= 1;
+        } else if (this.velocityY < -1) {
+            this.scrollTop += this.velocityY;
+            this.velocityY += 1;
+        }
+
+        //actual pan execution
+        if (this.scrollLeft < 0) {
+            this.scrollLeft = 0;
+            this.velocityX = 0;
+        }
+
+        if (this.scrollTop < 0) {
+            this.scrollTop = 0;
+            this.velocityY = 0;
+        }
+
+        // console.log("SCROLLTO", this.scrollLeft, this.scrollTop);
+        this.viewer_container.scrollTo(Math.round(this.scrollLeft), Math.round(this.scrollTop));
+
+        //still have velocity?
+        if (Math.abs(this.velocityX) >= 1 || Math.abs(this.velocityY) >= 1)
+            this.requestAnimate();
+
 
     }
 

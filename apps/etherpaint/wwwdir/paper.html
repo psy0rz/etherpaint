@@ -48,13 +48,6 @@
         import PaperPanZoom from "./paperPanZoom.js";
         let panzoom=new PaperPanZoom(document.querySelector("#viewer"));
 
-        function frame()
-        {
-            panzoom.animate();
-            window.requestAnimationFrame(frame);
-
-        }
-        frame();
 
         // function toggleMenu() {
         //     document.querySelector('#toolmenu').classList.toggle('is-active');

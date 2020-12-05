@@ -44,7 +44,17 @@
   
 
     <script type="module">
-        import paper from "./paper.js";
+        // import paper from "./paper.js";
+        import PaperPanZoom from "./paperPanZoom.js";
+        let panzoom=new PaperPanZoom(document.querySelector("#viewer"));
+
+        function frame()
+        {
+            panzoom.animate();
+            window.requestAnimationFrame(frame);
+
+        }
+        frame();
 
         // function toggleMenu() {
         //     document.querySelector('#toolmenu').classList.toggle('is-active');
@@ -138,20 +148,23 @@
             document.querySelector('#paper-container').style.top = document.querySelector("#topbar").offsetHeight + "px";
 
 
-            paper.start(
-                document.querySelector('#viewer'),
-                document.querySelector('#paper'),
-                document.querySelector("#scratch"),
-                document.querySelector("#paper-container"));
-            control.start(paper);
-
-            //start websocket messaging:
-            m.start(function () {
-                //(re)-connected
-                paper.join(document.location.search);
-
-
-            });
+            // paper.start(
+            //     document.querySelector('#viewer'),
+            //     document.querySelector('#paper'),
+            //     document.querySelector("#scratch"),
+            //     document.querySelector("#paper-container"));
+            // control.start(paper);
+            //
+            //
+            //
+            //
+            // //start websocket messaging:
+            // m.start(function () {
+            //     //(re)-connected
+            //     paper.join(document.location.search);
+            //
+            //
+            // });
 
         })
 

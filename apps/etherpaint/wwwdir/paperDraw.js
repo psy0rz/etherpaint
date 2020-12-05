@@ -1,4 +1,5 @@
 'use strict';
+// handles actual paper drawing stuff. 
 
 import PaperClient from "./paperClient.js";
 
@@ -19,6 +20,8 @@ export default class PaperDraw {
         this.target_index = -1;
 
         this.changed_clients = new Set();
+        this.paper_svg.clear();
+        this.scratch_svg.clear();
 
     }
 

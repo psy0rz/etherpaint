@@ -5,7 +5,7 @@ cd apps/etherpaint/cmake-build-debug/
 
 killall paper
 
-make -j32 || exit 1
+#make -j32 || exit 1
 ./paper &
 
 

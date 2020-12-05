@@ -28,18 +28,6 @@ control.start = function (paper) {
     
     control.paper=paper;
 
-    //calculate default zoom for this screen
-    const zoom_width = 1920;
-    // control.zoom_percentage = document.querySelector('#paper-container').clientWidth / zoom_width * 100;
-    control.zoom_percentage = 100;
-    control.paper.setZoom(control.zoom_percentage / 100, 0, 0);
-
-    //pinch zoom/pan
-    control.hammer = new Hammer(document.querySelector("#viewer"), {});
-    control.hammer.get('pinch').set({enable: true});
-    control.hammer.on('pinch', control.onPinch);
-    control.hammer.on('pinchstart', control.onPinchStart);
-    control.hammer.on('pinchend', control.onPinchEnd);
 
     //regular pointer stuff
     document.querySelector("#viewer").addEventListener('pointermove', control.onPointerMove, {passive: false});
@@ -117,47 +105,7 @@ control.deleteSelected = function () {
     }
 }
 
-//pinch pan/zoom stuff
-control.onPinchStart = function (ev) {
-    control.lastDeltaX = 0;
-    control.lastDeltaY = 0;
-    control.lastScale = 1;
 
-
-//    cancel current drawing action
-    control.primaryDown = false;
-
-}
-
-control.onPinch = function (ev) {
-    control.primaryDown = false;
-
-    // console.log("wtf");
-    // console.log(ev.deltaX, ev.deltaY);
-    //
-    //zoom snap
-    let snappedScale;
-    if (ev.scale > 0.8 && ev.scale < 1.2)
-        snappedScale = 1;
-    else
-        snappedScale = ev.scale;
-
-    control.zoom_percentage = control.zoom_percentage / control.lastScale * snappedScale;
-    control.lastScale = snappedScale;
-    control.paper.setZoom(control.zoom_percentage / 100, ev.center.x, ev.center.y);
-    control.paper.offsetPan(-(ev.deltaX - control.lastDeltaX), -(ev.deltaY - control.lastDeltaY));
-
-    control.lastDeltaX = ev.deltaX;
-    control.lastDeltaY = ev.deltaY;
-
-
-}
-
-control.onPinchEnd = function (ev) {
-
-    control.paper.setPanVelocity(-ev.velocityX, -ev.velocityY);
-
-}
 
 
 control.onPointerDown = function (m) {

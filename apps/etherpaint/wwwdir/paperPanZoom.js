@@ -178,7 +178,6 @@ export default class PaperPanZoom {
             this.velocityY += 1;
         }
 
-        //actual pan execution
         if (this.scrollLeft < 0) {
             this.scrollLeft = 0;
             this.velocityX = 0;
@@ -189,6 +188,7 @@ export default class PaperPanZoom {
             this.velocityY = 0;
         }
 
+        //actual pan execution
         // console.log("SCROLLTO", this.scrollLeft, this.scrollTop);
         this.viewer_container.scrollTo(Math.round(this.scrollLeft), Math.round(this.scrollTop));
 

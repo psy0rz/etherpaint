@@ -25,12 +25,10 @@ export default class Paper {
 
 
         paper.paper_draw.clear();
-        //paper.setZoom(1);
 
         //start frame timer
         paper.onAnimationFrame();
         // setInterval(paper.updateViewport, 1000);
-        // paper.setZoom(1);
 
     }
 

@@ -1,19 +1,20 @@
 'use strict';
-// handles actual paper drawing stuff. 
+// stores and executes PaperActions
+// keeps track of PaperClients
+
 
 import PaperClient from "./paperClient.js";
 
 export default class PaperDraw {
 
     constructor(paper_svg, scratch_svg) {
-        this.clients = {};
         this.paper_svg = paper_svg;
         this.scratch_svg = scratch_svg;
-
-
+        this.clear();
     }
 
     clear() {
+        this.clients = {};
         this.increments = [];
         this.reverse_increments = [];
         this.increment_index = -1;
@@ -23,7 +24,14 @@ export default class PaperDraw {
         this.paper_svg.clear();
         this.scratch_svg.clear();
 
+
     }
+
+    // //sets our own client id
+    // setClientId(id)
+    // {
+    //     this.client=this.getClient(id);
+    // }
 
     //find or create PaperClient
     getClient = function (client_id) {
@@ -35,13 +43,12 @@ export default class PaperDraw {
     }
 
     //add incremental drawing command to stack
-    addIncrement(client_id, type, p1, p2, p3, store) {
-        this.increments.push([
-            client_id, type, p1, p2, p3, store
-        ])
+    addAction(action) {
+        // let client=this.getclient(client_id);
+        this.increments.push(action);
 
-        if (!this.paused)
-            this.target_index = this.increments.length - 1;
+        // if (!this.paused)
+        //     this.target_index = this.increments.length - 1;
 
     }
 
@@ -76,27 +83,29 @@ export default class PaperDraw {
 
             this.increment_index++;
 
-            const increment = this.increments[this.increment_index];
-            const client = this.getClient(increment[0]);
-            let reverse = [increment[0]]; //client_id
-            reverse = reverse.concat(client.drawIncrement(increment[1], increment[2], increment[3], increment[4]));
+            this.increments[this.increment_index].apply(this.paper_svg);
 
-            //we have more items than the reverse array?
-            if (this.increment_index === this.reverse_increments.length) {
-                //should we store it?
-                if (increment[5]) //"store"
-                {
-                    this.reverse_increments.push(reverse);
-                    // console.log("STORE", increment);
-                } else {
-                    // console.log("SKIP", increment);
-                    //we dont have a reverse, so remove it from increments
-                    this.increments.splice(this.increment_index, 1);
-                    this.increment_index--;
-                    this.target_index--;
-                    index--;
-                }
-            }
+            // const increment = this.increments[this.increment_index];
+            // const client = this.getClient(increment[0]);
+            // let reverse = [increment[0]]; //client_id
+            // reverse = reverse.concat(client.drawIncrement(increment[1], increment[2], increment[3], increment[4]));
+            //
+            // //we have more items than the reverse array?
+            // if (this.increment_index === this.reverse_increments.length) {
+            //     //should we store it?
+            //     if (increment[5]) //"store"
+            //     {
+            //         this.reverse_increments.push(reverse);
+            //         // console.log("STORE", increment);
+            //     } else {
+            //         // console.log("SKIP", increment);
+            //         //we dont have a reverse, so remove it from increments
+            //         this.increments.splice(this.increment_index, 1);
+            //         this.increment_index--;
+            //         this.target_index--;
+            //         index--;
+            //     }
+            // }
 
             // console.log("drawn: i=",this.increment_index, index, increment);
 
@@ -106,21 +115,21 @@ export default class PaperDraw {
     }
 
 
-    drawReverseIncrements(index) {
-        while (this.increment_index > index) {
-
-            const increment = this.reverse_increments[this.increment_index];
-            if (!(increment === undefined)) {
-                const client = this.getClient(increment[0]);
-
-                client.drawIncrement(increment[1], increment[2], increment[3], increment[4]);
-            }
-
-            this.increment_index = this.increment_index - 1;
-
-        }
-
-    }
+    // drawReverseIncrements(index) {
+    //     while (this.increment_index > index) {
+    //
+    //         const increment = this.reverse_increments[this.increment_index];
+    //         if (!(increment === undefined)) {
+    //             const client = this.getClient(increment[0]);
+    //
+    //             client.drawIncrement(increment[1], increment[2], increment[3], increment[4]);
+    //         }
+    //
+    //         this.increment_index = this.increment_index - 1;
+    //
+    //     }
+    //
+    // }
 
 
     slideTo(index) {

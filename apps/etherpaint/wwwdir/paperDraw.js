@@ -51,6 +51,7 @@ export default class PaperDraw {
         // if (!this.paused)
         //     this.target_index = this.increments.length - 1;
 
+        this.requestDraw();
     }
 
     //add cursor update to client
@@ -59,19 +60,30 @@ export default class PaperDraw {
         client.cursorEvent(cursor_event);
         this.changed_clients.add(client);
 
+        this.requestDraw();
+
+    }
+
+    requestDraw() {
+        if (!this.drawRequested) {
+            window.requestAnimationFrame(this.draw.bind(this));
+            this.drawRequested = true;
+        }
     }
 
 
     //do actual drawing stuff, call this from inside an animation frame. (e.g. 60fps)
     draw() {
+        this.drawRequested=false;
+
         //let all changed clients do their incremental draw and cursor stuff:
         for (const client of this.changed_clients) {
             client.animateCursor();
         }
         this.changed_clients.clear();
 
-
         this.slideTo(this.target_index);
+
 
     }
 

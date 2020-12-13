@@ -7,9 +7,9 @@ import PaperClient from "./paperClient.js";
 
 export default class PaperDraw {
 
-    constructor(paper_svg, scratch_svg) {
-        this.paper_svg = paper_svg;
-        this.scratch_svg = scratch_svg;
+    constructor(paper_element, scratch_element) {
+        this.paper_svg = SVG(paper_element);
+        this.scratch_svg = SVG(scratch_element);
         this.clear();
     }
 
@@ -34,10 +34,10 @@ export default class PaperDraw {
     // }
 
     //find or create PaperClient
-    getClient = function (client_id) {
-        let client = this.clients[client_id];
+    getClient = function (clientId) {
+        let client = this.clients[clientId];
         if (!client)
-            client = this.clients[client_id] = new PaperClient(client_id, this.paper_svg, this.scratch_svg);
+            client = this.clients[clientId] = new PaperClient(clientId, this.paper_svg, this.scratch_svg);
 
         return (client);
     }

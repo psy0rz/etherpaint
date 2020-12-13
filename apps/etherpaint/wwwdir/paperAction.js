@@ -1,8 +1,10 @@
 'use strict';
 
+import {event} from "./messages_generated.js";
+
 export default class PaperAction
 {
-    constructor(client_id, type, p1, p2, p3) {
+    constructor(client, type, p1, p2, p3) {
         this.client=client;
         this.type=type;
         this.p1=p1;
@@ -71,7 +73,7 @@ export default class PaperAction
                 break;
 
             case event.IncrementalType.Delete:
-                this.previous = SVG(document.querySelector("#" + this.p1);
+                this.previous = SVG(document.querySelector("#" + this.p1));
                 this.previous.remove(); //removes it from SVG document, but we keep a reference to it so we can reverse it
                 break;
 

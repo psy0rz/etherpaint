@@ -6,21 +6,23 @@ import {event} from "./messages_generated";
 
 export default class PaperReceive {
 
-    contructor(messages, paperDraw) {
+    contructor(messages, paperDraw, paperSend) {
 
         this.messages = messages;
         this.paperDraw = paperDraw;
+        this.paperSend=paperSend;
 
         //server tells us we are joined to a new session.
-        this.messages.handlers[event.EventUnion.Join] = function (msg, event_index) {
+        this.messages.handlers[event.EventUnion.Join] = (msg, event_index) =>     {
             const join = msg.events(event_index, new event.Join());
             console.log("Joined shared session", join.id(), "as client", join.clientId());
-            this.client_id = join.clientId();
+            this.clientId = join.clientId();
             this.paperDraw.clear();
+            this.paperSend.setClientId(this.clientId)
         };
 
         //received an incremental draw
-        this.messages.handlers[event.EventUnion.DrawIncrement] = function (msg, event_index) {
+        this.messages.handlers[event.EventUnion.DrawIncrement] = (msg, event_index) => {
             const draw_increment_event = msg.events(event_index, new event.DrawIncrement());
 
             const action = new PaperAction(
@@ -43,6 +45,12 @@ export default class PaperReceive {
 
             this.paperDraw.updateCursor(client_id, cursor_event);
 
+        }
+
+        //received an error
+        this.messages.handlers[event.EventUnion.Error] = (msg, event_index) => {
+            const error = msg.events(event_index, new event.Error());
+            console.error("Server reports error: " + error.description());
         }
 
     }

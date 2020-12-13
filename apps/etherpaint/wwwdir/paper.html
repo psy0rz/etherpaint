@@ -31,7 +31,7 @@
     <script src="control.js"></script>
 <!--    <script src="paper.js" type="module"></script>-->
 <!--    <script src="paperClient.js"></script>-->
-    <script src="test.js"></script>
+<!--    <script src="test.js"></script>-->
 
     <style>
         .selected {
@@ -44,11 +44,11 @@
   
 
     <script type="module">
-        // import paper from "./paper.js";
 
-        //mobile pan/zoom stuff (for desktop the native browser zoom/pan should be ok)
-        import PaperPanZoom from "./paperPanZoom.js";
-        let panzoom=new PaperPanZoom(document.querySelector("#viewer"));
+
+        import PaperDraw from "./paperDraw.js";
+        import PaperSend from "./paperSend.js";
+        import PaperReceive from "./paperReceive.js";
 
 
         // function toggleMenu() {
@@ -58,6 +58,21 @@
         // }
 
         window.addEventListener('load', (event) => {
+
+            //mobile pan/zoom stuff (for desktop the native browser zoom/pan should be ok)
+            // import PaperPanZoom from "./paperPanZoom.js";
+            // let panzoom=new PaperPanZoom(document.querySelector("#viewer"));
+
+            let paperDraw=new PaperDraw(
+                document.querySelector("#paper"),
+                document.querySelector("#scratch")
+            );
+            let paperSend=new PaperSend(m);
+            let paperReceive=new PaperReceive(m, paperDraw, paperSend);
+
+
+
+
 
             function toggleFullScreen() {
                 var doc = window.document;

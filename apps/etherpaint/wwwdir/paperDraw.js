@@ -4,6 +4,8 @@
 
 
 import PaperClient from "./paperClient.js";
+import { SVG } from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js'
+// import { SVG } from '@svgdotjs/svg.js'
 
 export default class PaperDraw {
 
@@ -16,7 +18,6 @@ export default class PaperDraw {
     clear() {
         this.clients = {};
         this.increments = [];
-        this.reverse_increments = [];
         this.increment_index = -1;
         this.target_index = -1;
 

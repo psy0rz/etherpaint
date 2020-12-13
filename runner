@@ -1,11 +1,13 @@
 #!/bin/bash
 
-echo "BAM"
 cd apps/etherpaint/cmake-build-debug/
 
 killall paper
 
-#make -j32 || exit 1
+if [ "$1" == "make" ] ; then
+    make -j32 || exit 1
+echo WTF
+fi
 ./paper &
 
 

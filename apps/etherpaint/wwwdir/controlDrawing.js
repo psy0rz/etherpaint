@@ -4,6 +4,7 @@
 
 
 import {event} from "./messages_generated.js";
+import { SVG } from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
 
 const Modes =
     {
@@ -25,7 +26,7 @@ export default class ControlDrawing {
 
 
         //regular pointer stuff
-        this.primaryDown=false;
+        this.primaryDown = false;
         this.viewerElement.addEventListener('pointermove', this.onPointerMove.bind(this), {passive: false});
         this.viewerElement.addEventListener('pointerdown', this.onPointerDown.bind(this), {passive: false});
         this.viewerElement.addEventListener('pointerup', this.onPointerUp.bind(this), {passive: true});
@@ -96,12 +97,11 @@ export default class ControlDrawing {
     }
 
     //calculate svg xy point from normal pageXy coords.
-    getSvgPoint(x,y)
-    {
-        let point = this.viewerSvg.point(x,y);
-        point.x=Math.round(point.x);
-        point.y=Math.round(point.y);
-        return(point);
+    getSvgPoint(x, y) {
+        let point = this.viewerSvg.point(x, y);
+        point.x = Math.round(point.x);
+        point.y = Math.round(point.y);
+        return (point);
     }
 
     onPointerDown(m) {
@@ -172,7 +172,7 @@ export default class ControlDrawing {
         }
     }
 
-    onPointerMove  (m) {
+    onPointerMove(m) {
         // m.stopPropagation();
 
         if (m.getCoalescedEvents) {
@@ -185,7 +185,7 @@ export default class ControlDrawing {
     };
 
 
-    onPointerUp = function (m) {
+    onPointerUp(m) {
         if (!m.isPrimary)
             return;
 
@@ -206,7 +206,7 @@ export default class ControlDrawing {
         }
     };
 
-    onPointerCancel = function (m) {
+    onPointerCancel(m) {
         if (!m.isPrimary)
             return;
 

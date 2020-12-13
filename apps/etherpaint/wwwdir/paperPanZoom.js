@@ -2,6 +2,9 @@
 
 //Handle panning/zooming on mobile
 
+import Hammer from "./node_modules/@egjs/hammerjs/dist/hammer.esm.js";
+import { SVG } from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
+
 export default class PaperPanZoom {
 
     constructor(viewer_element) {
@@ -27,7 +30,7 @@ export default class PaperPanZoom {
         this.setZoom(this.zoom_percentage / 100, 0, 0);
 
         //pinch zoom/pan
-        this.hammer = new Hammer(document.querySelector("#viewer"), {});
+        this.hammer = new Hammer(this.viewer_element, {});
         this.hammer.get('pinch').set({enable: true});
 
 

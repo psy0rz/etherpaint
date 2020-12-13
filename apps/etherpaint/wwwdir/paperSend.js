@@ -10,7 +10,7 @@ import {event} from "./messages_generated.js";
 export default class PaperSend {
 
 
-    contructor(messages) {
+    constructor(messages) {
         this.messages = messages;
 
     }
@@ -18,7 +18,7 @@ export default class PaperSend {
 
     //send queued stuff and add cursor if we have any
     //only sends if output buffer of websocket is empty
-    sendQueue()
+    send()
     {
         //buffer empty enough?
         //todo: some kind of smarter throttling
@@ -107,7 +107,7 @@ export default class PaperSend {
 
     selectDrawType(drawType)
     {
-        this.queueDrawIncrement(event.IncrementalType.SelectDrawType,drawType );
+        this.drawIncrement(event.IncrementalType.SelectDrawType,drawType );
 
     }
 

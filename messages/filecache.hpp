@@ -33,9 +33,14 @@ public:
         INFO("Caching " << m_path);
 
         if (content_type_map.find(m_path.extension()) == content_type_map.end())
-            throw (program_error("Filetype not supported"));
+        {
+            WARNING("Filetype not supported " << m_path.extension());
+            m_content_type="unknown";
 
-        m_content_type = content_type_map.at(m_path.extension());
+        }
+        else {
+            m_content_type = content_type_map.at(m_path.extension());
+        }
 
 
         std::ifstream file(m_path, std::ios::binary | std::ios::ate);

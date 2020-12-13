@@ -1,7 +1,10 @@
 'use strict';
 
+import { event } from "./messages_generated.js";
+
 //m (messages)
 var m = {};
+export { m };
 
 //fixed builder we reuse every time we send a message
 m.builder = new flatbuffers.Builder(1);

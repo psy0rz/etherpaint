@@ -2,11 +2,13 @@
 
 //receive actions from server and pass them to paperDraw.js
 
-import {event} from "./messages_generated";
+import {event} from "./messages_generated.js";
+import PaperAction from "./paperAction.js";
+
 
 export default class PaperReceive {
 
-    contructor(messages, paperDraw, paperSend) {
+    constructor(messages, paperDraw, paperSend) {
 
         this.messages = messages;
         this.paperDraw = paperDraw;

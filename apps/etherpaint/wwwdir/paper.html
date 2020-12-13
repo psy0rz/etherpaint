@@ -8,12 +8,12 @@
 
     <!-- external frameworks -->
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.7/dist/semantic.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.7/dist/semantic.min.js"></script>
+    <script src="./node_modules/jquery/dist/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="./node_modules/fomantic-ui-css/semantic.min.css">
+    <script src="./node_modules/fomantic-ui-css/semantic.min.js"></script>
 
 <!--    <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.0/dist/svg.min.js"></script>-->
-2    <!--    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>-->
+    <!--    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>-->
     <!--    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css">-->
 
 
@@ -45,6 +45,7 @@
 
     <script type="module">
 
+
         import { m } from "./messages.js";
         import PaperDraw from "./paperDraw.js";
         import PaperSend from "./paperSend.js";
@@ -59,6 +60,7 @@
         // }
 
         window.addEventListener('load', (event) => {
+            const $ = window.$;
 
             //mobile pan/zoom stuff (for desktop the native browser zoom/pan should be ok)
             // import PaperPanZoom from "./paperPanZoom.js";

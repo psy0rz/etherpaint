@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "@egjs/hammerjs": "2.0.17",
+    "@svgdotjs/svg.js": "3.0.16",
+    "fomantic-ui-css": "2.8.7",
+    "jquery": "3.5.1"
+  },
+  "name": "etherpaint",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "GPL"
+}

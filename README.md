@@ -1,3 +1,4 @@
+
 ## Etherpaint demo
 
 Alpha version is running at: http://internet-paper.com/
@@ -12,7 +13,7 @@ NOTE: We require at least g++-10.
 Install requirements as root:
 
 ```console
-#  apt install g++-10 cmake libboost-dev libboost-thread-dev libboost-regex-dev libboost-filesystem-dev libssl-dev libz-dev
+#  apt install g++-10 cmake libboost-dev libboost-thread-dev libboost-regex-dev libboost-filesystem-dev libssl-dev libz-dev npm
 
 ```
 

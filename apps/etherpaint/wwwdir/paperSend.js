@@ -18,16 +18,17 @@ export default class PaperSend {
 
     //send queued stuff and add cursor if we have any
     //only sends if output buffer of websocket is empty
-    send()
-    {
+    send() {
+        this.scheduled = false;
+
         //buffer empty enough?
         //todo: some kind of smarter throttling
         if (this.messages.ws && this.messages.ws.bufferedAmount === 0) {
             //anything to send at all?
             if (this.cursorMoved || !this.messages.is_empty()) {
 
+                //add latest cursor event?
                 if (this.cursorMoved) {
-                    //add latest cursor event
                     this.messages.add_event(
                         event.EventUnion.Cursor,
                         event.Cursor.createCursor(
@@ -39,14 +40,25 @@ export default class PaperSend {
                     this.cursorMoved = false;
                 }
 
+                //send all queued stuff
                 this.messages.send();
             }
+        } else {
+            //try again in next frame..
+            this.scheduleSend();
         }
     }
 
-    setClientId(clientId)
-    {
-        this.clientId=clientId;
+    //schedule a call to send (if its not already scheduled)
+    scheduleSend() {
+        if (!this.scheduled) {
+            this.scheduled = true;
+            setTimeout(this.send.bind(this), 1000 / 60); //within 1 frame of 60fps
+        }
+    }
+
+    setClientId(clientId) {
+        this.clientId = clientId;
     }
 
     //send join to server
@@ -57,6 +69,7 @@ export default class PaperSend {
                 this.messages.builder,
                 this.messages.builder.createString(id)
             ));
+        this.scheduleSend();
 
     }
 
@@ -71,6 +84,7 @@ export default class PaperSend {
             //     test.record([x, y]);
 
 
+            this.scheduleSend();
         }
     }
 
@@ -102,16 +116,14 @@ export default class PaperSend {
 
         // if (test.recording)
         //     test.record([type, p1, p2, p3]);
+        this.scheduleSend();
 
     }
 
-    selectDrawType(drawType)
-    {
-        this.drawIncrement(event.IncrementalType.SelectDrawType,drawType );
+    selectDrawType(drawType) {
+        this.drawIncrement(event.IncrementalType.SelectDrawType, drawType);
 
     }
-
-
 
 
 }

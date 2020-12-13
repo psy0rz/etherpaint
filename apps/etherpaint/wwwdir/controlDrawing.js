@@ -5,7 +5,6 @@
 
 import {event} from "./messages_generated.js";
 import { SVG } from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
-// const $ = window.$;
 
 
 const Modes =
@@ -47,19 +46,19 @@ export default class ControlDrawing {
 
         $('.onClick.tool.polyline').on('click', function () {
             self.highlightTool(this);
-            self.mode = this.Modes.Draw;
+            self.mode = Modes.Draw;
             self.paperSend.selectDrawType(event.DrawType.PolyLine);
         });
 
         $('.onClick.tool.rect').on('click', function () {
             self.highlightTool(this);
-            self.mode = this.Modes.Draw;
+            self.mode = Modes.Draw;
             self.paperSend.selectDrawType(event.DrawType.Rectangle);
         });
 
         $('.onClick.tool.delete').on('click', function () {
             self.highlightTool(this);
-            self.mode = this.Modes.Delete;
+            self.mode = Modes.Delete;
         });
 
         $('.onClick.tool.undo').on('click', function () {
@@ -70,7 +69,7 @@ export default class ControlDrawing {
     }
 
     highlightTool(e) {
-        //deselct others
+        //deselect others
         $('.onClick.tool').removeClass('active');
         $(e).addClass('active');
     }
@@ -84,7 +83,7 @@ export default class ControlDrawing {
 
     select(target) {
 
-        if (target.id != 'viewer') {
+        if (target.id !== 'viewer') {
 
             //select
             target.classList.add("selected");
@@ -126,10 +125,10 @@ export default class ControlDrawing {
         if (m.buttons & 1) {
             this.primaryDown = true;
             switch (this.mode) {
-                case this.Modes.Draw:
-                    this.paperSend.drawIncrement(event.IncrementalType.PointerStart, x, y);
+                case Modes.Draw:
+                    this.paperSend.drawIncrement(event.IncrementalType.PointerStart, point.x, point.y);
                     break;
-                case this.Modes.Delete:
+                case Modes.Delete:
                     this.deleteSelected();
                     break;
 
@@ -158,12 +157,12 @@ export default class ControlDrawing {
         //update latest cursor location
         this.paperSend.updateCursor(point.x, point.y);
         switch (this.mode) {
-            case this.Modes.Draw:
+            case Modes.Draw:
                 if (this.primaryDown)
                     this.paperSend.drawIncrement(event.IncrementalType.PointerMove, point.x, point.y);
                 break;
-            case this.Modes.Delete:
-                if (m.target.id != 'viewer') {
+            case Modes.Delete:
+                if (m.target.id !== 'viewer') {
                     this.deselectAll();
                     this.select(m.target);
                     if (this.primaryDown)
@@ -200,7 +199,7 @@ export default class ControlDrawing {
             return;
 
         if (this.primaryDown) {
-            if (this.mode == this.Modes.Draw) {
+            if (this.mode === Modes.Draw) {
 
                 this.paperSend.drawIncrement(event.IncrementalType.PointerEnd, point.x, point.y);
             }
@@ -215,9 +214,9 @@ export default class ControlDrawing {
         // console.log("CANCEL", m.pageX, m.pageY);
 
         //calculate action svg paper location
-        const point = this.paper.viewer_svg.point(m.pageX, m.pageY);
+        const point = this.getSvgPoint(m.pageX, m.pageY);
 
-        if (this.mode == this.Modes.Draw) {
+        if (this.mode === Modes.Draw) {
             this.paperSend.drawIncrement(event.IncrementalType.PointerCancel, point.x, point.y);
         }
     };

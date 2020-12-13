@@ -1,6 +1,8 @@
 'use strict';
 
 import {event} from "./messages_generated.js";
+import { SVG } from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
+
 
 export default class PaperAction
 {
@@ -33,7 +35,7 @@ export default class PaperAction
 
             case event.IncrementalType.PointerStart:
                 let attrs={
-                    'stroke': 'black',
+                    'stroke': 'red',
                     'fill': 'none',
                     'stroke-width': 2
                 };
@@ -41,7 +43,7 @@ export default class PaperAction
 
                 switch (this.client.drawType) {
                     case event.DrawType.PolyLine:
-                        this.client.element = new SVG().PolyLine(attrs);
+                        this.client.element = new SVG().polyline(attrs);
                         break;
                     case event.DrawType.Rectangle:
                         this.client.element = new SVG().Rect(attrs);
@@ -51,6 +53,7 @@ export default class PaperAction
                 }
                 this.client.element.move(this.p1, this.p2);
                 this.client.element.node.id = this.getNextIdStr(svg);
+                svg.add(this.client.element);
                 break;
 
             case event.IncrementalType.PointerMove:
@@ -59,7 +62,7 @@ export default class PaperAction
                         let point = svg.node.createSVGPoint();
                         point.x = this.p1;
                         point.y = this.p2;
-                        this.client.element.node.points.appendItem(p);
+                        this.client.element.node.points.appendItem(point);
                         break;
                     case event.DrawType.Rectangle:
                         this.client.element.attr('width', this.p1 - this.client.element.attr().x);

@@ -45,11 +45,12 @@ export default class PaperDraw {
 
     //add incremental drawing command to stack
     addAction(action) {
+        console.log(action);
         // let client=this.getclient(client_id);
         this.increments.push(action);
 
         // if (!this.paused)
-        //     this.target_index = this.increments.length - 1;
+        this.target_index = this.increments.length - 1;
 
         this.requestDraw();
     }

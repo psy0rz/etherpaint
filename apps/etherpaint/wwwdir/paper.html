@@ -12,7 +12,7 @@
     <link rel="stylesheet" type="text/css" href="./node_modules/fomantic-ui-css/semantic.min.css">
     <script src="./node_modules/fomantic-ui-css/semantic.min.js"></script>
 
-<!--    <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.0/dist/svg.min.js"></script>-->
+    <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.0/dist/svg.min.js"></script>
     <!--    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>-->
     <!--    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css">-->
 
@@ -60,18 +60,20 @@
         // }
 
         window.addEventListener('load', (event) => {
-            const $ = window.$;
 
             //mobile pan/zoom stuff (for desktop the native browser zoom/pan should be ok)
             // import PaperPanZoom from "./paperPanZoom.js";
             // let panzoom=new PaperPanZoom(document.querySelector("#viewer"));
             let paperPanZoom=new PaperPanZoom(document.querySelector("#viewer"));
+
             let paperDraw=new PaperDraw(
                 document.querySelector("#paper"),
                 document.querySelector("#scratch")
             );
             let paperSend=new PaperSend(m);
+
             let paperReceive=new PaperReceive(m, paperDraw, paperSend);
+
             let controlDrawing = new ControlDrawing(paperSend);
 
 

@@ -7,30 +7,30 @@ import { SVG } from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
 
 export default class PaperPanZoom {
 
-    constructor(viewer_element) {
+    constructor(viewerElement) {
 
-        this.viewer_element = viewer_element;
-        this.viewer_container = viewer_element.parentNode;
-        this.viewer_svg = SVG(viewer_element);
+        this.viewerElement = viewerElement;
+        this.viewerContainer = viewerElement.parentNode;
+        this.viewerSvg = SVG(viewerElement);
 
         this.scrollLeft = 0;
         this.scrollTop = 0;
         this.velocityX = 0;
         this.velocityY = 0;
 
-        this.zoom_factor = 1;
-        this.zoom_update_factor = 1;
+        this.zoomFactor = 1;
+        this.zoomUpdateFactor = 1;
 
         this.animating = false;
 
         //calculate default zoom for this screen
         // const zoom_width = 1920;
         // this.zoom_percentage = document.querySelector('#paper-container').clientWidth / zoom_width * 100;
-        this.zoom_percentage = 100;
-        this.setZoom(this.zoom_percentage / 100, 0, 0);
+        this.zoomPercentage = 100;
+        this.setZoom(this.zoomPercentage / 100, 0, 0);
 
         //pinch zoom/pan
-        this.hammer = new Hammer(this.viewer_element, {});
+        this.hammer = new Hammer(this.viewerElement, {});
         this.hammer.get('pinch').set({enable: true});
 
 
@@ -54,9 +54,9 @@ export default class PaperPanZoom {
             else
                 snappedScale = ev.scale;
 
-            this.zoom_percentage = this.zoom_percentage / this.lastScale * snappedScale;
+            this.zoomPercentage = this.zoomPercentage / this.lastScale * snappedScale;
             this.lastScale = snappedScale;
-            this.setZoom(this.zoom_percentage / 100, ev.center.x, ev.center.y);
+            this.setZoom(this.zoomPercentage / 100, ev.center.x, ev.center.y);
             this.offsetPan(-(ev.deltaX - this.lastDeltaX), -(ev.deltaY - this.lastDeltaY));
 
             this.lastDeltaX = ev.deltaX;
@@ -117,13 +117,13 @@ export default class PaperPanZoom {
     //x and y are the center of the zoom
     setZoom(factor, x, y) {
 
-        const diff = (factor - this.zoom_update_factor);
+        const diff = (factor - this.zoomUpdateFactor);
         if (diff == 0)
             return;
 
-        this.zoom_update_factor = factor;
-        this.zoom_x = x;
-        this.zoom_y = y;
+        this.zoomUpdateFactor = factor;
+        this.zoomX = x;
+        this.zoomY = y;
 
         this.requestAnimate();
     }
@@ -141,25 +141,20 @@ export default class PaperPanZoom {
         this.animating = false;
 
         //zoom stuff
-        if (this.zoom_update_factor != this.zoom_factor) {
+        if (this.zoomUpdateFactor != this.zoomFactor) {
 
-            // if (!this.panning) {
-            //     //get current coords (on desktop)
-            // this.scrollLeft = this.viewer_container.scrollLeft;
-            // this.scrollTop = this.viewer_container.scrollTop;
-            // }
 
             //calculate curerently unzoomed coordinates of zoom-point
-            const origLeft = (this.scrollLeft + this.zoom_x) / this.zoom_factor;
-            const origTop = (this.scrollTop + this.zoom_y) / this.zoom_factor;
+            const origLeft = (this.scrollLeft + this.zoomX) / this.zoomFactor;
+            const origTop = (this.scrollTop + this.zoomY) / this.zoomFactor;
 
             //actually do the zoom
-            this.zoom_factor = this.zoom_update_factor;
-            this.viewer_svg.viewbox(0, 0, Math.round(this.viewer_element.scrollWidth / this.zoom_factor), Math.round(this.viewer_element.scrollWidth / this.zoom_factor));
+            this.zoomFactor = this.zoomUpdateFactor;
+            this.viewerSvg.viewbox(0, 0, Math.round(this.viewerElement.scrollWidth / this.zoomFactor), Math.round(this.viewerElement.scrollWidth / this.zoomFactor));
 
             //recaclulate new zoomed coordinates of zoom-point
-            this.scrollLeft = (origLeft * this.zoom_factor) - this.zoom_x;
-            this.scrollTop = (origTop * this.zoom_factor) - this.zoom_y;
+            this.scrollLeft = (origLeft * this.zoomFactor) - this.zoomX;
+            this.scrollTop = (origTop * this.zoomFactor) - this.zoomY;
 
         }
 
@@ -193,7 +188,7 @@ export default class PaperPanZoom {
 
         //actual pan execution
         // console.log("SCROLLTO", this.scrollLeft, this.scrollTop);
-        this.viewer_container.scrollTo(Math.round(this.scrollLeft), Math.round(this.scrollTop));
+        this.viewerContainer.scrollTo(Math.round(this.scrollLeft), Math.round(this.scrollTop));
 
         //still have velocity?
         if (Math.abs(this.velocityX) >= 1 || Math.abs(this.velocityY) >= 1)

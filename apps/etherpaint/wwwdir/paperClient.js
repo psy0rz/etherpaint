@@ -5,9 +5,6 @@ export default class PaperClient {
     constructor(clientId, scratchSvg) {
         this.clientId = clientId;
 
-        //current svg element we're building/modfiying
-        // this.current_element = undefined;
-        // this.next_object_id = 0;
         this.drawType = undefined;
         this.element = undefined;
 

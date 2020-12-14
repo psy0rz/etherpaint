@@ -38,7 +38,7 @@ export default class PaperDraw {
     getClient = function (clientId) {
         let client = this.clients[clientId];
         if (!client)
-            client = this.clients[clientId] = new PaperClient(clientId, this.paper_svg, this.scratch_svg);
+            client = this.clients[clientId] = new PaperClient(clientId, this.scratch_svg);
 
         return (client);
     }
@@ -56,9 +56,9 @@ export default class PaperDraw {
     }
 
     //add cursor update to client
-    updateCursor(client_id, cursor_event) {
+    updateCursor(client_id, cursorEvent) {
         const client = this.getClient(client_id);
-        client.cursorEvent(cursor_event);
+        client.cursorEvent=cursorEvent;
         this.changed_clients.add(client);
 
         this.requestDraw();

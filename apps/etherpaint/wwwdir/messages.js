@@ -1,10 +1,10 @@
 'use strict';
 
-import { event } from "./messages_generated.js";
+import {event} from "./messages_generated.js";
 
 //m (messages)
 var m = {};
-export { m };
+export {m};
 
 //fixed builder we reuse every time we send a message
 m.builder = new flatbuffers.Builder(1);
@@ -16,16 +16,14 @@ m.start_message = function () {
     m.event_offsets = [];
 }
 
-m.is_empty = function ()
-{
-    return(m.event_types.length==0);
+m.is_empty = function () {
+    return (m.event_types.length == 0);
 }
 
 //add event to message we're building. (you'll have to use m.builder directly in the create...() functions)
-m.add_event = function( event_type, event_offset)
-{
+m.add_event = function (event_type, event_offset) {
     m.event_types.push(event_type);
-    m.event_offsets.push(event_offset)
+    m.event_offsets.push(event_offset);
 }
 
 //contructs final message from collected events and sends it.
@@ -38,7 +36,13 @@ m.send = function () {
         )
     );
 
-    m.ws.send(m.builder.asUint8Array());
+    let msgArray = m.builder.asUint8Array();
+    m.ws.send(msgArray);
+
+    // //handle local echo?
+    // //server echoed altijd je eigen spul terug, ivm server performance. er word 1 message gemaakt en naar iedereen gestuurd zodat er geen extra kopien zijn
+    // if (echo)
+    //     m.callHandlers(msgArray);
 
     m.start_message();
 }
@@ -86,14 +90,16 @@ m.restart = function () {
     };
 
     // receive websocket messages.
-    m.ws.onmessage = function (evt) {
-        let buf = new flatbuffers.ByteBuffer(new Uint8Array(evt.data));
-        let msg = event.Message.getRootAsMessage(buf);
+    m.ws.onmessage = function (wsEvent) {
+        let msgArray = new Uint8Array(wsEvent.data);
+        m.callHandlers(msgArray);
+    }
+
+    m.callHandlers = function (msgArray) {
+        let byteBuffer = new flatbuffers.ByteBuffer(msgArray);
+        let msg = event.Message.getRootAsMessage(byteBuffer);
 
         let events_length = msg.eventsLength();
-
-        // counter=counter+1;
-        // document.querySelector('#counter').innerHTML=counter;
 
         for (let event_index = 0; event_index < events_length; event_index++) {
             let handler = m.handlers[msg.eventsType(event_index)];
@@ -104,6 +110,7 @@ m.restart = function () {
             }
         }
     };
+
 
     m.ws.onerror = function (evt) {
         m.log('Connection error');

@@ -3,6 +3,11 @@
 import {event} from "./messages_generated.js";
 import { SVG } from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
 
+//apparte action voor ieder drawtype maken?
+//en ook appart event voor ieder draw type ipv 1 generieke drawincrement?
+//maakt de events kleiner, en is sneller aan de javascript kant (geen switch meer!)
+//lastig aan de server kant: ieder non-struct ding heeft zn eigen handlers nodig? struct dingen kunnen iig templated
+
 
 export default class PaperAction
 {

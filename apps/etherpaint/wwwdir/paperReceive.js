@@ -6,6 +6,15 @@ import {event} from "./messages_generated.js";
 import PaperAction from "./paperAction.js";
 
 
+/*
+actionfull
+actionincStart
+actionincAdd
+actionincEnd
+
+
+ */
+
 export default class PaperReceive {
 
     constructor(messages, paperDraw, paperSend) {

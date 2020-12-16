@@ -45,20 +45,19 @@ export default class PaperDraw {
     }
 
     //add incremental drawing command to stack
-    addAction(action) {
-        this.increments.push(action);
-        this.targetIndex = this.increments.length - 1;
+    addAction(action, store) {
+        if (store) {
+            this.increments.push(action);
+            this.targetIndex = this.increments.length - 1;
+        }
+        else
+        {
+            this.tmpActions.push(action);
+        }
 
         this.requestDraw();
     }
 
-    //add a incremental drawing command to the temporary stack (only applied once and discarded)
-    addTmpAction(action)
-    {
-        this.tmpActions.push(action);
-        this.requestDraw();
-
-    }
 
     //add cursor update to client
     updateCursor(clientId, cursorEvent) {

@@ -53,8 +53,8 @@ export default class ControlDrawing {
         $('.onClick.tool.rect').on('click', function () {
             self.highlightTool(this);
             self.mode = Modes.Draw;
-            self.paperSend.selectDrawType(event.ClassTypeName.Rectangle);
-        });2
+            self.paperSend.selectDrawClass(event.ClassType.Rectangle);
+        });
 
         $('.onClick.tool.delete').on('click', function () {
             self.highlightTool(this);
@@ -199,10 +199,10 @@ export default class ControlDrawing {
             return;
 
         if (this.primaryDown) {
-            if (this.mode === Modes.Draw) {
-
-                this.paperSend.drawIncrement(event.IncrementalType.PointerEnd, point.x, point.y);
-            }
+            // if (this.mode === Modes.Draw) {
+            //
+            //     this.paperSend.drawIncrement(event.IncrementalType., point.x, point.y);
+            // }
             this.primaryDown = false;
         }
     };
@@ -216,9 +216,9 @@ export default class ControlDrawing {
         //calculate action svg paper location
         const point = this.getSvgPoint(m.pageX, m.pageY);
 
-        if (this.mode === Modes.Draw) {
-            this.paperSend.drawIncrement(event.IncrementalType.PointerCancel, point.x, point.y);
-        }
+        // if (this.mode === Modes.Draw) {
+        //     this.paperSend.drawIncrement(event.IncrementalType.PointerCancel, point.x, point.y);
+        // }
     };
 
 }

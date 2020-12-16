@@ -3,7 +3,7 @@
 //receive actions from server and pass them to paperDraw.js
 
 import {event} from "./messages_generated.js";
-import { PaperAction, PaperActionPolyline, PaperActionAddPoint } from "./paperAction.js";
+import {PaperAction, PaperActionPolyline, PaperActionAddPoint} from "./paperAction.js";
 
 
 /*
@@ -15,8 +15,8 @@ actionincEnd
 
  */
 //maps event classtype number to actual javascript class
-const classTypeMap= [];
-classTypeMap[event.ClassType.Polyline]=PaperActionPolyline;
+const classTypeMap = [];
+classTypeMap[event.ClassType.Polyline] = PaperActionPolyline;
 // classTypeMap[event.ClassType.Rect]=PaperActionRect;
 
 //map
@@ -27,10 +27,10 @@ export default class PaperReceive {
 
         this.messages = messages;
         this.paperDraw = paperDraw;
-        this.paperSend=paperSend;
+        this.paperSend = paperSend;
 
         //server tells us we are joined to a new session.
-        this.messages.handlers[event.EventUnion.Join] = (msg, eventIndex) =>     {
+        this.messages.handlers[event.EventUnion.Join] = (msg, eventIndex) => {
             const join = msg.events(eventIndex, new event.Join());
             console.log("Joined shared session", join.id(), "as client", join.clientId());
             this.clientId = join.clientId();
@@ -42,29 +42,35 @@ export default class PaperReceive {
         this.messages.handlers[event.EventUnion.DrawIncrement] = (msg, eventIndex) => {
             const drawIncrementEvent = msg.events(eventIndex, new event.DrawIncrement());
 
-            const client=this.paperDraw.getClient(drawIncrementEvent.clientId());
+            const client = this.paperDraw.getClient(drawIncrementEvent.clientId());
 
-            switch(drawIncrementEvent.type())
-            {
+            switch (drawIncrementEvent.type()) {
                 case event.IncrementalType.SelectClass:
-                    client.Class=classTypeMap[drawIncrementEvent.p1()]
+                    client.Class = classTypeMap[drawIncrementEvent.p1()]
                     console.log("Class", client.Class);
                     break;
                 case event.IncrementalType.SelectColor:
-                    // client.attributes['stroke']=132;
+                    let color = drawIncrementEvent.p1() << 16 + drawIncrementEvent.p2() << 8 + drawIncrementEvent.p3();
+                    client.attributes['stroke'] = "#" + color.toString(16).padStart(6, '0');
                     break;
-                case event.IncrementalType.StartTmpAction:
-                    this.paperDraw.addTmpAction(new client.Class(
-                        client,
-                        [ drawIncrementEvent.p1(), drawIncrementEvent.p2() ],
-                        client.attributes
-                    ));
+                case event.IncrementalType.DrawObject:
+                    this.paperDraw.addAction(
+                        new client.Class(
+                            client,
+                            [drawIncrementEvent.p1(), drawIncrementEvent.p2()],
+                            client.attributes
+                        ),
+                        drawIncrementEvent.store()
+                    );
                     break;
-                case event.IncrementalType.UpdateTmpAction:
-                    this.paperDraw.addTmpAction(new PaperActionAddPoint(
-                        client,
-                        [ drawIncrementEvent.p1(), drawIncrementEvent.p2() ],
-                    ));
+                case event.IncrementalType.AddPoint:
+                    this.paperDraw.addTmpAction(
+                        new PaperActionAddPoint(
+                            client,
+                            [drawIncrementEvent.p1(), drawIncrementEvent.p2()],
+                        ),
+                        drawIncrementEvent.store()
+                    );
                     break;
             }
 

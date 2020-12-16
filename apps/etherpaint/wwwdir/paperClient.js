@@ -15,11 +15,9 @@ export default class PaperClient {
 
         //attributes for new svg objects (color etc)
         this.attributes = {
-            'stroke': '#00ffff',
+            'stroke': '#000000',
             'fill': 'none',
             'stroke-width': 2
-
-
         };
 
 

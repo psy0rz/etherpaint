@@ -20,7 +20,6 @@ export default class PaperSend {
     //only sends if output buffer of websocket is empty
     send() {
         this.scheduled = false;
-
         //buffer empty enough?
         //todo: some kind of smarter throttling
         if (this.messages.ws && this.messages.ws.bufferedAmount === 0) {
@@ -29,6 +28,7 @@ export default class PaperSend {
 
                 //add latest cursor event?
                 if (this.cursorMoved) {
+
                     this.messages.add_event(
                         event.EventUnion.Cursor,
                         event.Cursor.createCursor(
@@ -36,7 +36,8 @@ export default class PaperSend {
                             this.clientId,
                             this.cursorX,
                             this.cursorY,
-                        ))
+                        ));
+
                     this.cursorMoved = false;
                 }
 
@@ -120,8 +121,20 @@ export default class PaperSend {
 
     }
 
-    selectDrawType(drawType) {
-        this.drawIncrement(event.IncrementalType.SelectDrawType, drawType);
+    test()
+    {
+        this.messages.add_event(
+            event.EventUnion.DrawObject,
+            event.DrawObject.createDrawObject(
+                this.messages.builder,
+                this.clientId,
+                event.DrawObject.createPointsVector(this.messages.builder,[0,0,0,0,0,0])
+            ));
+       this.send();
+    }
+
+    selectDrawClass(drawClass) {
+        this.drawIncrement(event.IncrementalType.SelectClass, drawClass);
 
     }
 

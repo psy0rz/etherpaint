@@ -8,8 +8,60 @@ import { SVG } from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
 //maakt de events kleiner, en is sneller aan de javascript kant (geen switch meer!)
 //lastig aan de server kant: ieder non-struct ding heeft zn eigen handlers nodig? struct dingen kunnen iig templated
 
+export class PaperActionPolyline
+{
+    constructor(client, points, attributes)
+    {
+        console.log(attributes);
+        this.element=new SVG().polyline(points).attr(attributes);
+        this.element.node.id=client.getNextId();
+        client.element=this.element; //so we can add points
+        // this.client.element.move(points[0], points[1]);
+    }
 
-export default class PaperAction
+    apply(svg)
+    {
+        svg.add(this.element);
+    }
+
+    reverse(svg)
+    {
+        this.element.remove(); //removes it from DOM
+    }
+
+
+
+};
+
+export class PaperActionAddPoint
+{
+    constructor(client, points, attributes)
+    {
+        this.points=points;
+        this.client=client;
+    }
+
+    apply(svg)
+    {
+        let point = svg.node.createSVGPoint();
+        point.x = this.points[0];
+        point.y = this.points[1];
+        this.client.element.node.points.appendItem(point);
+
+    }
+
+    //reverse not needed, only used for tmp actions
+    reverse(svg)
+    {
+
+    }
+
+}
+
+
+
+
+export class PaperAction
 {
     constructor(client, type, p1, p2, p3) {
         this.client=client;
@@ -19,15 +71,6 @@ export default class PaperAction
         this.p3=p3;
     }
 
-    getNextIdStr(svg)
-    {
-        if (!svg.nextId)
-            svg.nextId = 0;
-        else
-            svg.nextId=svg.nextId+1;
-
-        return(svg.nextId);
-    }
 
     //apply action to svg
     apply(svg)

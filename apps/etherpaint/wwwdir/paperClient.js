@@ -4,9 +4,24 @@
 export default class PaperClient {
     constructor(clientId, scratchSvg) {
         this.clientId = clientId;
+        //next uniq id for draw objects
+        this.nextId=clientId*1000000;
 
-        this.drawType = undefined;
+        //selected drawing class
+        this.Class = undefined;
+
+        //current element client is operating on
         this.element = undefined;
+
+        //attributes for new svg objects (color etc)
+        this.attributes = {
+            'stroke': '#00ffff',
+            'fill': 'none',
+            'stroke-width': 2
+
+
+        };
+
 
 
         //create cursor
@@ -14,8 +29,14 @@ export default class PaperClient {
         this.cursorSvg.path('M-10,0 L10,0 M0,-10 L0,10').stroke('black');
         this.cursorSvg.text("client " + this.clientId);
 
+
     }
 
+    getNextId()
+    {
+        this.nextId=this.nextId+1;
+        return(this.nextId);
+    }
 
     animateCursor() {
 

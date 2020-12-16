@@ -1,5 +1,4 @@
 namespace event;
-//cursor event: 40bytes
 
 
 
@@ -10,15 +9,20 @@ union EventUnion {
     Join,
     Leave,
     Cursor,
-    DrawIncrement
+    DrawIncrement,
+    DrawObject
 
 }
 
+//32 bytes overhead
 table Message {
   events: [EventUnion];
 }
 
- struct Cursor
+//een struct  als een event is minimaal 8 bytes (4 overhead, stappen van 4 bytes)
+
+//12 bytes
+struct Cursor
 {
     ///client id
     client_id: uint8;
@@ -57,55 +61,44 @@ table Leave
 // drawing actions
 
 
-enum DrawType:byte
+enum ClassType:byte
 {
   Line,
-  PolyLine,
+  Polyline,
   Rectangle,
   Circle,
-}
-
-struct DrawPoint
-{
-  x: uint16;
-  y: uint16;
-}
-
-struct DrawColor
-{
-  r: uint8;
-  g: uint8;
-  b: uint8;
 }
 
 
 
 enum IncrementalType:byte
 {
-    PointerStart,
-    PointerMove,
-    PointerEnd,
-    PointerCancel,
+    SelectColor,
+    SelectClass,
+    StartTmpAction,
+    UpdateTmpAction,
+    EndTmpAction,
     Delete,
-    DeletePoint,
-    SelectDrawType,
-    SelectDrawColor,
-    //the undo-able form of delete:
-    Archive,
-    Unarchive,
-    Undo,
-    Redo
+
 }
 
-/// used for small incremental drawing actions in the scratch path. temporary for visual effect only.
+
+/// used for small incremental drawing actions in the scratch path.
 struct DrawIncrement
 {
     client_id: uint8;
     type: IncrementalType;
     p1: uint16;
     p2: uint16;
-    p3: uint16;
+    p3: uint8;
     store: bool;
+}
+
+
+table DrawObject
+{
+    clientId: uint8;
+    points: [uint16];
 }
 
 

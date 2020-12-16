@@ -70,7 +70,11 @@
                 document.querySelector("#paper"),
                 document.querySelector("#scratch")
             );
+
             let paperSend=new PaperSend(m);
+            // window.paperSend=paperSend;
+            // window.PaperSend=PaperSend;
+            // window.m=m;
 
             let paperReceive=new PaperReceive(m, paperDraw, paperSend);
 

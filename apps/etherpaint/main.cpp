@@ -24,6 +24,8 @@ int main(const int argc, const char *argv[]) {
         const auto &msg_session_paper = std::static_pointer_cast<MsgSessionPaper>(msg_session);
 
         auto cursor = msg->events()->GetAs<event::Cursor>(event_index);
+
+
         if (cursor->client_id() != msg_session_paper->id)
             throw (program_error("Invalid client id"));
 

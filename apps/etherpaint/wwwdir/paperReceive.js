@@ -3,7 +3,7 @@
 //receive actions from server and pass them to paperDraw.js
 
 import {event} from "./messages_generated.js";
-import PaperAction from "./paperAction.js";
+import { PaperAction, PaperActionPolyline, PaperActionAddPoint } from "./paperAction.js";
 
 
 /*
@@ -14,6 +14,12 @@ actionincEnd
 
 
  */
+//maps event classtype number to actual javascript class
+const classTypeMap= [];
+classTypeMap[event.ClassType.Polyline]=PaperActionPolyline;
+// classTypeMap[event.ClassType.Rect]=PaperActionRect;
+
+//map
 
 export default class PaperReceive {
 
@@ -36,16 +42,32 @@ export default class PaperReceive {
         this.messages.handlers[event.EventUnion.DrawIncrement] = (msg, eventIndex) => {
             const drawIncrementEvent = msg.events(eventIndex, new event.DrawIncrement());
 
-            const action = new PaperAction(
-                this.paperDraw.getClient(drawIncrementEvent.clientId()),
-                drawIncrementEvent.type(),
-                drawIncrementEvent.p1(),
-                drawIncrementEvent.p2(),
-                drawIncrementEvent.p3(),
-                drawIncrementEvent.store()
-            );
+            const client=this.paperDraw.getClient(drawIncrementEvent.clientId());
 
-            this.paperDraw.addAction(action);
+            switch(drawIncrementEvent.type())
+            {
+                case event.IncrementalType.SelectClass:
+                    client.Class=classTypeMap[drawIncrementEvent.p1()]
+                    console.log("Class", client.Class);
+                    break;
+                case event.IncrementalType.SelectColor:
+                    // client.attributes['stroke']=132;
+                    break;
+                case event.IncrementalType.StartTmpAction:
+                    this.paperDraw.addTmpAction(new client.Class(
+                        client,
+                        [ drawIncrementEvent.p1(), drawIncrementEvent.p2() ],
+                        client.attributes
+                    ));
+                    break;
+                case event.IncrementalType.UpdateTmpAction:
+                    this.paperDraw.addTmpAction(new PaperActionAddPoint(
+                        client,
+                        [ drawIncrementEvent.p1(), drawIncrementEvent.p2() ],
+                    ));
+                    break;
+            }
+
         }
 
         //received a cursor event.

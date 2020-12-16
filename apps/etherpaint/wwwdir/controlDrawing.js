@@ -47,14 +47,14 @@ export default class ControlDrawing {
         $('.onClick.tool.polyline').on('click', function () {
             self.highlightTool(this);
             self.mode = Modes.Draw;
-            self.paperSend.selectDrawType(event.DrawType.PolyLine);
+            self.paperSend.selectDrawClass(event.ClassType.Polyline);
         });
 
         $('.onClick.tool.rect').on('click', function () {
             self.highlightTool(this);
             self.mode = Modes.Draw;
-            self.paperSend.selectDrawType(event.DrawType.Rectangle);
-        });
+            self.paperSend.selectDrawType(event.ClassTypeName.Rectangle);
+        });2
 
         $('.onClick.tool.delete').on('click', function () {
             self.highlightTool(this);
@@ -126,7 +126,7 @@ export default class ControlDrawing {
             this.primaryDown = true;
             switch (this.mode) {
                 case Modes.Draw:
-                    this.paperSend.drawIncrement(event.IncrementalType.PointerStart, point.x, point.y);
+                    this.paperSend.drawIncrement(event.IncrementalType.StartTmpAction, point.x, point.y);
                     break;
                 case Modes.Delete:
                     this.deleteSelected();
@@ -159,7 +159,7 @@ export default class ControlDrawing {
         switch (this.mode) {
             case Modes.Draw:
                 if (this.primaryDown)
-                    this.paperSend.drawIncrement(event.IncrementalType.PointerMove, point.x, point.y);
+                    this.paperSend.drawIncrement(event.IncrementalType.UpdateTmpAction, point.x, point.y);
                 break;
             case Modes.Delete:
                 if (m.target.id !== 'viewer') {

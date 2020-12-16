@@ -37,6 +37,7 @@ m.send = function () {
     );
 
     let msgArray = m.builder.asUint8Array();
+    console.log(msgArray.length, msgArray.length-32);
     m.ws.send(msgArray);
 
     // //handle local echo?

@@ -18,6 +18,7 @@ export default class PaperDraw {
     clear() {
         this.clients = {};
         this.increments = [];
+        this.tmpActions = [];
         this.incrementIndex = -1;
         this.targetIndex = -1;
 
@@ -45,13 +46,18 @@ export default class PaperDraw {
 
     //add incremental drawing command to stack
     addAction(action) {
-        // console.log(action);
         this.increments.push(action);
-
-        // if (!this.paused)
         this.targetIndex = this.increments.length - 1;
 
         this.requestDraw();
+    }
+
+    //add a incremental drawing command to the temporary stack (only applied once and discarded)
+    addTmpAction(action)
+    {
+        this.tmpActions.push(action);
+        this.requestDraw();
+
     }
 
     //add cursor update to client
@@ -83,6 +89,7 @@ export default class PaperDraw {
         this.changedClients.clear();
 
         this.slideTo(this.targetIndex);
+        this.drawTmpIncrements();
 
 
     }
@@ -104,6 +111,14 @@ export default class PaperDraw {
     }
 
 
+    drawTmpIncrements()
+    {
+        for (const action of this.tmpActions) {
+            action.apply(this.paperSvg);
+        }
+        this.tmpActions=[];
+
+    }
 
 
     slideTo(index) {

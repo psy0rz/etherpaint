@@ -37,7 +37,6 @@ export default class PaperReceive {
             switch (drawIncrementEvent.type()) {
                 case event.IncrementalType.SelectClass:
                     client.Class = classTypeMap[drawIncrementEvent.p1()]
-                    console.log("Class", client.Class);
                     break;
                 case event.IncrementalType.SelectColor:
                     let color = drawIncrementEvent.p1() << 16 + drawIncrementEvent.p2() << 8 + drawIncrementEvent.p3();

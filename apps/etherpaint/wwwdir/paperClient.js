@@ -10,8 +10,8 @@ export default class PaperClient {
         //selected drawing class
         this.Class = undefined;
 
-        //current element client is operating on
-        this.element = undefined;
+        //current action the client is working on (used by add points)
+        this.action = undefined;
 
         //attributes for new svg objects (color etc)
         this.attributes = {

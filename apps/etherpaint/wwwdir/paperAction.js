@@ -1,80 +1,103 @@
 'use strict';
 
 import {event} from "./messages_generated.js";
-import { SVG } from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
+import {SVG} from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
 
 //apparte action voor ieder drawtype maken?
 //en ook appart event voor ieder draw type ipv 1 generieke drawincrement?
 //maakt de events kleiner, en is sneller aan de javascript kant (geen switch meer!)
 //lastig aan de server kant: ieder non-struct ding heeft zn eigen handlers nodig? struct dingen kunnen iig templated
 
-export class PaperActionPolyline
-{
-    constructor(client, points, attributes)
-    {
-        console.log(attributes);
-        this.element=new SVG().polyline(points).attr(attributes);
-        this.element.node.id=client.getNextId();
-        client.element=this.element; //so we can add points
-        // this.client.element.move(points[0], points[1]);
+export class PaperActionPolyline {
+    constructor(client, points, attributes) {
+        this.element = new SVG().polyline(points).attr(attributes);
+        this.element.node.id = client.getNextId();
+        client.action = this;
     }
 
-    apply(svg)
-    {
+    apply(svg) {
         svg.add(this.element);
     }
 
-    reverse(svg)
-    {
+    addPoint(svg, point) {
+        let svgPoint = svg.node.createSVGPoint();
+        svgPoint.x = point[0];
+        svgPoint.y = point[1];
+        this.element.node.points.appendItem(svgPoint);
+    }
+
+    reverse(svg) {
         this.element.remove(); //removes it from DOM
     }
 
 
+}
 
-};
 
-export class PaperActionAddPoint
-{
-    constructor(client, points, attributes)
-    {
-        this.points=points;
-        this.client=client;
+export class PaperActionRectangle {
+    constructor(client, points, attributes) {
+        this.element = new SVG().rect().attr(attributes);
+        this.element.move(points[0], points[1]);
+        this.element.node.id = client.getNextId();
+        client.action = this;
+        // this.client.element.move(points[0], points[1]);
     }
 
-    apply(svg)
-    {
-        let point = svg.node.createSVGPoint();
-        point.x = this.points[0];
-        point.y = this.points[1];
-        this.client.element.node.points.appendItem(point);
+    apply(svg) {
+        svg.add(this.element);
+    }
+
+    addPoint(svg, point) {
+
+        this.element.width(point[0]-this.element.x());
+        this.element.height(point[1]);
 
     }
 
-    //reverse not needed, only used for tmp actions
-    reverse(svg)
-    {
+    reverse(svg) {
+        this.element.remove(); //removes it from DOM
+    }
+
+
+}
+
+
+//add a point to the current client.element.
+//note that this should never be stored and cant be reversed.
+export class PaperActionAddPoint {
+    constructor(client, point) {
+        this.point = point;
+        this.action = client.action;
+    }
+
+    //since there is no generic way to "add" a point, let every DrawClass handle it themselfs
+    apply(svg) {
+        this.action.addPoint(svg, this.point);
 
     }
+
+    //reverse not supported, never store this action.
+    // reverse(svg)
+    // {
+    //
+    // }
 
 }
 
 
 
-
-export class PaperAction
-{
+export class PaperAction {
     constructor(client, type, p1, p2, p3) {
-        this.client=client;
-        this.type=type;
-        this.p1=p1;
-        this.p2=p2;
-        this.p3=p3;
+        this.client = client;
+        this.type = type;
+        this.p1 = p1;
+        this.p2 = p2;
+        this.p3 = p3;
     }
 
 
     //apply action to svg
-    apply(svg)
-    {
+    apply(svg) {
         switch (this.type) {
             case event.IncrementalType.SelectDrawType:
                 this.previous = this.client.drawType;
@@ -82,12 +105,12 @@ export class PaperAction
                 break;
 
             case event.IncrementalType.PointerStart:
-                let attrs={
+                let attrs = {
                     'stroke': 'red',
                     'fill': 'none',
                     'stroke-width': 2
                 };
-                this.previous=this.client.element;
+                this.previous = this.client.element;
 
                 switch (this.client.drawType) {
                     case event.DrawType.PolyLine:
@@ -130,18 +153,16 @@ export class PaperAction
 
             default:
                 break;
-         }
+        }
     }
 
     //reverse action on svg
-    reverse(svg)
-    {
+    reverse(svg) {
 
     }
 
     //get the undo of for action
-    getUndo()
-    {
+    getUndo() {
 
     }
 

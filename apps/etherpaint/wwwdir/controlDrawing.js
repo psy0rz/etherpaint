@@ -126,7 +126,7 @@ export default class ControlDrawing {
             this.primaryDown = true;
             switch (this.mode) {
                 case Modes.Draw:
-                    this.paperSend.drawIncrement(event.IncrementalType.StartTmpAction, point.x, point.y);
+                    this.paperSend.drawIncrement(event.IncrementalType.DrawObject, point.x, point.y);
                     break;
                 case Modes.Delete:
                     this.deleteSelected();
@@ -159,7 +159,7 @@ export default class ControlDrawing {
         switch (this.mode) {
             case Modes.Draw:
                 if (this.primaryDown)
-                    this.paperSend.drawIncrement(event.IncrementalType.UpdateTmpAction, point.x, point.y);
+                    this.paperSend.drawIncrement(event.IncrementalType.AddPoint, point.x, point.y);
                 break;
             case Modes.Delete:
                 if (m.target.id !== 'viewer') {

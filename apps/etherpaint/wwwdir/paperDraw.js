@@ -23,6 +23,8 @@ export default class PaperDraw {
         this.targetIndex = -1;
 
         this.changedClients = new Set();
+        this.updatedActions = new Set();
+
         this.paperSvg.clear();
         this.scratchSvg.clear();
 
@@ -87,6 +89,12 @@ export default class PaperDraw {
         }
         this.changedClients.clear();
 
+        for (const action of this.updatedActions) {
+            action.drawUpdate();
+        }
+        this.updatedActions.clear();
+
+
         this.slideTo(this.targetIndex);
         this.drawTmpIncrements();
 
@@ -102,7 +110,7 @@ export default class PaperDraw {
 
             this.incrementIndex++;
 
-            this.increments[this.incrementIndex].apply(this.paperSvg);
+            this.increments[this.incrementIndex].draw(this.paperSvg);
 
 
         }
@@ -113,7 +121,7 @@ export default class PaperDraw {
     drawTmpIncrements()
     {
         for (const action of this.tmpActions) {
-            action.apply(this.paperSvg);
+            action.draw(this.paperSvg);
         }
         this.tmpActions=[];
 

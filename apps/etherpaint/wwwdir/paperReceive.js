@@ -3,7 +3,7 @@
 //receive actions from server and pass them to paperDraw.js
 
 import {event} from "./messages_generated.js";
-import {PaperAction, PaperActionPolyline, PaperActionAddPoint, PaperActionRectangle} from "./paperAction.js";
+import {PaperAction, PaperActionPolyline, PaperActionRectangle} from "./paperAction.js";
 
 //maps event classtype number to actual javascript class
 const classTypeMap = [];
@@ -43,23 +43,18 @@ export default class PaperReceive {
                     client.attributes['stroke'] = "#" + color.toString(16).padStart(6, '0');
                     break;
                 case event.IncrementalType.DrawObject:
-                    this.paperDraw.addAction(
-                        new client.Class(
-                            client,
-                            [drawIncrementEvent.p1(), drawIncrementEvent.p2()],
-                            client.attributes
-                        ),
-                        drawIncrementEvent.store()
-                    );
+                    client.currentAction = new client.Class(
+                        client.getNextId(),
+                        [drawIncrementEvent.p1(), drawIncrementEvent.p2()],
+                        client.attributes);
+                    this.paperDraw.addAction(client.currentAction, drawIncrementEvent.store());
                     break;
                 case event.IncrementalType.AddPoint:
-                    this.paperDraw.addAction(
-                        new PaperActionAddPoint(
-                            client,
-                            [drawIncrementEvent.p1(), drawIncrementEvent.p2()],
-                        ),
-                        drawIncrementEvent.store()
-                    );
+                    let svgPoint = this.paperDraw.paperSvg.node.createSVGPoint();
+                    svgPoint.x = drawIncrementEvent.p1();
+                    svgPoint.y = drawIncrementEvent.p2();
+                    client.currentAction.addPoint(svgPoint);
+                    this.paperDraw.updatedActions.add(client.currentAction);
                     break;
             }
 

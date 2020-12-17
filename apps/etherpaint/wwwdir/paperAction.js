@@ -9,24 +9,29 @@ import {SVG} from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
 //lastig aan de server kant: ieder non-struct ding heeft zn eigen handlers nodig? struct dingen kunnen iig templated
 
 export class PaperActionPolyline {
-    constructor(client, points, attributes) {
+    constructor(clientId, points, attributes) {
         this.element = new SVG().polyline(points).attr(attributes);
-        this.element.node.id = client.getNextId();
-        client.action = this;
+        this.element.node.id = clientId;
+        this.updatePoints=[];
     }
 
-    apply(svg) {
+    addPoint(svgPoint) {
+        this.updatePoints.push(svgPoint);
+    }
+
+    draw(svg) {
         svg.add(this.element);
     }
 
-    addPoint(svg, point) {
-        let svgPoint = svg.node.createSVGPoint();
-        svgPoint.x = point[0];
-        svgPoint.y = point[1];
-        this.element.node.points.appendItem(svgPoint);
+    drawUpdate()
+    {
+        for (const svgPoint of this.updatePoints) {
+            this.element.node.points.appendItem(svgPoint);
+        }
+        this.updatePoints=[];
     }
 
-    reverse(svg) {
+    drawReverse(svg) {
         this.element.remove(); //removes it from DOM
     }
 
@@ -35,18 +40,13 @@ export class PaperActionPolyline {
 
 
 export class PaperActionRectangle {
-    constructor(client, points, attributes) {
+    constructor(clientId, points, attributes) {
         this.element = new SVG().rect().attr(attributes);
         this.x = points[0];
         this.y = points[1];
         this.setxy(points[2], points[3]);
-        this.element.node.id = client.getNextId();
-        client.action = this;
+        this.element.node.id = clientId
         // this.client.element.move(points[0], points[1]);
-    }
-
-    apply(svg) {
-        svg.add(this.element);
     }
 
     //annoyingly a rectangle cant have negative width/heights...
@@ -72,12 +72,21 @@ export class PaperActionRectangle {
 
     }
 
-    addPoint(svg, point) {
-        this.setxy(point[0], point[1]);
+    addPoint(svgPoint) {
+        this.updatePoint=svgPoint;
 
     }
 
-    reverse(svg) {
+    draw(svg) {
+        svg.add(this.element);
+    }
+
+    drawUpdate()
+    {
+        this.setxy(this.updatePoint.x, this.updatePoint.y);
+    }
+
+    drawReverse(svg) {
         this.element.remove(); //removes it from DOM
     }
 
@@ -85,27 +94,6 @@ export class PaperActionRectangle {
 }
 
 
-//add a point to the current client.element.
-//note that this should never be stored and cant be reversed.
-export class PaperActionAddPoint {
-    constructor(client, point) {
-        this.point = point;
-        this.action = client.action;
-    }
-
-    //since there is no generic way to "add" a point, let every DrawClass handle it themselfs
-    apply(svg) {
-        this.action.addPoint(svg, this.point);
-
-    }
-
-    //reverse not supported, never store this action.
-    // reverse(svg)
-    // {
-    //
-    // }
-
-}
 
 
 export class PaperAction {

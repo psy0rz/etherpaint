@@ -37,7 +37,9 @@ export class PaperActionPolyline {
 export class PaperActionRectangle {
     constructor(client, points, attributes) {
         this.element = new SVG().rect().attr(attributes);
-        this.element.move(points[0], points[1]);
+        this.x = points[0];
+        this.y = points[1];
+        this.setxy(points[2], points[3]);
         this.element.node.id = client.getNextId();
         client.action = this;
         // this.client.element.move(points[0], points[1]);
@@ -47,10 +49,31 @@ export class PaperActionRectangle {
         svg.add(this.element);
     }
 
-    addPoint(svg, point) {
+    //annoyingly a rectangle cant have negative width/heights...
+    setxy(x2, y2)
+    {
+        let diff = x2 - this.x;
+        if (diff > 0) {
+            this.element.x(this.x);
+            this.element.width(diff);
+        } else {
+            this.element.x(x2);
+            this.element.width(-diff);
+        }
 
-        this.element.width(point[0]-this.element.x());
-        this.element.height(point[1]);
+        diff = y2 - this.y;
+        if (diff > 0) {
+            this.element.y(this.y);
+            this.element.height(diff);
+        } else {
+            this.element.y(y2);
+            this.element.height(-diff);
+        }
+
+    }
+
+    addPoint(svg, point) {
+        this.setxy(point[0], point[1]);
 
     }
 
@@ -83,7 +106,6 @@ export class PaperActionAddPoint {
     // }
 
 }
-
 
 
 export class PaperAction {

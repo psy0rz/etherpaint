@@ -3,7 +3,7 @@
 //receive actions from server and pass them to paperDraw.js
 
 import {event} from "./messages_generated.js";
-import {PaperAction, PaperActionPolyline, PaperActionRectangle} from "./paperAction.js";
+import { PaperActionPolyline, PaperActionRectangle} from "./paperAction.js";
 
 //maps event classtype number to actual javascript class
 const classTypeMap = [];

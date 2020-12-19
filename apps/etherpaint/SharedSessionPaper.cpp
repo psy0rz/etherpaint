@@ -137,7 +137,7 @@ void SharedSessionPaper::leave(std::shared_ptr<MsgSession> new_msg_session) {
 }
 
 
-void SharedSessionPaper::addDrawIncrement(const event::DrawIncrement *draw_increment) {
+void SharedSessionPaper::addDraw(const event::DrawIncrement *draw_increment) {
     std::unique_lock<std::mutex> lock(msg_builder_mutex);
 
     msg_builder.add_event(
@@ -152,6 +152,30 @@ void SharedSessionPaper::addDrawIncrement(const event::DrawIncrement *draw_incre
                 msg_builder_storage.builder.CreateStruct<event::DrawIncrement>(*draw_increment).Union()
         );
     }
+
+}
+
+void SharedSessionPaper::addDraw(const event::DrawObject *draw_object) {
+    std::unique_lock<std::mutex> lock(msg_builder_mutex);
+
+    auto points=msg_builder.builder.CreateVector(
+            draw_object->points()->data(),
+            draw_object->points()->size()
+    );
+
+    msg_builder.add_event(
+            event::EventUnion::EventUnion_DrawObject,
+            event::CreateDrawObject(
+                    msg_builder.builder,
+                    draw_object->client_id(),
+                    points
+            ).Union()
+    );
+
+//    msg_builder_storage.add_event(
+//            event::EventUnion::EventUnion_DrawObject,
+//            msg_builder_storage.builder.CreateVector<uint16_t>(draw_object->points()->data(),draw_object->points()->size()).Union()
+//    );
 
 }
 
@@ -209,9 +233,8 @@ void SharedSessionPaper::store(const std::shared_ptr<MsgSessionPaper> &end_msg_s
         //move buffer, to minimize locking time
         std::unique_lock<std::mutex> lock(msg_builder_mutex);
 
-        if (msg_builder_storage.empty())
-        {
-            if (end_msg_session_paper!= nullptr) {
+        if (msg_builder_storage.empty()) {
+            if (end_msg_session_paper != nullptr) {
                 end_msg_session_paper->streaming = false; //it missed nothing, so end streaming
 //                DEB("boring END");
 
@@ -223,11 +246,10 @@ void SharedSessionPaper::store(const std::shared_ptr<MsgSessionPaper> &end_msg_s
         *store_buffer = std::move(msg_builder_storage);
 
         //a stream to end?
-        if (end_msg_session_paper!= nullptr)
-        {
+        if (end_msg_session_paper != nullptr) {
             //send the part we missed during streaming and end it
             end_msg_session_paper->enqueue(store_buffer);
-            end_msg_session_paper->streaming=false;
+            end_msg_session_paper->streaming = false;
 //            DEB("buffered END");
         }
     }
@@ -236,7 +258,7 @@ void SharedSessionPaper::store(const std::shared_ptr<MsgSessionPaper> &end_msg_s
     fs.seekp(0, std::ios_base::end);
 
     //write length prefix
-    flatbuffers::uoffset_t buflen=store_buffer->size();
+    flatbuffers::uoffset_t buflen = store_buffer->size();
     fs.write(reinterpret_cast<char *>(&buflen), sizeof(buflen));
 
     //write data
@@ -271,14 +293,14 @@ void SharedSessionPaper::stream_all() {
                     }
                     catch (std::system_error e) {
                         std::stringstream desc;
-                        desc << "IO error while reading data: "
+                        desc << "IO error while reading paper: "
                              << e.code().message() << ": " << std::strerror(errno);
                         msg_session_paper->enqueue_error(desc.str());
                         msg_session_paper->streaming = false;
                     }
                     catch (std::exception e) {
                         std::stringstream desc;
-                        desc << "Exception while reading data: " << e.what();
+                        desc << "Exception while reading paper: " << e.what();
                         msg_session_paper->enqueue_error(desc.str());
                         msg_session_paper->streaming = false;
                     }

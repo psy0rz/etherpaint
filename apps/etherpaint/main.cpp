@@ -45,9 +45,25 @@ int main(const int argc, const char *argv[]) {
         if (draw_increment->client_id() != msg_session_paper->id)
             throw (program_error("Invalid client id"));
 
-        shared_session_paper->addDrawIncrement(draw_increment);
+        shared_session_paper->addDraw(draw_increment);
 
     };
+
+    //DrawObject with list of points
+    handlers[event::EventUnion_DrawObject] = [](const std::shared_ptr<MsgSession> &msg_session, const msg_type &msg,
+                                                   auto event_index) {
+        const auto &msg_session_paper = std::static_pointer_cast<MsgSessionPaper>(msg_session);
+        const auto &shared_session_paper = std::static_pointer_cast<SharedSessionPaper>(msg_session_paper->shared_session);
+
+        const auto draw_object = msg->events()->GetAs<event::DrawObject>(event_index);
+
+        if (draw_object->client_id() != msg_session_paper->id)
+            throw (program_error("Invalid client id"));
+
+        shared_session_paper->addDraw(draw_object);
+
+    };
+
 
     std::thread update_thread(SharedSessionPaper::update_thread);
     std::thread io_thread(SharedSessionPaper::io_thread);

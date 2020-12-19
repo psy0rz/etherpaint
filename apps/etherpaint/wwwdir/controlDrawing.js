@@ -127,6 +127,7 @@ export default class ControlDrawing {
             switch (this.mode) {
                 case Modes.Draw:
                     this.paperSend.drawIncrement(event.IncrementalType.DrawObject, point.x, point.y);
+                    this.points=[point.x, point.y];
                     break;
                 case Modes.Delete:
                     this.deleteSelected();
@@ -159,7 +160,12 @@ export default class ControlDrawing {
         switch (this.mode) {
             case Modes.Draw:
                 if (this.primaryDown)
+                {
                     this.paperSend.drawIncrement(event.IncrementalType.AddPoint, point.x, point.y);
+                    this.points.push(point.x);
+                    this.points.push(point.y);
+                }
+
                 break;
             case Modes.Delete:
                 if (m.target.id !== 'viewer') {
@@ -199,10 +205,10 @@ export default class ControlDrawing {
             return;
 
         if (this.primaryDown) {
-            // if (this.mode === Modes.Draw) {
-            //
-            //     this.paperSend.drawIncrement(event.IncrementalType., point.x, point.y);
-            // }
+            if (this.mode === Modes.Draw) {
+
+                this.paperSend.drawObject(this.points);
+            }
             this.primaryDown = false;
         }
     };

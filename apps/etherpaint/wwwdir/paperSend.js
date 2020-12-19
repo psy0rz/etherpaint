@@ -92,18 +92,6 @@ export default class PaperSend {
     //this is main function that is called from control.js to send actual drawing commands.
     drawIncrement(type, p1, p2, p3) {
 
-        // console.log(type, p1, p2, p3);
-
-        //
-        //
-        // //delete temporary object if there is any
-        // if (type === event.IncrementalType.PointerEnd) {
-        //     if (paper.echo_client.current_element) {
-        //         paper.echo_client.current_element.remove();
-        //         paper.echo_client.current_element = undefined;
-        //     }
-        // }
-
         this.messages.add_event(
             event.EventUnion.DrawIncrement,
             event.DrawIncrement.createDrawIncrement(
@@ -116,8 +104,28 @@ export default class PaperSend {
             ));
 
         // if (test.recording)
-        //     test.record([type, p1, p2, p3]);
+        //     test.record([type, p1, p2, p3]y
         this.scheduleSend();
+
+    }
+
+    //draw object with specified points array
+    drawObject(points) {
+
+        if (points.length)
+        {
+
+
+            this.messages.add_event(
+                event.EventUnion.DrawObject,
+                event.DrawObject.createDrawObject(
+                    this.messages.builder,
+                    this.clientId,
+                    event.DrawObject.createPointsVector(this.messages.builder, points)
+                ));
+
+            this.scheduleSend();
+        }
 
     }
 

@@ -104,7 +104,7 @@ m.restart = function () {
 
         for (let event_index = 0; event_index < events_length; event_index++) {
             let handler = m.handlers[msg.eventsType(event_index)];
-            if (handler) {
+            if (handler!==undefined) {
                 handler(msg, event_index);
             } else {
                 m.log("Handler not found: " + event.EventUnionName[msg.eventsType(event_index)]);

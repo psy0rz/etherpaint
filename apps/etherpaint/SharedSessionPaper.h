@@ -31,7 +31,8 @@ public:
     //basic joining/leaving/drawing stuff
     void join(std::shared_ptr<MsgSession> new_msg_session) override;
     void leave(std::shared_ptr<MsgSession> new_msg_session) override;
-    void addDrawIncrement(const event::DrawIncrement* draw_increment);
+    void addDraw(const event::DrawIncrement* draw_increment);
+    void addDraw(const event::DrawObject* draw_object);
 
 
     inline static bool stop=false;

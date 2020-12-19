@@ -83,7 +83,7 @@ enum IncrementalType:byte
 }
 
 
-/// used for small incremental drawing actions in the scratch path.
+/// draw command, 8 bytes
 struct DrawIncrement
 {
     client_id: uint8;
@@ -95,9 +95,11 @@ struct DrawIncrement
 }
 
 
+//draw object with list of points (usually for polylines)
+//always stored
 table DrawObject
 {
-    clientId: uint8;
+    client_id: uint8;
     points: [uint16];
 }
 

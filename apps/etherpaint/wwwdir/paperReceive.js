@@ -3,7 +3,7 @@
 //receive actions from server and pass them to paperDraw.js
 
 import {event} from "./messages_generated.js";
-import { PaperActionPolyline, PaperActionRectangle} from "./paperAction.js";
+import {PaperActionPolyline, PaperActionRectangle} from "./paperAction.js";
 
 //maps event classtype number to actual javascript class
 const classTypeMap = [];
@@ -31,7 +31,6 @@ export default class PaperReceive {
         //received an incremental draw
         this.messages.handlers[event.EventUnion.DrawIncrement] = (msg, eventIndex) => {
             const drawIncrementEvent = msg.events(eventIndex, new event.DrawIncrement());
-
             const client = this.paperDraw.getClient(drawIncrementEvent.clientId());
 
             switch (drawIncrementEvent.type()) {
@@ -59,6 +58,24 @@ export default class PaperReceive {
             }
 
         }
+
+        //received points to draw an object
+        this.messages.handlers[event.EventUnion.DrawObject] = (msg, eventIndex) => {
+
+            const drawObjectEvent = msg.events(eventIndex, new event.DrawObject());
+            const client = this.paperDraw.getClient(drawObjectEvent.clientId());
+
+            //transform into regular array
+            let points=[];
+            for(const n of drawObjectEvent.pointsArray())
+                points.push(n);
+
+            client.currentAction = new client.Class(
+                client.getNextId(),
+                points,
+                client.attributes);
+            this.paperDraw.addAction(client.currentAction, true);
+        };
 
         //received a cursor event.
         //only store/replace it to handle performance issues gracefully. (e.g. skip updates instead of queue them)

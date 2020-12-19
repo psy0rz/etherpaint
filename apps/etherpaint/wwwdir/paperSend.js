@@ -109,8 +109,49 @@ export default class PaperSend {
         this.scheduleSend();
 
     }
+    selectDrawClass(drawClass) {
+        this.drawIncrement(event.IncrementalType.SelectClass, drawClass,0,0,true);
+        this.selectedClass=drawClass;
 
-    //draw object with specified points array
+    }
+
+    //start temporary realtime updated object of selected draw class.
+    //this will store the points and send a final complete drawObject to the server after calling drawFinish.
+    //this object is also optimized so it has less points, in case of polylines.
+    drawStart(x,y)
+    {
+        this.drawIncrement(event.IncrementalType.DrawObject, x, y,0 ,false);
+        this.points=[x,y];
+    }
+
+    //update with new points. still send as temporary and for animation only. (we store them in this class to send as permanent on finish)
+    drawUpdate(x,y)
+    {
+        this.drawIncrement(event.IncrementalType.AddPoint, x, y,0,false);
+        switch(this.selectedClass)
+        {
+            case event.ClassType.Polyline:
+                this.points.push(x);
+                this.points.push(y);
+                break;
+            case event.ClassType.Rectangle:
+                this.points=[x,y];
+                break;
+        }
+    }
+
+    //transform temporary points in final message.
+    drawFinish()
+    {
+        //TODO: optimize polyline with https://mourner.github.io/simplify-js/
+
+        this.drawIncrement(event.IncrementalType.Cancel, 0, 0,0,false);
+        this.drawObject(this.points);
+        this.points=[];
+
+    }
+
+    //draw object with specified points array (usually send after a drawstart/drawaddpoints/drawfinish cycle)
     drawObject(points) {
 
         if (points.length)
@@ -142,10 +183,6 @@ export default class PaperSend {
        this.send();
     }
 
-    selectDrawClass(drawClass) {
-        this.drawIncrement(event.IncrementalType.SelectClass, drawClass,0,0,true);
-
-    }
 
 
 }

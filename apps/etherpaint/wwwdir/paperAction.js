@@ -94,4 +94,18 @@ export class PaperActionRectangle {
 }
 
 
+export class PaperActionDelete {
+    constructor(element) {
+        this.element = element;
+    }
+
+    draw(svg) {
+        this.element.remove(); //remove from DOM
+    }
+
+    drawReverse(svg) {
+        svg.add(this.element);
+    }
+}
+
 

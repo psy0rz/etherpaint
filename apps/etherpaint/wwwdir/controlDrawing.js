@@ -126,8 +126,7 @@ export default class ControlDrawing {
             this.primaryDown = true;
             switch (this.mode) {
                 case Modes.Draw:
-                    this.paperSend.drawIncrement(event.IncrementalType.DrawObject, point.x, point.y,0, false);
-                    this.points=[point.x, point.y];
+                    this.paperSend.drawStart(point.x, point.y);
                     break;
                 case Modes.Delete:
                     this.deleteSelected();
@@ -159,11 +158,9 @@ export default class ControlDrawing {
         this.paperSend.updateCursor(point.x, point.y);
         switch (this.mode) {
             case Modes.Draw:
-                if (this.primaryDown && )
+                if (this.primaryDown )
                 {
-                    this.paperSend.drawIncrement(event.IncrementalType.AddPoint, point.x, point.y, 0,false);
-                    this.points.push(point.x);
-                    this.points.push(point.y);
+                    this.paperSend.drawUpdate(point.x, point.y);
                 }
 
                 break;
@@ -206,8 +203,7 @@ export default class ControlDrawing {
 
         if (this.primaryDown) {
             if (this.mode === Modes.Draw) {
-
-                this.paperSend.drawObject(this.points);
+                this.paperSend.drawFinish();
             }
             this.primaryDown = false;
         }

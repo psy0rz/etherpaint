@@ -77,7 +77,7 @@ enum IncrementalType:byte
     SelectClass,
     DrawObject,
     AddPoint,
-    EndTmpAction,
+    Cancel,
     Delete,
 
 }

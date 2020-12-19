@@ -3,7 +3,7 @@
 //receive actions from server and pass them to paperDraw.js
 
 import {event} from "./messages_generated.js";
-import {PaperActionPolyline, PaperActionRectangle} from "./paperAction.js";
+import {PaperActionPolyline, PaperActionRectangle, paperActionDelete} from "./paperAction.js";
 
 //maps event classtype number to actual javascript class
 const classTypeMap = [];
@@ -53,6 +53,16 @@ export default class PaperReceive {
                     svgPoint.x = drawIncrementEvent.p1();
                     svgPoint.y = drawIncrementEvent.p2();
                     client.currentAction.addPoint(svgPoint);
+                    this.paperDraw.updatedActions.add(client.currentAction);
+                    break;
+                case event.IncrementalType.Cancel:
+                    this.paperDraw.addAction(new PaperActionDelete(
+                        client.getNextId(),
+                        [drawIncrementEvent.p1(), drawIncrementEvent.p2()],
+                        client.attributes);
+                    this.paperDraw.addAction(client.currentAction, drawIncrementEvent.store());
+
+                    client.currentAction
                     this.paperDraw.updatedActions.add(client.currentAction);
                     break;
             }

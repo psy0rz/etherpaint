@@ -93,7 +93,7 @@ export default class ControlDrawing {
     deleteSelected() {
         for (const e of document.querySelectorAll(".selected")) {
             // e.classList.remove("selected"); //deselect as well (its hidden now)
-            this.paperSend.drawIncrement(event.IncrementalType.Delete, e.id);
+            this.paperSend.drawIncrement(event.IncrementalType.Delete, e.id,0,0,true);
         }
     }
 
@@ -126,7 +126,7 @@ export default class ControlDrawing {
             this.primaryDown = true;
             switch (this.mode) {
                 case Modes.Draw:
-                    this.paperSend.drawIncrement(event.IncrementalType.DrawObject, point.x, point.y);
+                    this.paperSend.drawIncrement(event.IncrementalType.DrawObject, point.x, point.y,0, false);
                     this.points=[point.x, point.y];
                     break;
                 case Modes.Delete:
@@ -159,9 +159,9 @@ export default class ControlDrawing {
         this.paperSend.updateCursor(point.x, point.y);
         switch (this.mode) {
             case Modes.Draw:
-                if (this.primaryDown)
+                if (this.primaryDown && )
                 {
-                    this.paperSend.drawIncrement(event.IncrementalType.AddPoint, point.x, point.y);
+                    this.paperSend.drawIncrement(event.IncrementalType.AddPoint, point.x, point.y, 0,false);
                     this.points.push(point.x);
                     this.points.push(point.y);
                 }

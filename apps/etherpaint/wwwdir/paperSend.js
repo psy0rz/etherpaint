@@ -90,7 +90,7 @@ export default class PaperSend {
     }
 
     //this is main function that is called from control.js to send actual drawing commands.
-    drawIncrement(type, p1, p2, p3) {
+    drawIncrement(type, p1, p2, p3, store) {
 
         this.messages.add_event(
             event.EventUnion.DrawIncrement,
@@ -101,6 +101,7 @@ export default class PaperSend {
                 p1,
                 p2,
                 p3,
+                store
             ));
 
         // if (test.recording)
@@ -142,7 +143,7 @@ export default class PaperSend {
     }
 
     selectDrawClass(drawClass) {
-        this.drawIncrement(event.IncrementalType.SelectClass, drawClass);
+        this.drawIncrement(event.IncrementalType.SelectClass, drawClass,0,0,true);
 
     }
 

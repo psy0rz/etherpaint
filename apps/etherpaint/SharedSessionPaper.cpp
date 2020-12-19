@@ -158,24 +158,30 @@ void SharedSessionPaper::addDraw(const event::DrawIncrement *draw_increment) {
 void SharedSessionPaper::addDraw(const event::DrawObject *draw_object) {
     std::unique_lock<std::mutex> lock(msg_builder_mutex);
 
-    auto points=msg_builder.builder.CreateVector(
-            draw_object->points()->data(),
-            draw_object->points()->size()
-    );
 
     msg_builder.add_event(
             event::EventUnion::EventUnion_DrawObject,
             event::CreateDrawObject(
                     msg_builder.builder,
                     draw_object->client_id(),
-                    points
+                    msg_builder.builder.CreateVector(
+                            draw_object->points()->data(),
+                            draw_object->points()->size()
+                    )
             ).Union()
     );
 
-//    msg_builder_storage.add_event(
-//            event::EventUnion::EventUnion_DrawObject,
-//            msg_builder_storage.builder.CreateVector<uint16_t>(draw_object->points()->data(),draw_object->points()->size()).Union()
-//    );
+    msg_builder_storage.add_event(
+            event::EventUnion::EventUnion_DrawObject,
+            event::CreateDrawObject(
+                    msg_builder_storage.builder,
+                    draw_object->client_id(),
+                    msg_builder_storage.builder.CreateVector(
+                            draw_object->points()->data(),
+                            draw_object->points()->size()
+                    )
+            ).Union()
+    );
 
 }
 

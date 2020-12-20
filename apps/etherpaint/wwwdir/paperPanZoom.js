@@ -7,11 +7,13 @@ import { SVG } from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
 
 export default class PaperPanZoom {
 
-    constructor(viewerElement) {
+    constructor(viewerElement, startedCallback) {
 
         this.viewerElement = viewerElement;
         this.viewerContainer = viewerElement.parentNode;
         this.viewerSvg = SVG(viewerElement);
+
+        this.startedCallback=startedCallback;
 
         this.scrollLeft = 0;
         this.scrollTop = 0;
@@ -22,6 +24,7 @@ export default class PaperPanZoom {
         this.zoomUpdateFactor = 1;
 
         this.animating = false;
+        this.controlling = false;
 
         //calculate default zoom for this screen
         // const zoom_width = 1920;
@@ -35,17 +38,22 @@ export default class PaperPanZoom {
 
 
         this.hammer.on('pinchstart', (ev) => {
+
+            // alert("moi");
+            this.controlling=true;
+            this.startedCallback();
+
             this.lastDeltaX = 0;
             this.lastDeltaY = 0;
             this.lastScale = 1;
 
-            //    cancel current drawing action
-            // this.primaryDown = false;
         });
 
 
         this.hammer.on('pinch', (ev) => {
-            // this.primaryDown = false;
+            this.controlling=true;
+
+
 
             //zoom snap
             let snappedScale;
@@ -66,6 +74,7 @@ export default class PaperPanZoom {
 
         this.hammer.on('pinchend', (ev) => {
             this.setPanVelocity(-ev.velocityX, -ev.velocityY);
+            this.controlling=false;
         });
 
 
@@ -74,7 +83,6 @@ export default class PaperPanZoom {
 
     //change current pan by x and y
     offsetPan(x, y) {
-
         if (x == 0 && y == 0)
             return;
 

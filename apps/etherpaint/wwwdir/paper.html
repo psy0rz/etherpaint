@@ -51,7 +51,6 @@
         import PaperSend from "./paperSend.js";
         import PaperReceive from "./paperReceive.js";
         import ControlDrawing from "./controlDrawing.js";
-        import PaperPanZoom from "./paperPanZoom.js";
 
         // function toggleMenu() {
         //     document.querySelector('#toolmenu').classList.toggle('is-active');
@@ -61,10 +60,7 @@
 
         window.addEventListener('load', (event) => {
 
-            //mobile pan/zoom stuff (for desktop the native browser zoom/pan should be ok)
-            // import PaperPanZoom from "./paperPanZoom.js";
-            // let panzoom=new PaperPanZoom(document.querySelector("#viewer"));
-            let paperPanZoom=new PaperPanZoom(document.querySelector("#viewer"));
+
 
             let paperDraw=new PaperDraw(
                 document.querySelector("#paper"),
@@ -72,25 +68,13 @@
             );
 
             let paperSend=new PaperSend(m);
-            // window.paperSend=paperSend;
-            // window.PaperSend=PaperSend;
-            // window.m=m;
 
             let paperReceive=new PaperReceive(m, paperDraw, paperSend);
 
             let controlDrawing = new ControlDrawing(paperSend);
 
 
-            // paper.start(
-            //     document.querySelector('#viewer'),
-            //     document.querySelector('#paper'),
-            //     document.querySelector("#scratch"),
-            //     document.querySelector("#paper-container"));
-            // control.start(paper);
-            //
-            //
-            //
-            //
+
             // //start websocket messaging:
             m.start(function () {
                 //(re)-connected

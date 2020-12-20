@@ -5,6 +5,7 @@
 
 import {event} from "./messages_generated.js";
 import { SVG } from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
+import PaperPanZoom from "./paperPanZoom.js";
 
 
 const Modes =
@@ -37,6 +38,12 @@ export default class ControlDrawing {
         this.viewerElement.addEventListener('gotpointercapture', function (m) {
             m.target.releasePointerCapture(m.pointerId);
         });
+
+        //mobile pan/zoom stuff (for desktop the native browser zoom/pan should be ok)
+        // import PaperPanZoom from "./paperPanZoom.js";
+        // let panzoom=new PaperPanZoom(document.querySelector("#viewer"));
+       this.paperPanZoom=new PaperPanZoom(this.viewerElement, this.cancel.bind(this));
+
 
         $('.onClick.tool.pointer').on('click', function () {
             self.highlightTool(this);
@@ -106,6 +113,16 @@ export default class ControlDrawing {
         return (point);
     }
 
+    //cancel current action, usually because a pinchzoom is started
+    cancel()
+    {
+        if (this.primaryDown)
+        {
+            this.paperSend.drawCancel();
+            this.primaryDown=false;
+        }
+    }
+
     onPointerDown(m) {
         // m.stopPropagation();
         // m.preventDefault();
@@ -121,7 +138,7 @@ export default class ControlDrawing {
 
         this.paperSend.updateCursor(point.x, point.y);
 
-        if (m.buttons & 1) {
+        if (!this.paperPanZoom.controlling && (m.buttons & 1)) {
             this.primaryDown = true;
             switch (this.mode) {
                 case Modes.Draw:
@@ -206,17 +223,7 @@ export default class ControlDrawing {
     };
 
     onPointerCancel(m) {
-        if (!m.isPrimary)
-            return;
-
-        console.log("CANCEL", m.pageX, m.pageY);
-
-        //calculate action svg paper location
-        const point = this.getSvgPoint(m.pageX, m.pageY);
-
-        // if (this.mode === Modes.Draw) {
-        //     this.paperSend.drawIncrement(event.IncrementalType.PointerCancel, point.x, point.y);
-        // }
+        // this.cancel();
     };
 
 }

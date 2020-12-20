@@ -1,6 +1,5 @@
 'use strict';
 
-import {event} from "./messages_generated.js";
 import {SVG} from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
 
 //apparte action voor ieder drawtype maken?

@@ -3,7 +3,7 @@
 //receive actions from server and pass them to paperDraw.js
 
 import {event} from "./messages_generated.js";
-import {PaperActionPolyline, PaperActionRectangle, paperActionDelete} from "./paperAction.js";
+import {PaperActionPolyline, PaperActionRectangle, PaperActionDelete} from "./paperAction.js";
 
 //maps event classtype number to actual javascript class
 const classTypeMap = [];
@@ -57,13 +57,9 @@ export default class PaperReceive {
                     break;
                 case event.IncrementalType.Cancel:
                     this.paperDraw.addAction(new PaperActionDelete(
-                        client.getNextId(),
-                        [drawIncrementEvent.p1(), drawIncrementEvent.p2()],
-                        client.attributes);
-                    this.paperDraw.addAction(client.currentAction, drawIncrementEvent.store());
-
-                    client.currentAction
-                    this.paperDraw.updatedActions.add(client.currentAction);
+                        client.currentAction.element
+                    ), drawIncrementEvent.store());
+                    client.currentAction=undefined;
                     break;
             }
 
@@ -76,8 +72,8 @@ export default class PaperReceive {
             const client = this.paperDraw.getClient(drawObjectEvent.clientId());
 
             //transform into regular array
-            let points=[];
-            for(const n of drawObjectEvent.pointsArray())
+            let points = [];
+            for (const n of drawObjectEvent.pointsArray())
                 points.push(n);
 
             client.currentAction = new client.Class(

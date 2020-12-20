@@ -135,7 +135,8 @@ export default class PaperSend {
                 this.points.push(y);
                 break;
             case event.ClassType.Rectangle:
-                this.points=[x,y];
+                this.points[2]=x;
+                this.points[3]=y;
                 break;
         }
     }

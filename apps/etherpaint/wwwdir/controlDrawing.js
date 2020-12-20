@@ -95,6 +95,7 @@ export default class ControlDrawing {
             // e.classList.remove("selected"); //deselect as well (its hidden now)
             this.paperSend.drawIncrement(event.IncrementalType.Delete, e.id,0,0,true);
         }
+        this.paperSend.send();
     }
 
     //calculate svg xy point from normal pageXy coords.
@@ -132,6 +133,8 @@ export default class ControlDrawing {
 
             }
         }
+
+        this.paperSend.send();
 
     };
 
@@ -182,6 +185,9 @@ export default class ControlDrawing {
         } else {
             this.onPointerMove_(m);
         }
+
+        //sending it at this point also makes use of coalescing.
+        this.paperSend.send();
     };
 
 
@@ -193,6 +199,7 @@ export default class ControlDrawing {
         if (this.primaryDown) {
             if (this.mode === Modes.Draw) {
                 this.paperSend.drawFinish();
+                this.paperSend.send();
             }
             this.primaryDown = false;
         }

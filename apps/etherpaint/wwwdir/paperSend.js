@@ -74,8 +74,6 @@ export default class PaperSend {
                 this.messages.builder,
                 this.messages.builder.createString(id)
             ));
-        this.send();
-        // this.scheduleSend();
 
     }
 
@@ -90,8 +88,7 @@ export default class PaperSend {
             //     test.record([x, y]);
 
 
-            // this.scheduleSend();
-            this.send();
+
         }
     }
 
@@ -112,7 +109,6 @@ export default class PaperSend {
 
         // if (test.recording)
         //     test.record([type, p1, p2, p3]y
-        // this.scheduleSend();
 
     }
 
@@ -128,7 +124,6 @@ export default class PaperSend {
     drawStart(x,y)
     {
         this.drawIncrement(event.IncrementalType.DrawObject, x, y,0 ,false);
-        this.send();
         this.points=[x,y];
         this.lastX=x;
         this.lastY=y;
@@ -142,7 +137,6 @@ export default class PaperSend {
             this.lastY = y;
 
             this.drawIncrement(event.IncrementalType.AddPoint, x, y, 0, false);
-            this.send();
 
             switch (this.selectedClass) {
                 case event.ClassType.Polyline:
@@ -162,7 +156,6 @@ export default class PaperSend {
     {
         if (this.points.length) {
             this.drawIncrement(event.IncrementalType.Cancel, 0, 0, 0, false);
-            this.send();
             this.points=[];
         }
     }
@@ -176,7 +169,6 @@ export default class PaperSend {
 
         this.drawIncrement(event.IncrementalType.Cancel, 0, 0,0,false);
         this.drawObject(this.points);
-        this.send();
         this.points=[];
 
     }
@@ -196,7 +188,6 @@ export default class PaperSend {
                     event.DrawObject.createPointsVector(this.messages.builder, points)
                 ));
 
-            // this.scheduleSend();
         }
 
     }
@@ -210,7 +201,6 @@ export default class PaperSend {
                 this.clientId,
                 event.DrawObject.createPointsVector(this.messages.builder,[0,0,0,0,0,0])
             ));
-       this.send();
     }
 
 

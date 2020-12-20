@@ -117,8 +117,6 @@ export default class ControlDrawing {
         //calculate action svg paper location
         const point = this.getSvgPoint(m.pageX, m.pageY);
 
-        if (point.x < 0 || point.y < 0)
-            return;
 
         this.paperSend.updateCursor(point.x, point.y);
 
@@ -150,8 +148,6 @@ export default class ControlDrawing {
         //calculate actual svg paper location
         const point = this.getSvgPoint(m.pageX, m.pageY);
 
-        if (point.x < 0 || point.y < 0)
-            return;
 
 
         //update latest cursor location
@@ -193,13 +189,6 @@ export default class ControlDrawing {
         if (!m.isPrimary)
             return;
 
-        // console.log("UP", m.pageX, m.pageY);
-
-        //calculate action svg paper location
-        const point = this.getSvgPoint(m.pageX, m.pageY);
-
-        if (point.x < 0 || point.y < 0)
-            return;
 
         if (this.primaryDown) {
             if (this.mode === Modes.Draw) {
@@ -213,7 +202,7 @@ export default class ControlDrawing {
         if (!m.isPrimary)
             return;
 
-        // console.log("CANCEL", m.pageX, m.pageY);
+        console.log("CANCEL", m.pageX, m.pageY);
 
         //calculate action svg paper location
         const point = this.getSvgPoint(m.pageX, m.pageY);

@@ -19,6 +19,7 @@ export default class PaperSend {
     //send queued stuff and add cursor if we have any
     //only sends if output buffer of websocket is empty
     send() {
+
         this.scheduled = false;
         //buffer empty enough?
         //todo: some kind of smarter throttling
@@ -122,28 +123,46 @@ export default class PaperSend {
     {
         this.drawIncrement(event.IncrementalType.DrawObject, x, y,0 ,false);
         this.points=[x,y];
+        this.lastX=x;
+        this.lastY=y;
     }
 
     //update with new points. still send as temporary and for animation only. (we store them in this class to send as permanent on finish)
     drawUpdate(x,y)
     {
-        this.drawIncrement(event.IncrementalType.AddPoint, x, y,0,false);
-        switch(this.selectedClass)
-        {
-            case event.ClassType.Polyline:
-                this.points.push(x);
-                this.points.push(y);
-                break;
-            case event.ClassType.Rectangle:
-                this.points[2]=x;
-                this.points[3]=y;
-                break;
+        if (x!==this.lastX || y!==this.lastY) {
+            this.lastX = x;
+            this.lastY = y;
+
+            this.drawIncrement(event.IncrementalType.AddPoint, x, y, 0, false);
+
+            switch (this.selectedClass) {
+                case event.ClassType.Polyline:
+                    this.points.push(x);
+                    this.points.push(y);
+                    break;
+                case event.ClassType.Rectangle:
+                    this.points[2] = x;
+                    this.points[3] = y;
+                    break;
+            }
         }
+    }
+
+
+    drawCancel()
+    {
+        if (this.points.length) {
+            this.drawIncrement(event.IncrementalType.Cancel, 0, 0, 0, false);
+            this.points=[];
+2        }
     }
 
     //transform temporary points in final message.
     drawFinish()
     {
+
+
         //TODO: optimize polyline with https://mourner.github.io/simplify-js/
 
         this.drawIncrement(event.IncrementalType.Cancel, 0, 0,0,false);

@@ -20,10 +20,11 @@ export default class PaperSend {
     //only sends if output buffer of websocket is empty
     send() {
 
-        this.scheduled = false;
+        // this.scheduled = false;
         //buffer empty enough?
         //todo: some kind of smarter throttling
-        if (this.messages.ws && this.messages.ws.bufferedAmount === 0) {
+        // if (this.messages.ws && this.messages.ws.bufferedAmount === 0) {
+        if (this.messages.ws ) {
             //anything to send at all?
             if (this.cursorMoved || !this.messages.is_empty()) {
 
@@ -45,18 +46,20 @@ export default class PaperSend {
                 //send all queued stuff
                 this.messages.send();
             }
-        } else {
-            //try again in next frame..
-            this.scheduleSend();
         }
+        // } else {
+        //     //try again l
+        //     this.scheduleSend();
+        // }
     }
 
     //schedule a call to send (if its not already scheduled)
     scheduleSend() {
-        if (!this.scheduled) {
-            this.scheduled = true;
-            setTimeout(this.send.bind(this), 1000 / 60); //within 1 frame of 60fps
-        }
+        // this.send();
+        // if (!this.scheduled) {
+        //     this.scheduled = true;
+        //     setTimeout(this.send.bind(this), 1000 / 60); //within 1 frame of 60fps
+        // }
     }
 
     setClientId(clientId) {
@@ -71,7 +74,8 @@ export default class PaperSend {
                 this.messages.builder,
                 this.messages.builder.createString(id)
             ));
-        this.scheduleSend();
+        this.send();
+        // this.scheduleSend();
 
     }
 
@@ -86,7 +90,8 @@ export default class PaperSend {
             //     test.record([x, y]);
 
 
-            this.scheduleSend();
+            // this.scheduleSend();
+            this.send();
         }
     }
 
@@ -107,9 +112,10 @@ export default class PaperSend {
 
         // if (test.recording)
         //     test.record([type, p1, p2, p3]y
-        this.scheduleSend();
+        // this.scheduleSend();
 
     }
+
     selectDrawClass(drawClass) {
         this.drawIncrement(event.IncrementalType.SelectClass, drawClass,0,0,true);
         this.selectedClass=drawClass;
@@ -122,6 +128,7 @@ export default class PaperSend {
     drawStart(x,y)
     {
         this.drawIncrement(event.IncrementalType.DrawObject, x, y,0 ,false);
+        this.send();
         this.points=[x,y];
         this.lastX=x;
         this.lastY=y;
@@ -135,6 +142,7 @@ export default class PaperSend {
             this.lastY = y;
 
             this.drawIncrement(event.IncrementalType.AddPoint, x, y, 0, false);
+            this.send();
 
             switch (this.selectedClass) {
                 case event.ClassType.Polyline:
@@ -154,8 +162,9 @@ export default class PaperSend {
     {
         if (this.points.length) {
             this.drawIncrement(event.IncrementalType.Cancel, 0, 0, 0, false);
+            this.send();
             this.points=[];
-2        }
+        }
     }
 
     //transform temporary points in final message.
@@ -167,6 +176,7 @@ export default class PaperSend {
 
         this.drawIncrement(event.IncrementalType.Cancel, 0, 0,0,false);
         this.drawObject(this.points);
+        this.send();
         this.points=[];
 
     }
@@ -186,7 +196,7 @@ export default class PaperSend {
                     event.DrawObject.createPointsVector(this.messages.builder, points)
                 ));
 
-            this.scheduleSend();
+            // this.scheduleSend();
         }
 
     }

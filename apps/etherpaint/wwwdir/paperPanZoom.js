@@ -39,7 +39,6 @@ export default class PaperPanZoom {
 
         this.hammer.on('pinchstart', (ev) => {
 
-            // alert("moi");
             this.controlling=true;
             this.startedCallback();
 
@@ -52,8 +51,6 @@ export default class PaperPanZoom {
 
         this.hammer.on('pinch', (ev) => {
             this.controlling=true;
-
-
 
             //zoom snap
             let snappedScale;

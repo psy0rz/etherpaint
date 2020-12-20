@@ -12,6 +12,7 @@ export default class PaperSend {
 
     constructor(messages) {
         this.messages = messages;
+        this.points=[];
 
     }
 

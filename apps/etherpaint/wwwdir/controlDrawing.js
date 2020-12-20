@@ -4,7 +4,7 @@
 
 
 import {event} from "./messages_generated.js";
-import { SVG } from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
+import {SVG} from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
 import PaperPanZoom from "./paperPanZoom.js";
 
 
@@ -42,7 +42,7 @@ export default class ControlDrawing {
         //mobile pan/zoom stuff (for desktop the native browser zoom/pan should be ok)
         // import PaperPanZoom from "./paperPanZoom.js";
         // let panzoom=new PaperPanZoom(document.querySelector("#viewer"));
-       this.paperPanZoom=new PaperPanZoom(this.viewerElement, this.cancel.bind(this));
+        this.paperPanZoom = new PaperPanZoom(this.viewerElement, this.cancel.bind(this));
 
 
         $('.onClick.tool.pointer').on('click', function () {
@@ -100,7 +100,7 @@ export default class ControlDrawing {
     deleteSelected() {
         for (const e of document.querySelectorAll(".selected")) {
             // e.classList.remove("selected"); //deselect as well (its hidden now)
-            this.paperSend.drawIncrement(event.IncrementalType.Delete, e.id,0,0,true);
+            this.paperSend.drawIncrement(event.IncrementalType.Delete, e.id, 0, 0, true);
         }
         this.paperSend.send();
     }
@@ -114,12 +114,11 @@ export default class ControlDrawing {
     }
 
     //cancel current action, usually because a pinchzoom is started
-    cancel()
-    {
-        if (this.primaryDown)
-        {
+    cancel() {
+
+        if (this.primaryDown) {
             this.paperSend.drawCancel();
-            this.primaryDown=false;
+            this.primaryDown = false;
         }
     }
 
@@ -138,7 +137,7 @@ export default class ControlDrawing {
 
         this.paperSend.updateCursor(point.x, point.y);
 
-        if (!this.paperPanZoom.controlling && (m.buttons & 1)) {
+        if ((m.buttons & 1)) {
             this.primaryDown = true;
             switch (this.mode) {
                 case Modes.Draw:
@@ -169,13 +168,11 @@ export default class ControlDrawing {
         const point = this.getSvgPoint(m.pageX, m.pageY);
 
 
-
         //update latest cursor location
         this.paperSend.updateCursor(point.x, point.y);
         switch (this.mode) {
             case Modes.Draw:
-                if (this.primaryDown )
-                {
+                if (this.primaryDown) {
                     this.paperSend.drawUpdate(point.x, point.y);
                 }
 
@@ -223,7 +220,7 @@ export default class ControlDrawing {
     };
 
     onPointerCancel(m) {
-        // this.cancel();
+        this.cancel();
     };
 
 }

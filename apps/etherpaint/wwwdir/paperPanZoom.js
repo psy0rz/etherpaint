@@ -60,6 +60,9 @@ export default class PaperPanZoom {
                 snappedScale = ev.scale;
 
             this.zoomPercentage = this.zoomPercentage / this.lastScale * snappedScale;
+            if (this.zoomPercentage<25)
+                this.zoomPercentage=25;
+
             this.lastScale = snappedScale;
             this.setZoom(this.zoomPercentage / 100, ev.center.x, ev.center.y);
             this.offsetPan(-(ev.deltaX - this.lastDeltaX), -(ev.deltaY - this.lastDeltaY));
@@ -155,7 +158,10 @@ export default class PaperPanZoom {
 
             //actually do the zoom
             this.zoomFactor = this.zoomUpdateFactor;
-            this.viewerSvg.viewbox(0, 0, Math.round(this.viewerElement.scrollWidth / this.zoomFactor), Math.round(this.viewerElement.scrollWidth / this.zoomFactor));
+            const viewboxWidth= Math.round(this.viewerElement.scrollWidth / this.zoomFactor);
+            const viewboxHeight= Math.round(this.viewerElement.scrollHeight / this.zoomFactor);
+
+            this.viewerSvg.viewbox(0, 0, viewboxWidth, viewboxHeight);
 
             //recaclulate new zoomed coordinates of zoom-point
             this.scrollLeft = (origLeft * this.zoomFactor) - this.zoomX;

@@ -124,6 +124,9 @@ export default class PaperSend {
     //this object is also optimized so it has less points, in case of polylines.
     drawStart(x,y)
     {
+        if (x<0 || y<0)
+            return;
+
         this.drawIncrement(event.IncrementalType.DrawObject, x, y,0 ,false);
         this.points=[x,y];
         this.lastX=x;
@@ -133,6 +136,9 @@ export default class PaperSend {
     //update with new points. still send as temporary and for animation only. (we store them in this class to send as permanent on finish)
     drawUpdate(x,y)
     {
+        if (x<0 || y<0)
+            return;
+
         if (x!==this.lastX || y!==this.lastY) {
             this.lastX = x;
             this.lastY = y;

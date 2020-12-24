@@ -3,7 +3,7 @@
 //Handle panning/zooming on mobile
 
 import Hammer from "./node_modules/@egjs/hammerjs/dist/hammer.esm.js";
-import { SVG } from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
+import {SVG} from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
 
 export default class PaperPanZoom {
 
@@ -13,17 +13,19 @@ export default class PaperPanZoom {
         this.viewerContainer = viewerElement.parentNode;
         this.viewerSvg = SVG(viewerElement);
 
-        this.boxSize=3000;
+        this.boxSize = 10000;
         this.viewerSvg.viewbox(0, 0, this.boxSize, this.boxSize);
 
-        this.startedCallback=startedCallback;
+        this.startedCallback = startedCallback;
 
         this.scrollLeft = 0;
         this.scrollTop = 0;
         this.velocityX = 0;
         this.velocityY = 0;
+        this.zoomX = 0;
+        this.zoomY = 0;
 
-        this.zoomFactor = undefined;
+        this.zoomFactor = 2;
         this.zoomUpdateFactor = 1;
 
         this.animating = false;
@@ -32,8 +34,6 @@ export default class PaperPanZoom {
         //calculate default zoom for this screen
         // const zoom_width = 1920;
         // this.zoom_percentage = document.querySelector('#paper-container').clientWidth / zoom_width * 100;
-        this.zoomPercentage = 100;
-//        this.setZoom(this.zoomPercentage / 100, 0, 0);
 
         //pinch zoom/pan
         this.hammer = new Hammer(this.viewerElement, {});
@@ -44,42 +44,41 @@ export default class PaperPanZoom {
 
         this.hammer.on('pinchstart', (ev) => {
 
-            this.controlling=true;
+            this.controlling = true;
             this.startedCallback();
 
             this.lastDeltaX = 0;
             this.lastDeltaY = 0;
-            this.lastScale = 1;
+            this.zoomFactorPinchStart = this.zoomUpdateFactor;
+            this.scrollLeftPinchStart = this.scrollLeft;
+            this.scrollTopPinchStart = this.scrollTop;
 
         });
 
 
         this.hammer.on('pinch', (ev) => {
-            this.controlling=true;
+            this.controlling = true;
 
-            //zoom snap
-            let snappedScale;
-            if (ev.scale > 0.8 && ev.scale < 1.2)
-                snappedScale = 1;
-            else
-                snappedScale = ev.scale;
+            document.getElementById("debug").innerText = ev.center.x;
 
-            this.zoomPercentage = this.zoomPercentage / this.lastScale * snappedScale;
-            if (this.zoomPercentage<25)
-                this.zoomPercentage=25;
 
-            this.lastScale = snappedScale;
-            this.setZoom(this.zoomPercentage / 100, ev.center.x, ev.center.y);
-            this.offsetPan(-(ev.deltaX - this.lastDeltaX), -(ev.deltaY - this.lastDeltaY));
+            this.setZoom(this.zoomFactorPinchStart * ev.scale);
 
-            this.lastDeltaX = ev.deltaX;
-            this.lastDeltaY = ev.deltaY;
+
+
+            const x = this.scrollLeftPinchStart * ev.scale - ev.deltaX + ev.center.x*(ev.scale-1);
+            const y = this.scrollTopPinchStart * ev.scale - ev.deltaY + ev.center.y * (ev.scale-1);
+
+
+
+            this.setPan(x, y);
+
         });
 
 
         this.hammer.on('pinchend', (ev) => {
             this.setPanVelocity(-ev.velocityX, -ev.velocityY);
-            this.controlling=false;
+            this.controlling = false;
         });
 
 
@@ -87,25 +86,10 @@ export default class PaperPanZoom {
 
 
     //change current pan by x and y
-    offsetPan(x, y) {
-        if (x == 0 && y == 0)
-            return;
+    setPan(x, y) {
 
-        //snap
-        // if (this.viewer_element.parentNode.scrollLeft + x < 1)
-        //     this.viewer_element.parentNode.scrollLeft = 0;
-        // else
-        //     this.viewer_element.parentNode.scrollLeft += x;
-        //
-        //
-        // if (this.viewer_element.parentNode.scrollTop + y < 1)
-        //     this.viewer_element.parentNode.scrollTop =0;
-        // else
-        //     this.viewer_element.parentNode.scrollTop += y;
-
-
-        this.scrollLeft += x;
-        this.scrollTop += y;
+        this.scrollLeft = x;
+        this.scrollTop = y;
         this.panning = true;
 
         // console.log(this.scrollTop, this.scrollLeft);
@@ -128,14 +112,12 @@ export default class PaperPanZoom {
     }
 
     //x and y are the center of the zoom
-    setZoom(factor, x, y) {
+    setZoom(factor) {
 
         if (factor === this.zoomUpdateFactor)
             return;
 
         this.zoomUpdateFactor = factor;
-        this.zoomX = x;
-        this.zoomY = y;
 
         this.requestAnimate();
     }
@@ -156,24 +138,22 @@ export default class PaperPanZoom {
         if (this.zoomUpdateFactor !== this.zoomFactor) {
 
             //calculate curerently unzoomed coordinates of zoom-point
-            const origLeft = (this.scrollLeft ) * this.zoomFactor;
-            const origTop = (this.scrollTop ) * this.zoomFactor;
+            // const origLeft = (this.scrollLeft ) * this.zoomFactor;
+            // const origTop = (this.scrollTop ) * this.zoomFactor;
 
-            //actually do the zoom
+            // const zoomDiff=this.zoomUpdateFactor/this.zoomFactor;
             this.zoomFactor = this.zoomUpdateFactor;
 
-            const width= Math.round(this.boxSize * this.zoomFactor);
-            const height= Math.round(this.boxSize * this.zoomFactor);
-
-
-            // this.viewerSvg.viewbox(0, 0, viewboxWidth, viewboxHeight);
-            this.viewerElement.style.width=width;
-            this.viewerElement.style.height=height;
+            //actually do the zoom
+            const width = Math.round(this.boxSize * this.zoomFactor);
+            const height = Math.round(this.boxSize * this.zoomFactor);
+            this.viewerElement.style.width = width;
+            this.viewerElement.style.height = height;
 
             //recaclulate new zoomed coordinates of zoom-point of the container
-           this.scrollLeft = Math.round(origLeft / this.zoomFactor);
-           this.scrollTop = Math.round(origTop / this.zoomFactor );
-  //
+            // this.scrollLeft =  zoomDiff * this.scrollLeft;
+            // this.scrollTop =  zoomDiff * this.scrollTop;
+
         }
 
 
@@ -207,6 +187,9 @@ export default class PaperPanZoom {
         //actual pan execution
         // console.log("SCROLLTO", this.scrollLeft, this.scrollTop);
         this.viewerContainer.scrollTo(Math.round(this.scrollLeft), Math.round(this.scrollTop));
+        //make sure we dont have a too large or small scroll number
+        this.scrollLeft=this.viewerContainer.scrollLeft;
+        this.scrollTop=this.viewerContainer.scrollTop;
 
         //still have velocity?
         if (Math.abs(this.velocityX) >= 1 || Math.abs(this.velocityY) >= 1)

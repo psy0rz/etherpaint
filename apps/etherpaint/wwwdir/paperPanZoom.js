@@ -13,6 +13,9 @@ export default class PaperPanZoom {
         this.viewerContainer = viewerElement.parentNode;
         this.viewerSvg = SVG(viewerElement);
 
+        this.boxSize=3000;
+        this.viewerSvg.viewbox(0, 0, this.boxSize, this.boxSize);
+
         this.startedCallback=startedCallback;
 
         this.scrollLeft = 0;
@@ -20,7 +23,7 @@ export default class PaperPanZoom {
         this.velocityX = 0;
         this.velocityY = 0;
 
-        this.zoomFactor = 1;
+        this.zoomFactor = undefined;
         this.zoomUpdateFactor = 1;
 
         this.animating = false;
@@ -30,11 +33,13 @@ export default class PaperPanZoom {
         // const zoom_width = 1920;
         // this.zoom_percentage = document.querySelector('#paper-container').clientWidth / zoom_width * 100;
         this.zoomPercentage = 100;
-        this.setZoom(this.zoomPercentage / 100, 0, 0);
+//        this.setZoom(this.zoomPercentage / 100, 0, 0);
 
         //pinch zoom/pan
         this.hammer = new Hammer(this.viewerElement, {});
         this.hammer.get('pinch').set({enable: true});
+
+        this.requestAnimate();
 
 
         this.hammer.on('pinchstart', (ev) => {
@@ -125,8 +130,7 @@ export default class PaperPanZoom {
     //x and y are the center of the zoom
     setZoom(factor, x, y) {
 
-        const diff = (factor - this.zoomUpdateFactor);
-        if (diff == 0)
+        if (factor === this.zoomUpdateFactor)
             return;
 
         this.zoomUpdateFactor = factor;
@@ -149,24 +153,27 @@ export default class PaperPanZoom {
         this.animating = false;
 
         //zoom stuff
-        if (this.zoomUpdateFactor != this.zoomFactor) {
-
+        if (this.zoomUpdateFactor !== this.zoomFactor) {
 
             //calculate curerently unzoomed coordinates of zoom-point
-            const origLeft = (this.scrollLeft + this.zoomX) / this.zoomFactor;
-            const origTop = (this.scrollTop + this.zoomY) / this.zoomFactor;
+            const origLeft = (this.scrollLeft ) * this.zoomFactor;
+            const origTop = (this.scrollTop ) * this.zoomFactor;
 
             //actually do the zoom
             this.zoomFactor = this.zoomUpdateFactor;
-            const viewboxWidth= Math.round(this.viewerElement.scrollWidth / this.zoomFactor);
-            const viewboxHeight= Math.round(this.viewerElement.scrollHeight / this.zoomFactor);
 
-            this.viewerSvg.viewbox(0, 0, viewboxWidth, viewboxHeight);
+            const width= Math.round(this.boxSize * this.zoomFactor);
+            const height= Math.round(this.boxSize * this.zoomFactor);
 
-            //recaclulate new zoomed coordinates of zoom-point
-            this.scrollLeft = (origLeft * this.zoomFactor) - this.zoomX;
-            this.scrollTop = (origTop * this.zoomFactor) - this.zoomY;
 
+            // this.viewerSvg.viewbox(0, 0, viewboxWidth, viewboxHeight);
+            this.viewerElement.style.width=width;
+            this.viewerElement.style.height=height;
+
+            //recaclulate new zoomed coordinates of zoom-point of the container
+           this.scrollLeft = Math.round(origLeft / this.zoomFactor);
+           this.scrollTop = Math.round(origTop / this.zoomFactor );
+  //
         }
 
 

@@ -73,6 +73,14 @@ export default class ControlDrawing {
 
         });
 
+        $('.onClick.tool.zoomIn').on('click', function () {
+            self.paperPanZoom.setZoom(self.paperPanZoom.zoomUpdateFactor+0.1, 1000,1000);
+        });
+        $('.onClick.tool.zoomOut').on('click', function () {
+            self.paperPanZoom.setZoom(self.paperPanZoom.zoomUpdateFactor-0.1, 1000 , 1000);
+
+
+        });
     }
 
     highlightTool(e) {

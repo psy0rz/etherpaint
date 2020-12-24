@@ -47,8 +47,6 @@ export default class PaperPanZoom {
             this.controlling = true;
             this.startedCallback();
 
-            this.lastDeltaX = 0;
-            this.lastDeltaY = 0;
             this.zoomFactorPinchStart = this.zoomUpdateFactor;
             this.scrollLeftPinchStart = this.scrollLeft;
             this.scrollTopPinchStart = this.scrollTop;
@@ -59,16 +57,25 @@ export default class PaperPanZoom {
         this.hammer.on('pinch', (ev) => {
             this.controlling = true;
 
-            document.getElementById("debug").innerText = ev.center.x;
+            //scale: the scalefactor of the current pinch action
+            //zoom: the total actual zoom of the paper
+
+            //try to determine minimum scale factor..
+            //(minimum size of the drawing so that there is no whitespace around it)
+            const minSize=Math.max(this.viewerContainer.clientWidth, this.viewerContainer.clientHeight);
+            //(minimum paper zoom factor)
+            const minZoom = minSize/this.boxSize;
+            //(minimum current scale of this pinch action)
+            const minScale = minZoom/this.zoomFactorPinchStart;
 
 
-            this.setZoom(this.zoomFactorPinchStart * ev.scale);
+            const scale=Math.max(minScale, ev.scale);
+
+            this.setZoom(this.zoomFactorPinchStart * scale);
 
 
-
-            const x = this.scrollLeftPinchStart * ev.scale - ev.deltaX + ev.center.x*(ev.scale-1);
-            const y = this.scrollTopPinchStart * ev.scale - ev.deltaY + ev.center.y * (ev.scale-1);
-
+            const x = this.scrollLeftPinchStart * scale - ev.deltaX + ev.center.x * (scale - 1);
+            const y = this.scrollTopPinchStart * scale - ev.deltaY + ev.center.y * (scale - 1);
 
 
             this.setPan(x, y);
@@ -188,8 +195,8 @@ export default class PaperPanZoom {
         // console.log("SCROLLTO", this.scrollLeft, this.scrollTop);
         this.viewerContainer.scrollTo(Math.round(this.scrollLeft), Math.round(this.scrollTop));
         //make sure we dont have a too large or small scroll number
-        this.scrollLeft=this.viewerContainer.scrollLeft;
-        this.scrollTop=this.viewerContainer.scrollTop;
+        this.scrollLeft = this.viewerContainer.scrollLeft;
+        this.scrollTop = this.viewerContainer.scrollTop;
 
         //still have velocity?
         if (Math.abs(this.velocityX) >= 1 || Math.abs(this.velocityY) >= 1)

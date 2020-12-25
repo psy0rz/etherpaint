@@ -62,16 +62,19 @@ export default class PaperPanZoom {
 
             //try to determine minimum scale factor..
             //(minimum size of the drawing so that there is no whitespace around it)
-            const minSize=Math.max(this.viewerContainer.clientWidth, this.viewerContainer.clientHeight);
+            const minSize = Math.max(this.viewerContainer.clientWidth, this.viewerContainer.clientHeight);
             //(minimum paper zoom factor)
-            const minZoom = minSize/this.boxSize;
+            const minZoom = minSize / this.boxSize;
+            const maxZoom = 4;
             //(minimum current scale of this pinch action)
-            const minScale = minZoom/this.zoomFactorPinchStart;
+            const minScale = minZoom / this.zoomFactorPinchStart;
+            const maxScale = maxZoom / this.zoomFactorPinchStart;
 
+            const scale = Math.min(maxScale, Math.max(minScale, ev.scale));
 
-            const scale=Math.max(minScale, ev.scale);
 
             this.setZoom(this.zoomFactorPinchStart * scale);
+            document.getElementById("debug").innerText = this.zoomUpdateFactor;
 
 
             const x = this.scrollLeftPinchStart * scale - ev.deltaX + ev.center.x * (scale - 1);

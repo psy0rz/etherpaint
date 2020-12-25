@@ -25,7 +25,7 @@ export default class PaperPanZoom {
         this.zoomX = 0;
         this.zoomY = 0;
 
-        this.zoomFactor = 2;
+        this.zoomFactor = 2; //force update
         this.zoomUpdateFactor = 1;
 
         this.animating = false;
@@ -146,22 +146,18 @@ export default class PaperPanZoom {
         //zoom stuff
         if (this.zoomUpdateFactor !== this.zoomFactor) {
 
-            //calculate curerently unzoomed coordinates of zoom-point
-            // const origLeft = (this.scrollLeft ) * this.zoomFactor;
-            // const origTop = (this.scrollTop ) * this.zoomFactor;
-
-            // const zoomDiff=this.zoomUpdateFactor/this.zoomFactor;
             this.zoomFactor = this.zoomUpdateFactor;
 
             //actually do the zoom
             const width = Math.round(this.boxSize * this.zoomFactor);
             const height = Math.round(this.boxSize * this.zoomFactor);
-            this.viewerElement.style.width = width;
-            this.viewerElement.style.height = height;
 
-            //recaclulate new zoomed coordinates of zoom-point of the container
-            // this.scrollLeft =  zoomDiff * this.scrollLeft;
-            // this.scrollTop =  zoomDiff * this.scrollTop;
+            // this.viewerElement.style.width = width;
+            // this.viewerElement.style.height = height;
+            //use this, for firefox:
+            this.viewerSvg.width(width);
+            this.viewerSvg.height(height);
+
 
         }
 

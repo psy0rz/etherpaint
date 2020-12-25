@@ -40,8 +40,6 @@ export default class ControlDrawing {
         });
 
         //mobile pan/zoom stuff (for desktop the native browser zoom/pan should be ok)
-        // import PaperPanZoom from "./paperPanZoom.js";
-        // let panzoom=new PaperPanZoom(document.querySelector("#viewer"));
         this.paperPanZoom = new PaperPanZoom(this.viewerElement, this.cancel.bind(this));
 
 
@@ -154,12 +152,13 @@ export default class ControlDrawing {
 
     //de-coalesced pointer moves
     onPointerMove_(m) {
+
+
         if (!m.isPrimary)
             return;
 
 
         // m.stopPropagation();
-//  document.querySelector("#tdebug").innerText=m.target.id;
 
 
         //calculate actual svg paper location
@@ -194,9 +193,8 @@ export default class ControlDrawing {
             for (const coalesced of m.getCoalescedEvents()) {
                 this.onPointerMove_(coalesced);
             }
-        } else {
-            this.onPointerMove_(m);
         }
+        this.onPointerMove_(m);
 
         //sending it at this point also makes use of coalescing.
         this.paperSend.send();

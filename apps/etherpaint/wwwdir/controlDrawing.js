@@ -45,49 +45,39 @@ export default class ControlDrawing {
         this.paperPanZoom = new PaperPanZoom(this.viewerElement, this.cancel.bind(this));
 
 
-        $('.onClick.tool.pointer').on('click', function () {
-            self.highlightTool(this);
+        $('.paper-click.paper-tool.paper-pointer').on('click', function () {
             self.mode = Modes.Point;
         });
 
 
-        $('.onClick.tool.polyline').on('click', function () {
-            self.highlightTool(this);
+        $('.paper-click.paper-tool.paper-polyline').on('click', function () {
             self.mode = Modes.Draw;
             self.paperSend.selectDrawClass(event.ClassType.Polyline);
         });
 
-        $('.onClick.tool.rect').on('click', function () {
-            self.highlightTool(this);
+        $('.paper-click.paper-tool.paper-rect').on('click', function () {
             self.mode = Modes.Draw;
             self.paperSend.selectDrawClass(event.ClassType.Rectangle);
         });
 
-        $('.onClick.tool.delete').on('click', function () {
-            self.highlightTool(this);
+        $('.paper-click.paper-tool.paper-delete').on('click', function () {
             self.mode = Modes.Delete;
         });
 
-        $('.onClick.tool.undo').on('click', function () {
+        $('.paper-click.paper-undo').on('click', function () {
 
 
         });
 
-        $('.onClick.tool.zoomIn').on('click', function () {
-            self.paperPanZoom.setZoom(self.paperPanZoom.zoomUpdateFactor+0.1, 1000,1000);
+        $('.paper-click.paper-zoom-in').on('click', function () {
+            // self.paperPanZoom.setZoom(self.paperPanZoom.zoomUpdateFactor+0.1, 1000,1000);
         });
-        $('.onClick.tool.zoomOut').on('click', function () {
-            self.paperPanZoom.setZoom(self.paperPanZoom.zoomUpdateFactor-0.1, 1000 , 1000);
-
+        $('.paper-click.paper-zoom-out').on('click', function () {
+            // self.paperPanZoom.setZoom(self.paperPanZoom.zoomUpdateFactor-0.1, 1000 , 1000);
 
         });
     }
 
-    highlightTool(e) {
-        //deselect others
-        $('.onClick.tool').removeClass('active');
-        $(e).addClass('active');
-    }
 
     deselectAll() {
         for (const e of document.querySelectorAll(".selected")) {

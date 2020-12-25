@@ -40,6 +40,12 @@
         }
 
 
+        svg * {
+            text-rendering: optimizeSpeed;
+            color-rendering: optimizeSpeed;
+            shape-rendering: optimizeSpeed;
+        }
+
     </style>
   
 
@@ -183,7 +189,7 @@
 <body style="overflow: hidden">
 
 <div id="topbar" class="ui top fixed menu">
-    <span id="debug">debug</span>
+    <span id="debug"></span>
     <div class="item">
         <div class="ui icon buttons tools">
             <div class="ui button onClick tool polyline"><i class="pen icon"></i></div>
@@ -205,6 +211,12 @@
 
             </div>
 
+            <div class="ui basic icon button">
+                <svg style="width:20px; height:10px">
+                    <path d="M 0 0 L20 10 " stroke="#ff0000" stroke-width="2px"></path>
+
+                </svg>
+            </div>
 
         </div>
         <div class="ui icon buttons">
@@ -214,26 +226,12 @@
             <div class="ui button"><i class="history icon"></i></div>
 
         </div>
-        <div class="ui icon buttons">
+<!--        <div class="ui icon buttons">-->
 
-            <div class="ui button onClick tool zoomIn"><i class="search plus icon"></i></div>
-            <div class="ui button onClick tool zoomOut"><i class="search minus icon"></i></div>
+<!--            <div class="ui button onClick tool zoomIn"><i class="search plus icon"></i></div>-->
+<!--            <div class="ui button onClick tool zoomOut"><i class="search minus icon"></i></div>-->
 
-        </div>
-        <div class="ui basic icon button">
-            <svg style="width:20px; height:10px">
-                <path d="M 0 5 L20 5 " stroke="#ff0000" stroke-width="2px"></path>
-
-            </svg>
-
-        </div>
-        <!--                        <div class="ui button"><i class="zoom out icon"></i></div>-->
-
-        <!--        <div class="ui icon buttons">-->
-        <!--                        <div class="ui button"><i class="zoom out icon"></i></div>-->
-        <!--                        <div class="ui  button"><i class="zoom in icon"></i></div>-->
-
-        <!--        </div>-->
+<!--        </div>-->
 
 <!--        <div class="ui icon buttons">-->
 <!--            <div class="ui button" onclick="test.startRecord()"><i class="record icon"></i></div>-->
@@ -342,11 +340,11 @@ margin: 0px;
 
 
         <!-- actual paper -->
-        <svg id="paper" style="color-rendering: optimizeSpeed; ">
+        <svg id="paper" >
         </svg>
 
         <!-- scratch buffer for cursors and objects-in-action -->
-        <svg id="scratch" style="pointer-events: none;">
+        <svg id="scratch" style="pointer-events: none">
         </svg>
 
     </svg>

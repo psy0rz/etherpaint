@@ -74,7 +74,6 @@ export default class PaperPanZoom {
 
 
             this.setZoom(this.zoomFactorPinchStart * scale);
-            document.getElementById("debug").innerText = this.zoomUpdateFactor;
 
 
             const x = this.scrollLeftPinchStart * scale - ev.deltaX + ev.center.x * (scale - 1);

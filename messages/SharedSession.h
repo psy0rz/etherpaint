@@ -25,7 +25,7 @@ protected:
     std::set<std::shared_ptr<MsgSession>> msg_sessions;
 
 public:
-    //NOTE: implement this yourself, so you can return a subclass if needed. link-time implementation.
+    //NOTE: SharedSession factory, implement this yourself, so you can return a subclass if needed. link-time implementation.
     static std::shared_ptr<SharedSession> create(const std::string & id);
 
     // get a shared session by id-string (calls create if it needs to be created)

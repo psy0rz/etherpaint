@@ -38,20 +38,20 @@
 
         let paper_element = document.getElementById("paper");
         let svg = SVG(paper_element);
-
-        let viewer_element = document.getElementById("viewer");
-        let svg_viewer = SVG(viewer_element);
-
-        let paper_container = document.getElementById("paper-container");
+        window.svg=svg;
+        window.paper_element=paper_element
 
         //DRAW
         let start = Date.now();
         let count = 200;
 
         let points = [];
+
+
+
         for (let i = 1; i < count; i++) {
             points = [];
-            for (let p = 1; p < 200; p++) {
+            for (let p = 1; p < 400; p++) {
                 //max segment size:
                 points.push(Math.round(Math.random() * 10000));
             }
@@ -64,66 +64,31 @@
 
         count = 30;
         let prev = undefined;
+        let x=0;
+        let y=0;
 
-        function frame(f) {
+
+        function rndzoompan(f) {
             // let f=Date.now();
             if (f !== undefined && prev !== undefined) {
                 log(Math.round(f - prev) + "mS");
             }
             prev = f;
 
-            //zoom viewbox svg.
-            // chrome desktop: smooth
-            // firefox desktop: horrible, crashes tab
-            // chome mobile: stuttery
-            // fenix mobile: cant test
-            let x = Math.round(Math.random() * 100000) + 2500;
-            let y = Math.round(Math.random() * 100000) + 2500;
-            svg.viewbox(0, 0, x, x);
-
-            //zoom viewbox svg_viewer.
-            // chrome desktop: smooth
-            // firefox desktop: stuttery
-            // chrome mobile: less stuttery
-            // fenix mobile: cant test
-            // let x = Math.round(Math.random() * 100000) + 2500;
-            // let y = Math.round(Math.random() * 100000) + 2500;
-            // svg_viewer.viewbox(0, 0, x, x);
-
-            //zoom element size svg_viewer
-            //chrome desktop: skips frames
-            //firefox desktop: slower
-            //chrome mobile: bad
-            // let x = Math.round(Math.random() * 40000) + 1920;
-            // svg_viewer.width(x);
-            // svg_viewer.height(x);
-
-            //zoom element size svg
-            //chrome desktop: skips frames
-            //firefox desktop: slower
-            // let x = Math.round(Math.random() * 40000) + 1920;
-            // let y;
-            // svg.width(x);
-            // svg.height(x);
-
-
-            //pan
+            //we want to zoom max zoomed out to x4
+            let zoom = Math.round(Math.random() * 0.75*10000 )+ (10000*0.25);
             x = Math.round(Math.random() * 10000);
             y = Math.round(Math.random() * 10000);
-            paper_container.scrollTo(x, y);
+            svg.viewbox(x, y, zoom,zoom);
+
             count--;
             if (count > 0)
-                window.requestAnimationFrame(frame);
-            else {
-                paper_container.scrollTo(0, 0);
-
-            }
+                window.requestAnimationFrame(rndzoompan);
+            else
+                svg.viewbox(0,0,10,10);
         }
 
-        // setInterval(function(){
-        //     window.requestAnimationFrame(frame);
-        // },1000);
-        frame();
+       rndzoompan();
 
     </script>
 
@@ -133,52 +98,21 @@
 
 
 <!-- Your page content here. -->
-<div id="paper-container" style="
-    position:fixed;
+<pre id="log"></pre>
+<svg id="paper" style="
+    position:absolute;
     top:0;
     left:0;
     right:0;
     bottom:0 ;
-    overflow: auto;
+    overflow: hidden;
     user-select: none;
     padding: 0px;
     margin: 0px;
 ">
 
-    <pre id="log"></pre>
-    <!-- viewer, handles mouseevents, zooming and panning -->
-    <svg id="viewer"
-         style="
-                /*position: absolute;*/
-                /*left: 0;*/
-                /*right:0;*/
-                overflow:hidden;
-    touch-action: none;
-      /*scroll-behavior:            auto;*/
-/*overflow-scrolling: touch;*/
+</svg>
 
-user-select: none;
-border-style: solid;
-border-color: #aaaaaa;
-border-width: 5px;
-padding: 0px;
-margin: 0px;
-width:10000px;
-height:10000px;
-                    ">
-
-
-        <!-- actual paper -->
-        <svg id="paper">
-        </svg>
-
-
-    </svg>
-
-</div>
-
-<!--    </div>-->
-<!--</section>-->
 
 
 </body>

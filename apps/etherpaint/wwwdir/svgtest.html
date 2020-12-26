@@ -46,7 +46,7 @@
 
         //DRAW
         let start = Date.now();
-        let count = 20;
+        let count = 200;
 
         let points = [];
         for (let i = 1; i < count; i++) {
@@ -57,39 +57,11 @@
             }
 
 
-            // const x=Math.round(Math.random()*10000);
-            // const y=Math.round(Math.random()*10000);
-            // let p=svg.path('M-10,0 L10,0 M0,-10 L0,10').stroke('black').move(x,y);
             let p = svg.polyline(points).fill('none').stroke('black');
 
         }
-        // log("draw/s: "+Math.round(count/(Date.now()-start)*1000));
 
 
-        // //PAN
-        // start=Date.now();
-        // for (let i=1; i<count; i++)
-        // {
-        //     const x=Math.round(Math.random()*10000);
-        //     const y=Math.round(Math.random()*10000);
-        //     paper_container.scrollTo(x,y);
-        // }
-        // log("pan/s: "+Math.round(count/(Date.now()-start)*1000));
-        // paper_container.scrollTo(0,0);
-        //
-        //
-        // //ZOOM+PAN
-        // start=Date.now();
-        // for (let i=1; i<count; i++)
-        // {
-        //     const x=Math.round(Math.random()*10000);
-        //     const y=Math.round(Math.random()*10000);
-        //     svg_viewer.viewbox(0,0,x,y);
-        //     paper_container.scrollTo(0,0);
-        // }
-        // svg_viewer.viewbox(0,0,10000,10000);
-        // paper_container.scrollTo(0,0);
-        // log("zoompans/s: "+Math.round(count/(Date.now()-start)*1000));
         count = 30;
         let prev = undefined;
 
@@ -100,13 +72,42 @@
             }
             prev = f;
 
-            //zoom in/out
+            //zoom viewbox svg.
+            // chrome desktop: smooth
+            // firefox desktop: horrible, crashes tab
+            // chome mobile: stuttery
+            // fenix mobile: cant test
             let x = Math.round(Math.random() * 100000) + 2500;
             let y = Math.round(Math.random() * 100000) + 2500;
             svg.viewbox(0, 0, x, x);
 
-            //pan
+            //zoom viewbox svg_viewer.
+            // chrome desktop: smooth
+            // firefox desktop: stuttery
+            // chrome mobile: less stuttery
+            // fenix mobile: cant test
+            // let x = Math.round(Math.random() * 100000) + 2500;
+            // let y = Math.round(Math.random() * 100000) + 2500;
+            // svg_viewer.viewbox(0, 0, x, x);
 
+            //zoom element size svg_viewer
+            //chrome desktop: skips frames
+            //firefox desktop: slower
+            //chrome mobile: bad
+            // let x = Math.round(Math.random() * 40000) + 1920;
+            // svg_viewer.width(x);
+            // svg_viewer.height(x);
+
+            //zoom element size svg
+            //chrome desktop: skips frames
+            //firefox desktop: slower
+            // let x = Math.round(Math.random() * 40000) + 1920;
+            // let y;
+            // svg.width(x);
+            // svg.height(x);
+
+
+            //pan
             x = Math.round(Math.random() * 10000);
             y = Math.round(Math.random() * 10000);
             paper_container.scrollTo(x, y);
@@ -166,32 +167,11 @@ width:10000px;
 height:10000px;
                     ">
 
-        <!-- grid background -->
-        <!--        <svg style="pointer-events: none;">-->
-        <!--                        &lt;!&ndash; the grid&ndash;&gt;-->
-        <!--                        <defs>-->
-        <!--                            <pattern id="grid-pattern" width="250" height="250" patternUnits="userSpaceOnUse">-->
-        <!--                                <path d="M 0 50 L 250 50 M 50 0 L 50 250 M 0 100 L 250 100 M 100 0 L 100 250 M 0 150 L 250 150 M 150 0 L 150 250 M 0 200 L 250 200 M 200 0 L 200 250"-->
-        <!--                                      fill="none" stroke="#eeeeee" stroke-width="1"></path>-->
-        <!--                                <path d="M 250 0 L 0 0 0 250" fill="none" stroke="#aaaaaa" stroke-width="1"></path>-->
-        <!--                            </pattern>-->
-        <!--                        </defs>-->
-        <!--                        <rect width="100%" height="100%" fill="url(#grid-pattern)"></rect>-->
-
-        <!--            &lt;!&ndash; left upper "fold"&ndash;&gt;-->
-        <!--            <path d="M 0 0 L45 0 L0 45 "></path>-->
-        <!--            <path d="M 0 0 L45 0 L0 45 " fill="#aaaaaa"></path>-->
-        <!--            <path d="M 0 45 L45 45 L45 0" stroke="#444444" fill="none"></path>-->
-        <!--        </svg>-->
-
 
         <!-- actual paper -->
         <svg id="paper">
         </svg>
 
-        <!--        &lt;!&ndash; scratch buffer for cursors and objects-in-action &ndash;&gt;-->
-        <!--        <svg id="scratch" style="pointer-events: none">-->
-        <!--        </svg>-->
 
     </svg>
 

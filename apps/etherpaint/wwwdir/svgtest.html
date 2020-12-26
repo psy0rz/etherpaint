@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <!--    <meta name="viewport" content="width=device-width, initial-scale=1">-->
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!-- external frameworks -->
+
+    <script src="./node_modules/jquery/dist/jquery.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.0/dist/svg.min.js"></script>
+
+
+    <style>
+        .selected {
+            stroke: blue;
+            stroke-dasharray: 10 5 1 5;
+        }
+
+
+        svg * {
+            text-rendering: optimizeSpeed;
+            color-rendering: optimizeSpeed;
+            shape-rendering: optimizeSpeed;
+        }
+
+    </style>
+
+
+    <script type="module">
+
+
+        function log(txt) {
+            document.getElementById("log").innerText += (txt + "\n");
+        }
+
+        let paper_element = document.getElementById("paper");
+        let svg = SVG(paper_element);
+
+        let viewer_element = document.getElementById("viewer");
+        let svg_viewer = SVG(viewer_element);
+
+        let paper_container = document.getElementById("paper-container");
+
+        //DRAW
+        let start = Date.now();
+        let count = 20;
+
+        let points = [];
+        for (let i = 1; i < count; i++) {
+            points = [];
+            for (let p = 1; p < 200; p++) {
+                //max segment size:
+                points.push(Math.round(Math.random() * 10000));
+            }
+
+
+            // const x=Math.round(Math.random()*10000);
+            // const y=Math.round(Math.random()*10000);
+            // let p=svg.path('M-10,0 L10,0 M0,-10 L0,10').stroke('black').move(x,y);
+            let p = svg.polyline(points).fill('none').stroke('black');
+
+        }
+        // log("draw/s: "+Math.round(count/(Date.now()-start)*1000));
+
+
+        // //PAN
+        // start=Date.now();
+        // for (let i=1; i<count; i++)
+        // {
+        //     const x=Math.round(Math.random()*10000);
+        //     const y=Math.round(Math.random()*10000);
+        //     paper_container.scrollTo(x,y);
+        // }
+        // log("pan/s: "+Math.round(count/(Date.now()-start)*1000));
+        // paper_container.scrollTo(0,0);
+        //
+        //
+        // //ZOOM+PAN
+        // start=Date.now();
+        // for (let i=1; i<count; i++)
+        // {
+        //     const x=Math.round(Math.random()*10000);
+        //     const y=Math.round(Math.random()*10000);
+        //     svg_viewer.viewbox(0,0,x,y);
+        //     paper_container.scrollTo(0,0);
+        // }
+        // svg_viewer.viewbox(0,0,10000,10000);
+        // paper_container.scrollTo(0,0);
+        // log("zoompans/s: "+Math.round(count/(Date.now()-start)*1000));
+        count = 30;
+        let prev = undefined;
+
+        function frame(f) {
+            // let f=Date.now();
+            if (f !== undefined && prev !== undefined) {
+                log(Math.round(f - prev) + "mS");
+            }
+            prev = f;
+
+            //zoom in/out
+            let x = Math.round(Math.random() * 100000) + 2500;
+            let y = Math.round(Math.random() * 100000) + 2500;
+            svg.viewbox(0, 0, x, x);
+
+            //pan
+
+            x = Math.round(Math.random() * 10000);
+            y = Math.round(Math.random() * 10000);
+            paper_container.scrollTo(x, y);
+            count--;
+            if (count > 0)
+                window.requestAnimationFrame(frame);
+            else {
+                paper_container.scrollTo(0, 0);
+
+            }
+        }
+
+        // setInterval(function(){
+        //     window.requestAnimationFrame(frame);
+        // },1000);
+        frame();
+
+    </script>
+
+
+</head>
+<body style="overflow: hidden">
+
+
+<!-- Your page content here. -->
+<div id="paper-container" style="
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0 ;
+    overflow: auto;
+    user-select: none;
+    padding: 0px;
+    margin: 0px;
+">
+
+    <pre id="log"></pre>
+    <!-- viewer, handles mouseevents, zooming and panning -->
+    <svg id="viewer"
+         style="
+                /*position: absolute;*/
+                /*left: 0;*/
+                /*right:0;*/
+                overflow:hidden;
+    touch-action: none;
+      /*scroll-behavior:            auto;*/
+/*overflow-scrolling: touch;*/
+
+user-select: none;
+border-style: solid;
+border-color: #aaaaaa;
+border-width: 5px;
+padding: 0px;
+margin: 0px;
+width:10000px;
+height:10000px;
+                    ">
+
+        <!-- grid background -->
+        <!--        <svg style="pointer-events: none;">-->
+        <!--                        &lt;!&ndash; the grid&ndash;&gt;-->
+        <!--                        <defs>-->
+        <!--                            <pattern id="grid-pattern" width="250" height="250" patternUnits="userSpaceOnUse">-->
+        <!--                                <path d="M 0 50 L 250 50 M 50 0 L 50 250 M 0 100 L 250 100 M 100 0 L 100 250 M 0 150 L 250 150 M 150 0 L 150 250 M 0 200 L 250 200 M 200 0 L 200 250"-->
+        <!--                                      fill="none" stroke="#eeeeee" stroke-width="1"></path>-->
+        <!--                                <path d="M 250 0 L 0 0 0 250" fill="none" stroke="#aaaaaa" stroke-width="1"></path>-->
+        <!--                            </pattern>-->
+        <!--                        </defs>-->
+        <!--                        <rect width="100%" height="100%" fill="url(#grid-pattern)"></rect>-->
+
+        <!--            &lt;!&ndash; left upper "fold"&ndash;&gt;-->
+        <!--            <path d="M 0 0 L45 0 L0 45 "></path>-->
+        <!--            <path d="M 0 0 L45 0 L0 45 " fill="#aaaaaa"></path>-->
+        <!--            <path d="M 0 45 L45 45 L45 0" stroke="#444444" fill="none"></path>-->
+        <!--        </svg>-->
+
+
+        <!-- actual paper -->
+        <svg id="paper">
+        </svg>
+
+        <!--        &lt;!&ndash; scratch buffer for cursors and objects-in-action &ndash;&gt;-->
+        <!--        <svg id="scratch" style="pointer-events: none">-->
+        <!--        </svg>-->
+
+    </svg>
+
+</div>
+
+<!--    </div>-->
+<!--</section>-->
+
+
+</body>
+
+</html>

@@ -12,8 +12,12 @@ export default class ControlUI {
             self.highlightTool(this);
         })
 
+        $('.paper-attribute-dropdown').dropdown({
 
-        //make sure paper starts after toolbar
+        });
+
+
+            //make sure paper starts after toolbar
         document.querySelector('#paper-container').style.top = document.querySelector("#topbar").offsetHeight + "px";
 
     }

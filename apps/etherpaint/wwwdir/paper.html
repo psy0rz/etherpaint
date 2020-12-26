@@ -32,12 +32,12 @@
         }
 
     </style>
-  
+
 
     <script type="module">
 
 
-        import { m } from "./messages.js";
+        import {m} from "./messages.js";
         import PaperDraw from "./paperDraw.js";
         import PaperSend from "./paperSend.js";
         import PaperReceive from "./paperReceive.js";
@@ -55,19 +55,18 @@
         window.addEventListener('load', (event) => {
 
 
-            let paperDraw=new PaperDraw(
+            let paperDraw = new PaperDraw(
                 document.querySelector("#paper"),
                 document.querySelector("#scratch")
             );
 
-            let paperSend=new PaperSend(m);
+            let paperSend = new PaperSend(m);
 
-            let paperReceive=new PaperReceive(m, paperDraw, paperSend);
+            let paperReceive = new PaperReceive(m, paperDraw, paperSend);
 
             let controlDrawing = new ControlDrawing(paperSend);
 
             let controlUI = new ControlUI();
-
 
 
             // //start websocket messaging:
@@ -76,10 +75,6 @@
                 paperSend.join(document.location.search);
                 paperSend.send();
             });
-
-
-
-
 
 
         })
@@ -99,13 +94,16 @@
 
             <div class="ui button paper-click paper-tool delete"><i class="eraser icon"></i></div>
 
-            <div class="ui button paper-hidable-tool paper-click paper-tool paper-pointer" id="tool-pointer" title="Pointer"><i
+            <div class="ui button paper-hidable-tool paper-click paper-tool paper-pointer" id="tool-pointer"
+                 title="Pointer"><i
                     class="mouse pointer icon"></i>
             </div>
-            <div class="ui button paper-hidable-tool paper-click paper-tool paper-rect" id="tool-rectangle" title="Rectangle"><i
+            <div class="ui button paper-hidable-tool paper-click paper-tool paper-rect" id="tool-rectangle"
+                 title="Rectangle"><i
                     class="square outline icon"></i></div>
 
-            <div class="ui button paper-hidable-tool paper-click paper-tool paper-circle" id="tool-circle" title="Circle"><i class="circle outline icon"></i>
+            <div class="ui button paper-hidable-tool paper-click paper-tool paper-circle" id="tool-circle"
+                 title="Circle"><i class="circle outline icon"></i>
             </div>
             <div class="ui button paper-hidable-tool" id="tool-image" title='Image'><i class="image icon"></i></div>
 
@@ -119,7 +117,13 @@
                     <path d="M 0 0 L20 10 " stroke="#ff0000" stroke-width="2px"></path>
 
                 </svg>
+<!--                <div class="menu">-->
+<!--                    <div class="item">-->
+<!--                        sadf-->
+<!--                    </div>-->
+<!--                </div>-->
             </div>
+
 
         </div>
         <div class="ui icon buttons">
@@ -129,18 +133,18 @@
             <div class="ui button"><i class="history icon"></i></div>
 
         </div>
-<!--        <div class="ui icon buttons">-->
+        <!--        <div class="ui icon buttons">-->
 
-<!--            <div class="ui button paper-click paper-tool zoomIn"><i class="search plus icon"></i></div>-->
-<!--            <div class="ui button paper-click paper-tool zoomOut"><i class="search minus icon"></i></div>-->
+        <!--            <div class="ui button paper-click paper-tool zoomIn"><i class="search plus icon"></i></div>-->
+        <!--            <div class="ui button paper-click paper-tool zoomOut"><i class="search minus icon"></i></div>-->
 
-<!--        </div>-->
+        <!--        </div>-->
 
-<!--        <div class="ui icon buttons">-->
-<!--            <div class="ui button" paper-click="test.startRecord()"><i class="record icon"></i></div>-->
-<!--            <div class="ui button" paper-click="test.stop()"><i class="stop icon"></i></div>-->
-<!--            <div class="ui button" paper-click="test.startPlayback()"><i class="play icon"></i></div>-->
-<!--        </div>-->
+        <!--        <div class="ui icon buttons">-->
+        <!--            <div class="ui button" paper-click="test.startRecord()"><i class="record icon"></i></div>-->
+        <!--            <div class="ui button" paper-click="test.stop()"><i class="stop icon"></i></div>-->
+        <!--            <div class="ui button" paper-click="test.startPlayback()"><i class="play icon"></i></div>-->
+        <!--        </div>-->
     </div>
 </div>
 
@@ -157,7 +161,6 @@
     padding: 0px;
     margin: 0px;
 ">
-
 
 
     <!-- viewer, handles mouseevents, zooming and panning -->
@@ -183,15 +186,15 @@ margin: 0px;
 
         <!-- grid background -->
         <svg style="pointer-events: none;">
-<!--            &lt;!&ndash; the grid&ndash;&gt;-->
-<!--            <defs>-->
-<!--                <pattern id="grid-pattern" width="250" height="250" patternUnits="userSpaceOnUse">-->
-<!--                    <path d="M 0 50 L 250 50 M 50 0 L 50 250 M 0 100 L 250 100 M 100 0 L 100 250 M 0 150 L 250 150 M 150 0 L 150 250 M 0 200 L 250 200 M 200 0 L 200 250"-->
-<!--                          fill="none" stroke="#eeeeee" stroke-width="1"></path>-->
-<!--                    <path d="M 250 0 L 0 0 0 250" fill="none" stroke="#aaaaaa" stroke-width="1"></path>-->
-<!--                </pattern>-->
-<!--            </defs>-->
-<!--            <rect width="100%" height="100%" fill="url(#grid-pattern)"></rect>-->
+            <!--            &lt;!&ndash; the grid&ndash;&gt;-->
+            <!--            <defs>-->
+            <!--                <pattern id="grid-pattern" width="250" height="250" patternUnits="userSpaceOnUse">-->
+            <!--                    <path d="M 0 50 L 250 50 M 50 0 L 50 250 M 0 100 L 250 100 M 100 0 L 100 250 M 0 150 L 250 150 M 150 0 L 150 250 M 0 200 L 250 200 M 200 0 L 200 250"-->
+            <!--                          fill="none" stroke="#eeeeee" stroke-width="1"></path>-->
+            <!--                    <path d="M 250 0 L 0 0 0 250" fill="none" stroke="#aaaaaa" stroke-width="1"></path>-->
+            <!--                </pattern>-->
+            <!--            </defs>-->
+            <!--            <rect width="100%" height="100%" fill="url(#grid-pattern)"></rect>-->
 
             <!-- left upper "fold"-->
             <path d="M 0 0 L45 0 L0 45 "></path>
@@ -201,7 +204,7 @@ margin: 0px;
 
 
         <!-- actual paper -->
-        <svg id="paper" >
+        <svg id="paper">
         </svg>
 
         <!-- scratch buffer for cursors and objects-in-action -->

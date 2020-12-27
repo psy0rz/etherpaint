@@ -52,37 +52,18 @@ export default class PaperPanZoom {
         this.hammer.on('pinch', (ev) => {
             this.controlling = true;
 
-            //scale: the scalefactor of the current pinch action
-            //zoom: the total actual zoom of the paper
+            let scale;
+            if (Math.abs(ev.scale - 1) > 0.25)
+                scale = ev.scale;
+            else
+                scale = 1;
 
-            //try to determine minimum scale factor..
-            //(minimum size of the drawing so that there is no whitespace around it)
-            // const minSize = Math.max(this.viewerContainer.clientWidth, this.viewerContainer.clientHeight);
-            // //(minimum paper zoom factor)
-            // const minZoom = minSize / this.boxSize;
-            // const maxZoom = 4;
-            // //(minimum current scale of this pinch action)
-            // const minScale = minZoom / this.zoomFactorPinchStart;
-            // const maxScale = maxZoom / this.zoomFactorPinchStart;
-            //
-            // // const scale = Math.min(maxScale, Math.max(minScale, ev.scale));
-            // const scale=ev.scale;
-
-            const scale = ev.scale;
-
-//            if (Math.abs(scale - 1) > 0.5) {
             const newFactor = this.zoomFactorPinchStart * scale;
             this.setZoom(newFactor);
-            //          }
 
 
             const left = this.scrollLeftPinchStart - (ev.deltaX - ev.center.x * (scale - 1)) / newFactor;
             const top = this.scrollTopPinchStart - (ev.deltaY - ev.center.y * (scale - 1)) / newFactor;
-            // const x = this.scrollLeftPinchStart * scale - ev.deltaX + ev.center.x * (scale - 1);
-            // const y = this.scrollTopPinchStart * scale - ev.deltaY + ev.center.y * (scale - 1);
-
-            // const x = this.scrollLeftPinchStart - ev.deltaX*zoom ;
-            // const y = this.scrollTopPinchStart - ev.deltaY*zoom;
 
             this.setPan(left, top);
 
@@ -101,17 +82,20 @@ export default class PaperPanZoom {
     //change current pan by x and y
     setPan(x, y) {
 
-        this.scrollLeft = x;
-        this.scrollTop = y;
+        if (x >= 0)
+            this.scrollLeft = x;
+        else
+            this.scrollLeft = 0;
+
+        if (y >= 0)
+            this.scrollTop = y;
+        else
+            this.scrollTop = 0;
+
         this.panning = true;
-
-        // console.log(this.scrollTop, this.scrollLeft);
-        // this.velocityX = 0;
-        // this.velocityY = 0;
-
         this.requestAnimate();
-
     }
+
 
     //in pixel/ms
     setPanVelocity(x, y) {
@@ -130,10 +114,9 @@ export default class PaperPanZoom {
 
 
         this.panning = true;
-
         this.requestAnimate();
-
     }
+
 
     //x and y are the center of the zoom
     setZoom(factor) {
@@ -156,7 +139,7 @@ export default class PaperPanZoom {
     calcV(Vprev, delta_t) {
 
 
-        const a=0.005/this.zoomFactor;
+        const a = 0.005 / this.zoomFactor;
 
         const deltaV = a * delta_t;
 
@@ -174,23 +157,20 @@ export default class PaperPanZoom {
     //handle pinch zoom/panning on mobile
     //much more complicated than you would have hoped :)
     animate() {
-        this.animating = false;
         const now = Date.now();
 
         //calculate velocity panning (flinging)
         if (this.lastFrame != null) {
             const delta_t = now - this.lastFrame;
 
-            this.scrollLeft = this.scrollLeft + this.velocityX * delta_t;
-            this.scrollTop = this.scrollTop + this.velocityY * delta_t;
+            this.setPan(this.scrollLeft + this.velocityX * delta_t,
+                this.scrollTop + this.velocityY * delta_t);
 
             this.velocityX = this.calcV(this.velocityX, delta_t);
             this.velocityY = this.calcV(this.velocityY, delta_t);
-
         }
 
-
-        //actuall do the zoom/pan
+        //actual do the zoom/pan
         const sizeWidth = Math.round(this.containerElement.clientWidth / this.zoomFactor);
         const sizeHeight = Math.round(this.containerElement.clientHeight / this.zoomFactor);
 
@@ -199,8 +179,9 @@ export default class PaperPanZoom {
         this.paperSvg.viewbox(scrollLeft, scrollTop, sizeWidth, sizeHeight);
         this.scratchSvg.viewbox(scrollLeft, scrollTop, sizeWidth, sizeHeight);
 
-        //still have velocity?
-        if (this.velocityX != 0 || this.velocityY != 0) {
+        //still have velocity or stop animating?
+        this.animating = false;
+        if (this.velocityX !== 0 || this.velocityY !== 0) {
             this.lastFrame = now;
             this.requestAnimate();
         } else {

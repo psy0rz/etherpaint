@@ -70,11 +70,10 @@ export default class PaperPanZoom {
 
             const scale = ev.scale;
 
-            // if (Math.abs(scale - 1) > 0.5) {
-            // const newFactor = this.zoomFactorPinchStart * scale;
-            // this.setZoom(newFactor);
-            const newFactor = this.zoomFactorPinchStart;
-            // }
+//            if (Math.abs(scale - 1) > 0.5) {
+            const newFactor = this.zoomFactorPinchStart * scale;
+            this.setZoom(newFactor);
+            //          }
 
 
             const left = this.scrollLeftPinchStart - (ev.deltaX - ev.center.x * (scale - 1)) / newFactor;
@@ -91,7 +90,7 @@ export default class PaperPanZoom {
 
 
         this.hammer.on('pinchend', (ev) => {
-            this.setPanVelocity(-ev.velocityX, -ev.velocityY);
+            this.setPanVelocity(-ev.velocityX / this.zoomFactor, -ev.velocityY / this.zoomFactor);
             this.controlling = false;
         });
 
@@ -117,17 +116,17 @@ export default class PaperPanZoom {
     //in pixel/ms
     setPanVelocity(x, y) {
 
-        if ((x>0 && this.velocityX>0) ||
-            (x<0 && this.velocityX<0))
+        if ((x > 0 && this.velocityX > 0) ||
+            (x < 0 && this.velocityX < 0))
             this.velocityX = this.velocityX + x;
         else
-            this.velocityX=x;
+            this.velocityX = x;
 
-        if ((y>0 && this.velocityY>0) ||
-            (y<0 && this.velocityY<0))
+        if ((y > 0 && this.velocityY > 0) ||
+            (y < 0 && this.velocityY < 0))
             this.velocityY = this.velocityY + y;
         else
-            this.velocityY=y;
+            this.velocityY = y;
 
 
         this.panning = true;
@@ -206,8 +205,6 @@ export default class PaperPanZoom {
         } else {
             this.lastFrame = null;
         }
-
-
     }
 
 }

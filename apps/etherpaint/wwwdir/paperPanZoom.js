@@ -153,28 +153,29 @@ export default class PaperPanZoom {
         }
     }
 
+    calcV(Vprev, delta_t) {
+
+
+        const a=0.005/this.zoomFactor;
+
+        const deltaV = a * delta_t;
+
+        //overshoot/finished
+        if (deltaV >= Math.abs(Vprev))
+            return (0)
+
+        if (Vprev > 0)
+            return (Vprev - deltaV)
+        else
+            return (Vprev + deltaV)
+    }
+
+
     //handle pinch zoom/panning on mobile
     //much more complicated than you would have hoped :)
     animate() {
         this.animating = false;
         const now = Date.now();
-
-        const a = 0.005;
-
-
-        function calcV(Vprev, delta_t) {
-            const deltaV = a * delta_t;
-
-            //overshoot/finished
-            if (deltaV >= Math.abs(Vprev))
-                return (0)
-
-            if (Vprev > 0)
-                return (Vprev - deltaV)
-            else
-                return (Vprev + deltaV)
-        }
-
 
         //calculate velocity panning (flinging)
         if (this.lastFrame != null) {
@@ -183,8 +184,8 @@ export default class PaperPanZoom {
             this.scrollLeft = this.scrollLeft + this.velocityX * delta_t;
             this.scrollTop = this.scrollTop + this.velocityY * delta_t;
 
-            this.velocityX = calcV(this.velocityX, delta_t);
-            this.velocityY = calcV(this.velocityY, delta_t);
+            this.velocityX = this.calcV(this.velocityX, delta_t);
+            this.velocityY = this.calcV(this.velocityY, delta_t);
 
         }
 

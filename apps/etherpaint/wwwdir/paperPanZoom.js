@@ -9,9 +9,9 @@ export default class PaperPanZoom {
 
     constructor(containerElement, paperElement, scratchElement, startedCallback) {
 
-        this.containerElement =containerElement;
+        this.containerElement = containerElement;
         this.paperElement = paperElement;
-        this.scratchElement= scratchElement;
+        this.scratchElement = scratchElement;
 
         this.paperSvg = SVG(paperElement);
         this.scratchSvg = SVG(scratchElement);
@@ -22,6 +22,7 @@ export default class PaperPanZoom {
         this.scrollTop = 0;
         this.velocityX = 0;
         this.velocityY = 0;
+        this.lastFrame = null;
 
         this.zoomFactor = 0.5;
 
@@ -70,13 +71,14 @@ export default class PaperPanZoom {
             const scale = ev.scale;
 
             // if (Math.abs(scale - 1) > 0.5) {
-                const newFactor = this.zoomFactorPinchStart * scale;
-                this.setZoom(newFactor);
+            // const newFactor = this.zoomFactorPinchStart * scale;
+            // this.setZoom(newFactor);
+            const newFactor = this.zoomFactorPinchStart;
             // }
 
 
-            const left= this.scrollLeftPinchStart - (ev.deltaX - ev.center.x*(scale-1)) / newFactor;
-            const top= this.scrollTopPinchStart - (ev.deltaY - ev.center.y*(scale-1))  / newFactor;
+            const left = this.scrollLeftPinchStart - (ev.deltaX - ev.center.x * (scale - 1)) / newFactor;
+            const top = this.scrollTopPinchStart - (ev.deltaY - ev.center.y * (scale - 1)) / newFactor;
             // const x = this.scrollLeftPinchStart * scale - ev.deltaX + ev.center.x * (scale - 1);
             // const y = this.scrollTopPinchStart * scale - ev.deltaY + ev.center.y * (scale - 1);
 
@@ -105,8 +107,8 @@ export default class PaperPanZoom {
         this.panning = true;
 
         // console.log(this.scrollTop, this.scrollLeft);
-        this.velocityX = 0;
-        this.velocityY = 0;
+        // this.velocityX = 0;
+        // this.velocityY = 0;
 
         this.requestAnimate();
 
@@ -115,8 +117,19 @@ export default class PaperPanZoom {
     //in pixel/ms
     setPanVelocity(x, y) {
 
-        this.velocityX = x * 17; //1000ms/60fps
-        this.velocityY = y * 17;
+        if ((x>0 && this.velocityX>0) ||
+            (x<0 && this.velocityX<0))
+            this.velocityX = this.velocityX + x;
+        else
+            this.velocityX=x;
+
+        if ((y>0 && this.velocityY>0) ||
+            (y<0 && this.velocityY<0))
+            this.velocityY = this.velocityY + y;
+        else
+            this.velocityY=y;
+
+
         this.panning = true;
 
         this.requestAnimate();
@@ -145,84 +158,54 @@ export default class PaperPanZoom {
     //much more complicated than you would have hoped :)
     animate() {
         this.animating = false;
+        const now = Date.now();
 
-        //zoom stuff
-        // this.zoomFactor = this.zoomUpdateFactor;
-        // if (this.zoomUpdateFactor !== this.zoomFactor) {
-        //
-        //
-        //     //actually do the zoom
-        //     const width = Math.round(this.boxSize * this.zoomFactor);
-        //     const height = Math.round(this.boxSize * this.zoomFactor);
-        //
-        //     // this.viewerElement.style.width = width;
-        //     // this.viewerElement.style.height = height;
-        //     //use this, for firefox:\
-        //
-        //
-        //
-        //
-        //
-        //     // this.viewerSvg.width(width);
-        //     // this.viewerSvg.height(height);
-        //
-        //
-        // }
+        const a = 0.005;
 
 
-        //velocity panning (flinging)
-        if (this.velocityX > 1) {
-            this.scrollLeft += this.velocityX;
-            this.velocityX -= 1;
-        } else if (this.velocityX < -1) {
-            this.scrollLeft += this.velocityX;
-            this.velocityX += 1;
+        function calcV(Vprev, delta_t) {
+            const deltaV = a * delta_t;
+
+            //overshoot/finished
+            if (deltaV >= Math.abs(Vprev))
+                return (0)
+
+            if (Vprev > 0)
+                return (Vprev - deltaV)
+            else
+                return (Vprev + deltaV)
         }
 
-        if (this.velocityY > 1) {
-            this.scrollTop += this.velocityY;
-            this.velocityY -= 1;
-        } else if (this.velocityY < -1) {
-            this.scrollTop += this.velocityY;
-            this.velocityY += 1;
+
+        //calculate velocity panning (flinging)
+        if (this.lastFrame != null) {
+            const delta_t = now - this.lastFrame;
+
+            this.scrollLeft = this.scrollLeft + this.velocityX * delta_t;
+            this.scrollTop = this.scrollTop + this.velocityY * delta_t;
+
+            this.velocityX = calcV(this.velocityX, delta_t);
+            this.velocityY = calcV(this.velocityY, delta_t);
+
         }
 
-        if (this.scrollLeft < 0) {
-            this.scrollLeft = 0;
-            this.velocityX = 0;
-        }
 
-        if (this.scrollTop < 0) {
-            this.scrollTop = 0;
-            this.velocityY = 0;
-        }
+        //actuall do the zoom/pan
+        const sizeWidth = Math.round(this.containerElement.clientWidth / this.zoomFactor);
+        const sizeHeight = Math.round(this.containerElement.clientHeight / this.zoomFactor);
 
-        //actual pan execution
-        // console.log("SCROLLTO", this.scrollLeft, this.scrollTop);
-        // this.viewerContainer.scrollTo(Math.round(this.scrollLeft), Math.round(this.scrollTop));
-        // //make sure we dont have a too large or small scroll number
-        // this.scrollLeft = this.viewerContainer.scrollLeft;
-        // this.scrollTop = this.viewerContainer.scrollTop;
-        // const size = Math.round(this.boxSize / this.zoomFactor);
-
-        const sizeWidth = Math.round(this.containerElement.clientWidth/this.zoomFactor);
-        const sizeHeight = Math.round(this.containerElement.clientHeight/this.zoomFactor);
-        // console.log(this.scrollLeft, this.scrollTop, size, size);
-        // document.querySelector("#debug").innerText=this.scrollLeft;
-
-
-        this.paperSvg.viewbox(this.scrollLeft, this.scrollTop, sizeWidth, sizeHeight);
-        // this.paperSvg.viewbox(this.scrollLeft, this.scrollTop, sizeWidth, sizeHeight);
-        this.scratchSvg.viewbox(this.scrollLeft, this.scrollTop, sizeWidth, sizeHeight);
-        // this.paperSvg.viewbox(0,0, 10000,10000);
-        // this.scratchSvg.viewbox(0,0, 10000,10000);
-
-
-        // this.scratchSvg.viewbox(this.scrollLeft, this.scrollTop, sizeWidth, sizeHeight);
+        const scrollLeft = Math.round(this.scrollLeft);
+        const scrollTop = Math.round(this.scrollTop);
+        this.paperSvg.viewbox(scrollLeft, scrollTop, sizeWidth, sizeHeight);
+        this.scratchSvg.viewbox(scrollLeft, scrollTop, sizeWidth, sizeHeight);
 
         //still have velocity?
-        if (Math.abs(this.velocityX) >= 1 || Math.abs(this.velocityY) >= 1)
+        if (this.velocityX != 0 || this.velocityY != 0) {
+            this.lastFrame = now;
             this.requestAnimate();
+        } else {
+            this.lastFrame = null;
+        }
 
 
     }

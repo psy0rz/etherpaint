@@ -24,7 +24,7 @@ export default class PaperClient {
 
         //create cursor
         this.cursorSvg = scratchSvg.group();
-        this.cursorSvg.path('M-40,0 L40,0 M0,-40 L0,40').attr(
+        this.cursorSvg.path('M-20,0 L20,0 M0,-20 L0,20').attr(
             {
                 'stroke': '#000000',
                 'stroke-width': 4

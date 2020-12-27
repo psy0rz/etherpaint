@@ -26,29 +26,26 @@ export default class ControlDrawing {
 
         // this.scratchElement = document.querySelector("#paper-scratch");
         this.containerElement=document.querySelector("#paper-container");
-
-        this.viewerElement = document.querySelector("#paper");
-        this.viewerSvg = SVG(this.viewerElement);
-
         this.paperElement = document.querySelector("#paper");
+        this.paperSvg = SVG(this.paperElement);
         this.scratchElement = document.querySelector("#scratch");
 
 
 
         //regular pointer stuff
         this.primaryDown = false;
-        this.viewerElement.addEventListener('pointermove', this.onPointerMove.bind(this), {passive: false});
-        this.viewerElement.addEventListener('pointerdown', this.onPointerDown.bind(this), {passive: false});
-        this.viewerElement.addEventListener('pointerup', this.onPointerUp.bind(this), {passive: true});
-        this.viewerElement.addEventListener('pointercancel', this.onPointerCancel.bind(this), {passive: true});
+        this.paperElement.addEventListener('pointermove', this.onPointerMove.bind(this), {passive: false});
+        this.paperElement.addEventListener('pointerdown', this.onPointerDown.bind(this), {passive: false});
+        this.paperElement.addEventListener('pointerup', this.onPointerUp.bind(this), {passive: true});
+        this.paperElement.addEventListener('pointercancel', this.onPointerCancel.bind(this), {passive: true});
 
         //we DONT want pointer captures (happens on mobile)
-        this.viewerElement.addEventListener('gotpointercapture', function (m) {
+        this.paperElement.addEventListener('gotpointercapture', function (m) {
             m.target.releasePointerCapture(m.pointerId);
         });
 
         //mobile pan/zoom stuff (for desktop the native browser zoom/pan should be ok)
-        this.paperPanZoom = new PaperPanZoom(this.containerElement,this.viewerElement,  this.paperElement, this.scratchElement, this.cancel.bind(this));
+        this.paperPanZoom = new PaperPanZoom(this.containerElement,this.paperElement, this.scratchElement, this.cancel.bind(this));
 
 
         $('.paper-click.paper-tool.paper-pointer').on('click', function () {
@@ -111,7 +108,7 @@ export default class ControlDrawing {
 
     //calculate svg xy point from normal pageXy coords.
     getSvgPoint(x, y) {
-        let point = this.viewerSvg.point(x, y);
+        let point = this.paperSvg.point(x, y);
         point.x = Math.round(point.x);
         point.y = Math.round(point.y);
         return (point);

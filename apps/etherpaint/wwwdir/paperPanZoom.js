@@ -7,20 +7,14 @@ import {SVG} from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
 
 export default class PaperPanZoom {
 
-    constructor(containerElement, viewerElement, paperElement, scratchElement, startedCallback) {
+    constructor(containerElement, paperElement, scratchElement, startedCallback) {
 
         this.containerElement =containerElement;
-        this.viewerElement = viewerElement;
         this.paperElement = paperElement;
         this.scratchElement= scratchElement;
 
-        // this.viewerContainer = viewerElement.parentNode;
-        this.viewerSvg = SVG(viewerElement);
         this.paperSvg = SVG(paperElement);
         this.scratchSvg = SVG(scratchElement);
-
-        // this.boxSize = 10000;
-        // this.viewerSvg.viewbox(0, 0, this.boxSize, this.boxSize);
 
         this.startedCallback = startedCallback;
 
@@ -28,25 +22,19 @@ export default class PaperPanZoom {
         this.scrollTop = 0;
         this.velocityX = 0;
         this.velocityY = 0;
-        // this.zoomX = 0;
-        // this.zoomY = 0;
 
-        this.zoomFactor = 1;
+        this.zoomFactor = 0.5;
 
         this.animating = false;
         this.controlling = false;
 
-        //calculate default zoom for this screen
-        // const zoom_width = 1920;
-        // this.zoom_percentage = document.querySelector('#paper-container').clientWidth / zoom_width * 100;
 
         //pinch zoom/pan
-        this.hammer = new Hammer(this.viewerElement, {});
+        this.hammer = new Hammer(this.paperElement, {});
         this.hammer.get('pinch').set({enable: true});
 
         //force update
         this.requestAnimate();
-
 
         this.hammer.on('pinchstart', (ev) => {
 
@@ -82,13 +70,13 @@ export default class PaperPanZoom {
             const scale = ev.scale;
 
             // if (Math.abs(scale - 1) > 0.5) {
-            //     const newFactor = this.zoomFactorPinchStart * scale;
-            //     this.setZoom(newFactor);
+                const newFactor = this.zoomFactorPinchStart * scale;
+                this.setZoom(newFactor);
             // }
 
 
-            const left= this.scrollLeftPinchStart - ev.deltaX;
-            const top= this.scrollTopPinchStart - ev.deltaY;
+            const left= this.scrollLeftPinchStart - (ev.deltaX - ev.center.x*(scale-1)) / newFactor;
+            const top= this.scrollTopPinchStart - (ev.deltaY - ev.center.y*(scale-1))  / newFactor;
             // const x = this.scrollLeftPinchStart * scale - ev.deltaX + ev.center.x * (scale - 1);
             // const y = this.scrollTopPinchStart * scale - ev.deltaY + ev.center.y * (scale - 1);
 
@@ -217,14 +205,13 @@ export default class PaperPanZoom {
         // this.scrollTop = this.viewerContainer.scrollTop;
         // const size = Math.round(this.boxSize / this.zoomFactor);
 
-        // const size = Math.round(this.viewerElement.parentNode.clientWidth/this.zoomFactor);
         const sizeWidth = Math.round(this.containerElement.clientWidth/this.zoomFactor);
         const sizeHeight = Math.round(this.containerElement.clientHeight/this.zoomFactor);
         // console.log(this.scrollLeft, this.scrollTop, size, size);
         // document.querySelector("#debug").innerText=this.scrollLeft;
 
 
-        this.viewerSvg.viewbox(this.scrollLeft, this.scrollTop, sizeWidth, sizeHeight);
+        this.paperSvg.viewbox(this.scrollLeft, this.scrollTop, sizeWidth, sizeHeight);
         // this.paperSvg.viewbox(this.scrollLeft, this.scrollTop, sizeWidth, sizeHeight);
         this.scratchSvg.viewbox(this.scrollLeft, this.scrollTop, sizeWidth, sizeHeight);
         // this.paperSvg.viewbox(0,0, 10000,10000);

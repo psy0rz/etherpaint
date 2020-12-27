@@ -17,14 +17,19 @@ export default class PaperClient {
         this.attributes = {
             'stroke': '#000000',
             'fill': 'none',
-            'stroke-width': 2
+            'stroke-width': 4
         };
 
 
 
         //create cursor
         this.cursorSvg = scratchSvg.group();
-        this.cursorSvg.path('M-10,0 L10,0 M0,-10 L0,10').stroke('black');
+        this.cursorSvg.path('M-40,0 L40,0 M0,-40 L0,40').attr(
+            {
+                'stroke': '#000000',
+                'stroke-width': 4
+
+            });
         this.cursorSvg.text("client " + this.clientId);
 
 

@@ -60,19 +60,13 @@ export default class PaperPanZoom {
             if (Math.abs(ev.scale - 1) < 0.25) {
                 scale = 1;
             } else {
-                const maxScale = 2 / this.zoomFactorPinchStart;
-                const minScale = 0.1/ this.zoomFactorPinchStart;
-                if (ev.scale > maxScale)
-                    scale = maxScale;
-                else if (ev.scale<minScale)
-                    scale  = minScale;
-                else
-                    scale = ev.scale;
-            };
+                scale = ev.scale;
+            }
 
-            const newFactor = this.zoomFactorPinchStart * scale;
-            this.setZoom(newFactor);
+            const newFactor = this.setZoom(this.zoomFactorPinchStart * scale);
 
+            //zoom has limits, so recalc scale
+            scale = newFactor / this.zoomFactorPinchStart;
 
             // const left = this.scrollLeftPinchStart - (ev.deltaX - ev.center.x * (scale - 1)) / newFactor;
             // const top = this.scrollTopPinchStart - (ev.deltaY - ev.center.y * (scale - 1)) / newFactor;
@@ -109,7 +103,6 @@ export default class PaperPanZoom {
             this.scrollLeft = x;
 
 
-
         if (y < 0)
             this.scrollTop = 0;
         else if (y > maxTop)
@@ -125,6 +118,7 @@ export default class PaperPanZoom {
     //in pixel/ms
     setPanVelocity(x, y) {
 
+        //add to previous velocitys if you kekep flinging in that direction..
         if ((x > 0 && this.velocityX > 0) ||
             (x < 0 && this.velocityX < 0))
             this.velocityX = this.velocityX + x;
@@ -143,18 +137,20 @@ export default class PaperPanZoom {
     }
 
 
-    //x and y are the center of the zoom
     setZoom(factor) {
 
-        if (factor === this.zoomFactor)
-            return;
+        //limits
+        if (factor > 2)
+            factor = 2;
+        else if (factor < 0.1)
+            factor = 0.1;
 
-        this.zoomFactor = factor;
+        if (factor !== this.zoomFactor) {
+            this.zoomFactor = factor;
+            this.requestAnimate();
+        }
 
-        document.querySelector("#debug").innerText = factor;
-
-
-        this.requestAnimate();
+        return (factor);
     }
 
     requestAnimate() {

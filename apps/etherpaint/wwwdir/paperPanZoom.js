@@ -82,15 +82,27 @@ export default class PaperPanZoom {
     //change current pan by x and y
     setPan(x, y) {
 
-        if (x >= 0)
-            this.scrollLeft = x;
-        else
-            this.scrollLeft = 0;
+        const bb = this.paperElement.getBBox();
+        const maxLeft = bb.x + bb.width;
+        const maxTop = bb.y + bb.height;
 
-        if (y >= 0)
-            this.scrollTop = y;
+
+
+
+        if (x < 0)
+            this.scrollLeft = 0;
+        else if (x > maxLeft)
+            this.scrollLeft = maxLeft;
         else
+            this.scrollLeft = x;
+
+
+        if (y < 0)
             this.scrollTop = 0;
+        else if (y > maxTop)
+            this.scrollTop = maxTop;
+        else
+            this.scrollTop = y;
 
         this.panning = true;
         this.requestAnimate();

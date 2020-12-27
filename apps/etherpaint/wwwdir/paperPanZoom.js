@@ -45,6 +45,8 @@ export default class PaperPanZoom {
             this.zoomFactorPinchStart = this.zoomFactor;
             this.scrollLeftPinchStart = this.scrollLeft;
             this.scrollTopPinchStart = this.scrollTop;
+            this.xCenterPinchStart = ev.center.x;
+            this.yCenterPinchStart = ev.center.y;
 
         });
 
@@ -62,8 +64,10 @@ export default class PaperPanZoom {
             this.setZoom(newFactor);
 
 
-            const left = this.scrollLeftPinchStart - (ev.deltaX - ev.center.x * (scale - 1)) / newFactor;
-            const top = this.scrollTopPinchStart - (ev.deltaY - ev.center.y * (scale - 1)) / newFactor;
+            // const left = this.scrollLeftPinchStart - (ev.deltaX - ev.center.x * (scale - 1)) / newFactor;
+            // const top = this.scrollTopPinchStart - (ev.deltaY - ev.center.y * (scale - 1)) / newFactor;
+            const left = this.scrollLeftPinchStart - (ev.deltaX - this.xCenterPinchStart * (scale - 1)) / newFactor;
+            const top = this.scrollTopPinchStart - (ev.deltaY - this.yCenterPinchStart * (scale - 1)) / newFactor;
 
             this.setPan(left, top);
 

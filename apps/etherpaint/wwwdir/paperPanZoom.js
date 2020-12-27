@@ -32,7 +32,7 @@ export default class PaperPanZoom {
 
 
         //pinch zoom/pan
-        this.hammer = new Hammer(this.paperElement, {});
+        this.hammer = new Hammer(this.scratchElement, {});
         this.hammer.get('pinch').set({enable: true});
 
         //force update

@@ -34,13 +34,16 @@ export default class ControlDrawing {
 
         //regular pointer stuff
         this.primaryDown = false;
-        this.paperElement.addEventListener('pointermove', this.onPointerMove.bind(this), {passive: false});
-        this.paperElement.addEventListener('pointerdown', this.onPointerDown.bind(this), {passive: false});
-        this.paperElement.addEventListener('pointerup', this.onPointerUp.bind(this), {passive: true});
-        this.paperElement.addEventListener('pointercancel', this.onPointerCancel.bind(this), {passive: true});
+
+        const eventElement=this.scratchElement;//scratch is faster?
+
+        eventElement.addEventListener('pointermove', this.onPointerMove.bind(this), {passive: true});
+        eventElement.addEventListener('pointerdown', this.onPointerDown.bind(this), {passive: true});
+        eventElement.addEventListener('pointerup', this.onPointerUp.bind(this), {passive: true});
+        eventElement.addEventListener('pointercancel', this.onPointerCancel.bind(this), {passive: true});
 
         //we DONT want pointer captures (happens on mobile)
-        this.paperElement.addEventListener('gotpointercapture', function (m) {
+        eventElement.addEventListener('gotpointercapture', function (m) {
             m.target.releasePointerCapture(m.pointerId);
         });
 
@@ -109,8 +112,12 @@ export default class ControlDrawing {
     //calculate svg xy point from normal pageXy coords.
     getSvgPoint(x, y) {
         let point = this.paperSvg.point(x, y);
-        point.x = Math.round(point.x);
-        point.y = Math.round(point.y);
+        //max range is 0-65553
+        point.x = Math.max(0,Math.min(65535,Math.round(point.x)));
+        point.y = Math.max(0,Math.min(65535,Math.round(point.y)));
+
+
+
         return (point);
     }
 
@@ -193,6 +200,7 @@ export default class ControlDrawing {
 
     onPointerMove(m) {
         // m.stopPropagation();
+        // console.log(m.target);
 
         if (m.getCoalescedEvents) {
             for (const coalesced of m.getCoalescedEvents()) {

@@ -31,6 +31,11 @@
             shape-rendering: optimizeSpeed;
         }
 
+        /*performance*/
+        #scratch > * {
+            pointer-events: none;
+        }
+
     </style>
 
 
@@ -166,8 +171,9 @@
     </svg>
 
     <svg id="scratch" style="
+            touch-action: none;
             user-select: none;
-            pointer-events: none;
+            /*pointer-events: none;*/
         position: absolute;
         left:0;
         right:0;

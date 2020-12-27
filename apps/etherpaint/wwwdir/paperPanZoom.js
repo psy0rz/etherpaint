@@ -1,6 +1,7 @@
 'use strict';
 
 //Handle panning/zooming on mobile
+//Much much more complex than you might expect :)
 
 import Hammer from "./node_modules/@egjs/hammerjs/dist/hammer.esm.js";
 import {SVG} from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
@@ -55,10 +56,19 @@ export default class PaperPanZoom {
             this.controlling = true;
 
             let scale;
-            if (Math.abs(ev.scale - 1) > 0.25)
-                scale = ev.scale;
-            else
+            //snap/prevent useless zooming because of performance
+            if (Math.abs(ev.scale - 1) < 0.25) {
                 scale = 1;
+            } else {
+                const maxScale = 2 / this.zoomFactorPinchStart;
+                const minScale = 0.1/ this.zoomFactorPinchStart;
+                if (ev.scale > maxScale)
+                    scale = maxScale;
+                else if (ev.scale<minScale)
+                    scale  = minScale;
+                else
+                    scale = ev.scale;
+            };
 
             const newFactor = this.zoomFactorPinchStart * scale;
             this.setZoom(newFactor);
@@ -91,14 +101,13 @@ export default class PaperPanZoom {
         const maxTop = bb.y + bb.height;
 
 
-
-
         if (x < 0)
             this.scrollLeft = 0;
         else if (x > maxLeft)
             this.scrollLeft = maxLeft;
         else
             this.scrollLeft = x;
+
 
 
         if (y < 0)
@@ -141,6 +150,9 @@ export default class PaperPanZoom {
             return;
 
         this.zoomFactor = factor;
+
+        document.querySelector("#debug").innerText = factor;
+
 
         this.requestAnimate();
     }

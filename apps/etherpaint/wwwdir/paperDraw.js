@@ -121,7 +121,7 @@ export default class PaperDraw {
     drawTmpIncrements()
     {
         for (const action of this.tmpActions) {
-            action.draw(this.paperSvg);
+            action.draw(this.scratchSvg);
         }
         this.tmpActions=[];
 

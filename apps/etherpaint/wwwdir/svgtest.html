@@ -11,7 +11,6 @@
     <script src="./node_modules/jquery/dist/jquery.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.0/dist/svg.min.js"></script>
-    <script src="http://ariutta.github.io/svg-pan-zoom/dist/svg-pan-zoom.js"></script>
 
 
     <style>
@@ -47,9 +46,6 @@
         let count = 200;
 
         let points = [];
-
-
-
         for (let i = 1; i < count; i++) {
             points = [];
             for (let p = 1; p < 400; p++) {
@@ -62,13 +58,20 @@
 
         }
 
+        //cursor
+        let scratchSvg=SVG(document.getElementById("scratch"));
+        let cursorSvg = scratchSvg.group();
+        cursorSvg.path('M-10,0 L10,0 M0,-10 L0,10').stroke('black');
+        cursorSvg.text("client 123");
+        scratchSvg.viewbox(0,0,3000,3000);
+
 
         count = 30;
         let prev = undefined;
         let x=0;
         let y=0;
 
-
+        //very slow on firefox mobile
         function rndzoompan(f) {
             // let f=Date.now();
             if (f !== undefined && prev !== undefined) {
@@ -81,6 +84,7 @@
             x = Math.round(Math.random() * 10000);
             y = Math.round(Math.random() * 10000);
             svg.viewbox(x, y, zoom,zoom);
+            scratchSvg.viewbox(x, y, zoom,zoom);
 
             count--;
             if (count > 0)
@@ -88,41 +92,37 @@
             else
                 svg.viewbox(0,0,10,10);
         }
-        // svg.viewbox(0,0,3000,3000);
 
-       // rndzoompan();
-        setTimeout(function () {
-            var panZoomTiger = svgPanZoom('#paper', {
-                viewportSelector: '.svg-pan-zoom_viewport'
-                , panEnabled: true
-                , controlIconsEnabled: true
-                , zoomEnabled: true
-                , dblClickZoomEnabled: true
-                , mouseWheelZoomEnabled: true
-                , preventMouseEventsDefault: true
-                , zoomScaleSensitivity: 1
-                , minZoom: 1
-                , maxZoom: 100
-                , fit: true
-                , contain: false
-                , center: true
-                , refreshRate: 'auto'
-                , beforeZoom: function () {
+        //random cursor move. to compare with and without scratch layer
+        let drops=0;
+        function cursortest(f) {
+            // let f=Date.now();
+            if (f !== undefined && prev !== undefined) {
+                if (f-prev>20)
+                {
+                    drops=drops+1;
+                    document.getElementById("log").innerText=drops;
                 }
-                , onZoom: function () {
-                }
-                , beforePan: function () {
-                }
-                , onPan: function () {
-                }
-                , onUpdatedCTM: function () {
-                }
-                // , customEventsHandler: {}
-                , eventsListenerElement: null
+            }
+            prev = f;
+
+            x = Math.round(Math.random() * 2000);
+            y = Math.round(Math.random() * 2000);
+            cursorSvg.transform({
+                translateX: x,
+                translateY: y
             });
 
-            panZoomTiger.fit();
-        },100);
+            count--;
+            if (count > 0)
+                window.requestAnimationFrame(cursortest);
+        }
+
+
+        svg.viewbox(0,0,3000,3000);
+
+      rndzoompan();
+      //   cursortest();
 
     </script>
 
@@ -143,12 +143,23 @@
     /*user-select: none;*/
     padding: 0px;
     margin: 0px;
-    width:100%;
-    height: 100%;
 
-"  viewBox="0 0 10000 10000">
+"  >
 
-</svg>
+    <svg id="scratch" style="
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    /*overflow: hidden;*/
+    /*user-select: none;*/
+    padding: 0px;
+    margin: 0px;
+"  >
+
+
+    </svg>
 
 
 </body>

@@ -17,7 +17,7 @@ export default class ControlUI {
         });
 
 
-            //make sure paper starts after toolbar
+        //make sure paper starts after toolbar
         document.querySelector('#paper-container').style.top = document.querySelector("#topbar").offsetHeight + "px";
 
     }

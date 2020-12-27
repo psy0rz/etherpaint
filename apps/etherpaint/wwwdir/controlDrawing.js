@@ -23,8 +23,16 @@ export default class ControlDrawing {
         this.paperSend = paperSend;
 
         let self = this;
-        this.viewerElement = document.querySelector("#viewer");
+
+        // this.scratchElement = document.querySelector("#paper-scratch");
+        this.containerElement=document.querySelector("#paper-container");
+
+        this.viewerElement = document.querySelector("#paper");
         this.viewerSvg = SVG(this.viewerElement);
+
+        this.paperElement = document.querySelector("#paper");
+        this.scratchElement = document.querySelector("#scratch");
+
 
 
         //regular pointer stuff
@@ -40,7 +48,7 @@ export default class ControlDrawing {
         });
 
         //mobile pan/zoom stuff (for desktop the native browser zoom/pan should be ok)
-        this.paperPanZoom = new PaperPanZoom(this.viewerElement, this.cancel.bind(this));
+        this.paperPanZoom = new PaperPanZoom(this.containerElement,this.viewerElement,  this.paperElement, this.scratchElement, this.cancel.bind(this));
 
 
         $('.paper-click.paper-tool.paper-pointer').on('click', function () {

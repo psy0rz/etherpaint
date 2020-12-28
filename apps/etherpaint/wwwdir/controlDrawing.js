@@ -145,7 +145,7 @@ export default class ControlDrawing {
 
         this.paperSend.updateCursor(point.x, point.y);
 
-        if ((m.buttons & 1)) {
+        if (m.buttons & 1) {
             this.primaryDown = true;
             switch (this.mode) {
                 case Modes.Draw:

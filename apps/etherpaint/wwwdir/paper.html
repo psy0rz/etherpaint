@@ -61,6 +61,7 @@
             let paperSend = new PaperSend(m);
 
             let paperReceive = new PaperReceive(m, paperDraw, paperSend);
+            paperSend.paperReceive=paperReceive;
 
             let controlDrawing = new ControlDrawing(paperSend);
 

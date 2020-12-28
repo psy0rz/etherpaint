@@ -36,10 +36,10 @@ export default class PaperReceive {
             const store = drawIncrementEvent.store();
 
             //our own temporary events are echoed locally from paperSend to hide lag
-            // if (drawIncrementEvent.clientId() == this.clientId && !store)
-            //     return;
+            if (drawIncrementEvent.clientId() == this.clientId && !store)
+                return;
 
-            this.drawIncrementEvent(
+            this.drawIncrement(
                 clientId,
                 drawIncrementEvent.type(),
                 drawIncrementEvent.p1(),
@@ -87,7 +87,8 @@ export default class PaperReceive {
 
     }
 
-    drawIncrementEvent(clientId, type, p1, p2, p3, store) {
+    //seperate function, for local echo
+    drawIncrement(clientId, type, p1, p2, p3, store) {
 
         const client = this.paperDraw.getClient(clientId);
 

@@ -20,13 +20,20 @@ export default class PaperReceive {
         this.paperSend = paperSend;
 
         //server tells us we are joined to a new session.
-        this.messages.handlers[event.EventUnion.Join] = (msg, eventIndex) => {
-            const join = msg.events(eventIndex, new event.Join());
-            console.log("Joined shared session", join.id(), "as client", join.clientId());
-            this.clientId = join.clientId();
+        this.messages.handlers[event.EventUnion.StreamStart] = (msg, eventIndex) => {
+            const e = msg.events(eventIndex, new event.StreamStart());
+//            console.log("Started stream ", e.paper_id());
+            this.clientId = 0; //no client yet (prevents echo skip-code)
+            this.paperSend.setClientId(0)
             this.paperDraw.clear();
-            this.paperSend.setClientId(this.clientId)
         };
+
+        this.messages.handlers[event.EventUnion.StreamSynced] = (msg, eventIndex) => {
+            const e = msg.events(eventIndex, new event.StreamSynced());
+            this.clientId = e.client_id(); //no client yet (prevents echo skip-code)
+            this.paperSend.setClientId(this.clientId)
+        }
+
 
         //received an incremental draw
         this.messages.handlers[event.EventUnion.DrawIncrement] = (msg, eventIndex) => {
@@ -35,8 +42,7 @@ export default class PaperReceive {
             const clientId = drawIncrementEvent.clientId();
             const store = drawIncrementEvent.store();
 
-            //our own temporary events are echoed locally from paperSend to hide lag
-            if (drawIncrementEvent.clientId() == this.clientId && !store)
+            if (clientId === this.clientId)
                 return;
 
             this.drawIncrement(
@@ -55,19 +61,20 @@ export default class PaperReceive {
         this.messages.handlers[event.EventUnion.DrawObject] = (msg, eventIndex) => {
 
             const drawObjectEvent = msg.events(eventIndex, new event.DrawObject());
-            const client = this.paperDraw.getClient(drawObjectEvent.clientId());
+            const clientId = drawObjectEvent.clientId();
+
+            if (clientId === this.clientId)
+                return;
 
             //transform into regular array
             let points = [];
             for (const n of drawObjectEvent.pointsArray())
                 points.push(n);
 
-            client.currentAction = new client.Class(
-                client.getNextId(),
-                points,
-                client.attributes);
-            this.paperDraw.addAction(client.currentAction, true);
+            this.drawObject(clientId, points);
+
         };
+
 
         //received a cursor event.
         //only store/replace it to handle performance issues gracefully. (e.g. skip updates instead of queue them)
@@ -75,7 +82,10 @@ export default class PaperReceive {
             const cursorEvent = msg.events(eventIndex, new event.Cursor());
             const clientId = cursorEvent.clientId();
 
-            this.paperDraw.updateCursor(clientId, cursorEvent);
+            if (clientId === this.clientId)
+                return;
+
+            this.updateCursor(clientId, cursorEvent.x(), cursorEvent.y())
 
         }
 
@@ -87,10 +97,11 @@ export default class PaperReceive {
 
     }
 
-    //seperate function, for local echo
+
     drawIncrement(clientId, type, p1, p2, p3, store) {
 
         const client = this.paperDraw.getClient(clientId);
+        // console.log("increment", clientId, type, p1,p2,p3,store);
 
         switch (type) {
             case event.IncrementalType.SelectClass:
@@ -113,6 +124,7 @@ export default class PaperReceive {
                 svgPoint.y = p2;
                 client.currentAction.addPoint(svgPoint);
                 this.paperDraw.updatedActions.add(client.currentAction);
+                this.paperDraw.requestDraw();
                 break;
             case event.IncrementalType.Cancel:
                 this.paperDraw.addAction(new PaperActionDelete(
@@ -121,6 +133,21 @@ export default class PaperReceive {
                 client.currentAction = undefined;
                 break;
         }
+    }
+
+    drawObject(clientId, points)
+    {
+        const client = this.paperDraw.getClient(clientId);
+        client.currentAction = new client.Class(
+            client.getNextId(),
+            points,
+            client.attributes);
+        this.paperDraw.addAction(client.currentAction, true);
+    }
+
+    updateCursor(clientId, x,y)
+    {
+        this.paperDraw.updateCursor(clientId, x,y);
     }
 
 }

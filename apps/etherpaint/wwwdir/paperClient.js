@@ -32,6 +32,8 @@ export default class PaperClient {
             });
         this.cursorSvg.text("client " + this.clientId);
 
+        this.cursorX=0;
+        this.cursorY=0;
 
     }
 
@@ -44,8 +46,8 @@ export default class PaperClient {
     animateCursor() {
 
         this.cursorSvg.transform({
-            translateX: this.cursorEvent.x(),
-            translateY: this.cursorEvent.y()
+            translateX: this.cursorX,
+            translateY: this.cursorY
         });
     }
 

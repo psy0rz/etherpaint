@@ -13,6 +13,8 @@ public:
     explicit MsgSessionPaper(uWS::WebSocket<ENABLE_SSL, true> *ws);
 
     void join(std::shared_ptr<SharedSession> shared_session) override;
+    void streamStart(std::string &paper_id, uint8_t client_id);
+    void streamSynced();
 
     event::Cursor cursor;
     bool cursor_changed=false;
@@ -24,7 +26,6 @@ public:
     void queue_low() override;
 
     flatbuffers::uoffset_t streaming_offset=0;
-
 
 
 };

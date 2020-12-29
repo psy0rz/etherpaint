@@ -37,8 +37,9 @@ m.send = function () {
     );
 
     let msgArray = m.builder.asUint8Array();
-    // console.log(msgArray.length, msgArray.length-32);
+    // console.log("send", msgArray.length);
     m.ws.send(msgArray);
+
 
     // //handle local echo?
     // //server echoed altijd je eigen spul terug, ivm server performance. er word 1 message gemaakt en naar iedereen gestuurd zodat er geen extra kopien zijn
@@ -93,6 +94,7 @@ m.restart = function () {
     // receive websocket messages.
     m.ws.onmessage = function (wsEvent) {
         let msgArray = new Uint8Array(wsEvent.data);
+        // console.log("recv", msgArray.length);
         m.callHandlers(msgArray);
     }
 

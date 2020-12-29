@@ -12,7 +12,7 @@ export default class PaperSend {
 
     constructor(messages) {
         this.messages = messages;
-        this.points=[];
+        this.points = [];
 
     }
 
@@ -20,12 +20,11 @@ export default class PaperSend {
     //send queued stuff and add cursor if we have any
     //only sends if output buffer of websocket is empty
     send() {
-
         // this.scheduled = false;
         //buffer empty enough?
         //todo: some kind of smarter throttling
         // if (this.messages.ws && this.messages.ws.bufferedAmount === 0) {
-        if (this.messages.ws ) {
+        if (this.messages.ws) {
             //anything to send at all?
             if (this.cursorMoved || !this.messages.is_empty()) {
 
@@ -42,6 +41,8 @@ export default class PaperSend {
                         ));
 
                     this.cursorMoved = false;
+
+
                 }
 
                 //send all queued stuff
@@ -87,7 +88,7 @@ export default class PaperSend {
             this.cursorMoved = true;
             // if (test.recording)
             //     test.record([x, y]);
-
+            this.paperReceive.updateCursor(this.clientId, x, y);
 
 
         }
@@ -109,12 +110,7 @@ export default class PaperSend {
                 store
             ));
 
-        //local echo?
-        if (!store)
-        {
-            this.paperReceive.drawIncrement(this.clientId, type, p1, p2, p3, store);
-        }
-
+        this.paperReceive.drawIncrement(this.clientId, type, p1, p2, p3, store);
 
         // if (test.recording)
         //     test.record([type, p1, p2, p3]y
@@ -122,32 +118,30 @@ export default class PaperSend {
     }
 
     selectDrawClass(drawClass) {
-        this.drawIncrement(event.IncrementalType.SelectClass, drawClass,0,0,true);
-        this.selectedClass=drawClass;
+        this.drawIncrement(event.IncrementalType.SelectClass, drawClass, 0, 0, true);
+        this.selectedClass = drawClass;
 
     }
 
     //start temporary realtime updated object of selected draw class.
     //this will store the points and send a final complete drawObject to the server after calling drawFinish.
     //this object is also optimized so it has less points, in case of polylines.
-    drawStart(x,y)
-    {
-        if (x<0 || y<0)
+    drawStart(x, y) {
+        if (x < 0 || y < 0)
             return;
 
-        this.drawIncrement(event.IncrementalType.DrawObject, x, y,0 ,false);
-        this.points=[x,y];
-        this.lastX=x;
-        this.lastY=y;
+        this.drawIncrement(event.IncrementalType.DrawObject, x, y, 0, false);
+        this.points = [x, y];
+        this.lastX = x;
+        this.lastY = y;
     }
 
     //update with new points. still send as temporary and for animation only. (we store them in this class to send as permanent on finish)
-    drawUpdate(x,y)
-    {
-        if (x<0 || y<0)
+    drawUpdate(x, y) {
+        if (x < 0 || y < 0)
             return;
 
-        if (x!==this.lastX || y!==this.lastY) {
+        if (x !== this.lastX || y !== this.lastY) {
             this.lastX = x;
             this.lastY = y;
 
@@ -167,32 +161,29 @@ export default class PaperSend {
     }
 
 
-    drawCancel()
-    {
+    drawCancel() {
         if (this.points.length) {
             this.drawIncrement(event.IncrementalType.Cancel, 0, 0, 0, false);
-            this.points=[];
+            this.points = [];
         }
     }
 
     //transform temporary points in final message.
-    drawFinish()
-    {
+    drawFinish() {
 
 
         //TODO: optimize polyline with https://mourner.github.io/simplify-js/
 
-        this.drawIncrement(event.IncrementalType.Cancel, 0, 0,0,false);
         this.drawObject(this.points);
-        this.points=[];
+        this.drawIncrement(event.IncrementalType.Cancel, 0, 0, 0, false);
+        this.points = [];
 
     }
 
     //draw object with specified points array (usually send after a drawstart/drawaddpoints/drawfinish cycle)
     drawObject(points) {
 
-        if (points.length)
-        {
+        if (points.length) {
 
 
             this.messages.add_event(
@@ -203,21 +194,21 @@ export default class PaperSend {
                     event.DrawObject.createPointsVector(this.messages.builder, points)
                 ));
 
+            this.paperReceive.drawObject(points);
+
         }
 
     }
 
-    test()
-    {
+    test() {
         this.messages.add_event(
             event.EventUnion.DrawObject,
             event.DrawObject.createDrawObject(
                 this.messages.builder,
                 this.clientId,
-                event.DrawObject.createPointsVector(this.messages.builder,[0,0,0,0,0,0])
+                event.DrawObject.createPointsVector(this.messages.builder, [0, 0, 0, 0, 0, 0])
             ));
     }
-
 
 
 }

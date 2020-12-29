@@ -48,6 +48,7 @@ export default class PaperDraw {
 
     //add incremental drawing command to stack
     addAction(action, store) {
+        // console.log("add action", action);
         if (store) {
             this.increments.push(action);
             this.targetIndex = this.increments.length - 1;
@@ -62,11 +63,11 @@ export default class PaperDraw {
 
 
     //add cursor update to client
-    updateCursor(clientId, cursorEvent) {
+    updateCursor(clientId, x,y) {
         const client = this.getClient(clientId);
-        client.cursorEvent=cursorEvent;
+        client.cursorX=x;
+        client.cursorY=y;
         this.changedClients.add(client);
-
         this.requestDraw();
 
     }

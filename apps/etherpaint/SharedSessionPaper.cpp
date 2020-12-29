@@ -108,17 +108,10 @@ void SharedSessionPaper::join(std::shared_ptr<MsgSession> new_msg_session) {
     for (uint8_t client_id = 1; client_id < 255; client_id++) {
         //found free id
         if (!used_ids[client_id]) {
-            //set id and join
-            new_msg_session_paper->id = client_id;
+            DEB("Client joining as " << int(client_id) << " to shared paper session " << this->id);
+
+            new_msg_session_paper->streamStart(id, client_id);
             msg_sessions.insert(new_msg_session_paper);
-            DEB("Client joined as " << int(client_id) << " to shared paper session " << this->id);
-
-            //send join message back to client
-            MsgBuilder mb(200);
-            mb.add_event(event::EventUnion::EventUnion_Join,
-                         event::CreateJoin(mb.builder, mb.builder.CreateString(this->id), client_id).Union());
-            new_msg_session->enqueue(mb);
-
             return;
 
         }
@@ -233,17 +226,18 @@ void SharedSessionPaper::store_all() {
 // Called periodicly by the global storage thread.
 // Also called by stream() to end a specific stream.
 void SharedSessionPaper::store(const std::shared_ptr<MsgSessionPaper> &end_msg_session_paper) {
-    //no locking needed: done by one global thread.
+    //no locking needed: its just one IO thread.
     auto store_buffer = std::make_shared<MsgSerialized>();
     {
         //move buffer, to minimize locking time
         std::unique_lock<std::mutex> lock(msg_builder_mutex);
 
+        //nothing to store?
         if (msg_builder_storage.empty()) {
-            if (end_msg_session_paper != nullptr) {
-                end_msg_session_paper->streaming = false; //it missed nothing, so end streaming
-//                DEB("boring END");
 
+            //stream to end?
+            if (end_msg_session_paper != nullptr) {
+                end_msg_session_paper->streamSynced();
             }
             return;
         }
@@ -255,8 +249,7 @@ void SharedSessionPaper::store(const std::shared_ptr<MsgSessionPaper> &end_msg_s
         if (end_msg_session_paper != nullptr) {
             //send the part we missed during streaming and end it
             end_msg_session_paper->enqueue(store_buffer);
-            end_msg_session_paper->streaming = false;
-//            DEB("buffered END");
+            end_msg_session_paper->streamSynced();
         }
     }
 
@@ -297,14 +290,14 @@ void SharedSessionPaper::stream_all() {
                         static_pointer_cast<SharedSessionPaper>(msg_session_paper->shared_session)->stream(
                                 msg_session_paper);
                     }
-                    catch (std::system_error e) {
+                    catch (std::system_error & e) {
                         std::stringstream desc;
                         desc << "IO error while reading paper: "
                              << e.code().message() << ": " << std::strerror(errno);
                         msg_session_paper->enqueue_error(desc.str());
                         msg_session_paper->streaming = false;
                     }
-                    catch (std::exception e) {
+                    catch (std::exception & e) {
                         std::stringstream desc;
                         desc << "Exception while reading paper: " << e.what();
                         msg_session_paper->enqueue_error(desc.str());

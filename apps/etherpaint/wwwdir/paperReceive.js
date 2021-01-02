@@ -19,6 +19,12 @@ export default class PaperReceive {
         this.paperDraw = paperDraw;
         this.paperSend = paperSend;
 
+        this.messages.doneHandler = () => {
+            //dont update during streaming
+            if (this.clientId!=0)
+                this.paperDraw.requestDraw();
+        }
+
         //server tells us we are joined to a new session.
         this.messages.handlers[event.EventUnion.StreamStart] = (msg, eventIndex) => {
             const e = msg.events(eventIndex, new event.StreamStart());
@@ -136,7 +142,6 @@ export default class PaperReceive {
                 svgPoint.y = p2;
                 client.currentAction.addPoint(svgPoint);
                 this.paperDraw.updatedActions.add(client.currentAction);
-                this.paperDraw.requestDraw();
                 break;
             case event.IncrementalType.Cancel:
                 this.paperDraw.addAction(new PaperActionDelete(
@@ -154,8 +159,7 @@ export default class PaperReceive {
         }
     }
 
-    drawObject(clientId, points)
-    {
+    drawObject(clientId, points) {
         const client = this.paperDraw.getClient(clientId);
         client.currentAction = new client.Class(
             clientId,
@@ -165,9 +169,8 @@ export default class PaperReceive {
         this.paperDraw.addAction(client.currentAction, true);
     }
 
-    updateCursor(clientId, x,y)
-    {
-        this.paperDraw.updateCursor(clientId, x,y);
+    updateCursor(clientId, x, y) {
+        this.paperDraw.updateCursor(clientId, x, y);
     }
 
 }

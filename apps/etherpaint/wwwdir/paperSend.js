@@ -47,6 +47,9 @@ export default class PaperSend {
 
                 //send all queued stuff
                 this.messages.send();
+
+                //we probably did stuff that needs a draw
+                this.paperReceive.paperDraw.requestDraw();
             }
         }
         // } else {

@@ -316,39 +316,42 @@ void SharedSessionPaper::stream_all() {
 void SharedSessionPaper::stream(const std::shared_ptr<MsgSessionPaper> &msg_session_paper) {
     flatbuffers::uoffset_t buflen;
 
-    //get current size
-    fs.seekg(0, std::ios::end);
-    flatbuffers::uoffset_t length = fs.tellg();
-    if (msg_session_paper->streaming_offset >= length) {
-        //enf of file:
-        //store and send the stuff thats still in the storage buffer and end streaming:
-        store(msg_session_paper);
-        return;
-    }
+//    //send bursts of messages
+//    for (int burst=0; burst<1000; burst++) {
 
-    //read message size from last offset
-    fs.seekg(msg_session_paper->streaming_offset, std::ios::beg);
-    fs.read(reinterpret_cast<char *>(&buflen), sizeof(buflen));
+        //get current size
+        fs.seekg(0, std::ios::end);
+        flatbuffers::uoffset_t length = fs.tellg();
+        if (msg_session_paper->streaming_offset >= length) {
+            //enf of file:
+            //store and send the stuff thats still in the storage buffer and end streaming:
+            store(msg_session_paper);
+            return;
+        }
 
-    //create buffer, and read actual message
-    auto msg_serialized = std::make_shared<MsgSerialized>(buflen);
-    fs.read(reinterpret_cast<char *>(msg_serialized->data()), msg_serialized->size());
+        //read message size from last offset
+        fs.seekg(msg_session_paper->streaming_offset, std::ios::beg);
+        fs.read(reinterpret_cast<char *>(&buflen), sizeof(buflen));
 
-    //verify buffer (to detect corruption)
-    //NOTE: we can skip this if we want the performance?
-    auto verifier = flatbuffers::Verifier(msg_serialized->data(),
-                                          msg_serialized->size());
+        //create buffer, and read actual message
+        auto msg_serialized = std::make_shared<MsgSerialized>(buflen);
+        fs.read(reinterpret_cast<char *>(msg_serialized->data()), msg_serialized->size());
 
-    if (!event::VerifyMessageBuffer(verifier)) {
-        throw (program_error("File is corrupt"));
-    }
+        //verify buffer (to detect corruption)
+        //NOTE: we can skip this if we want the performance?
+        auto verifier = flatbuffers::Verifier(msg_serialized->data(),
+                                              msg_serialized->size());
 
-    //update streaming offset
-    msg_session_paper->streaming_offset += sizeof(buflen) + buflen;
+        if (!event::VerifyMessageBuffer(verifier)) {
+            throw (program_error("File is corrupt"));
+        }
 
-    //send message
-    msg_session_paper->enqueue(msg_serialized);
+        //update streaming offset
+        msg_session_paper->streaming_offset += sizeof(buflen) + buflen;
 
+        //send message
+        msg_session_paper->enqueue(msg_serialized);
+//    }
 }
 
 

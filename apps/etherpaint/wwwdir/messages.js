@@ -112,8 +112,16 @@ m.restart = function () {
                 m.log("Handler not found: " + event.EventUnionName[msg.eventsType(event_index)]);
             }
         }
+
+        m.doneHandler();
     };
 
+    //done with processing a message and calling all the event-handlers.
+    //use this to request an animation frame for example.
+    // m.doneHandler=function()
+    // {
+    //     //override this..
+    // }
 
     m.ws.onerror = function (evt) {
         m.log('Connection error');

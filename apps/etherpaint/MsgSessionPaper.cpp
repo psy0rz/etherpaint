@@ -52,7 +52,7 @@ void MsgSessionPaper::streamSynced() {
 
 void MsgSessionPaper::queue_low() {
     if (streaming) {
-
+//ERROR("low");
         SharedSessionPaper::request_data(std::static_pointer_cast<MsgSessionPaper>(shared_from_this()));
     }
 

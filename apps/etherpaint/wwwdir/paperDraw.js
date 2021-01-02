@@ -56,7 +56,7 @@ export default class PaperDraw {
             this.tmpActions.push(action);
         }
 
-        this.requestDraw();
+     //  this.requestDraw();
     }
 
     //add undo action
@@ -91,7 +91,7 @@ export default class PaperDraw {
             undoIndex--;
         }
 
-        console.log("Cant undo any further.");
+        // console.log("Cant undo any further.");
 
     }
 
@@ -130,7 +130,7 @@ export default class PaperDraw {
             }
             redoIndex--;
         }
-        console.log("Cant redo any further.");
+        // console.log("Cant redo any further.");
     }
 
     //add cursor update to client
@@ -139,7 +139,7 @@ export default class PaperDraw {
         client.cursorX = x;
         client.cursorY = y;
         this.changedClients.add(client);
-        this.requestDraw();
+        // this.requestDraw();
 
     }
 

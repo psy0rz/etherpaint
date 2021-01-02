@@ -1,11 +1,12 @@
 'use strict';
+//The actual draw actions.
+//These are updatable with extra points for realtime updates.
+//Action are also reversable. This is used for the timeslider and undo/redo functions.
+//
+//Drawing is done in animation frames.
 
 import {SVG} from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
 
-//apparte action voor ieder drawtype maken?
-//en ook appart event voor ieder draw type ipv 1 generieke drawincrement?
-//maakt de events kleiner, en is sneller aan de javascript kant (geen switch meer!)
-//lastig aan de server kant: ieder non-struct ding heeft zn eigen handlers nodig? struct dingen kunnen iig templated
 
 export class PaperActionPolyline {
     constructor(clientId, points, attributes) {

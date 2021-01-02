@@ -22,7 +22,9 @@ export default class PaperReceive {
         //server tells us we are joined to a new session.
         this.messages.handlers[event.EventUnion.StreamStart] = (msg, eventIndex) => {
             const e = msg.events(eventIndex, new event.StreamStart());
-//            console.log("Started stream ", e.paper_id());
+
+            console.log("Started stream ", e.paperId());
+
             this.clientId = 0; //no client yet (prevents echo skip-code)
             this.paperSend.setClientId(0)
             this.paperDraw.clear();
@@ -30,7 +32,10 @@ export default class PaperReceive {
 
         this.messages.handlers[event.EventUnion.StreamSynced] = (msg, eventIndex) => {
             const e = msg.events(eventIndex, new event.StreamSynced());
-            this.clientId = e.client_id(); //no client yet (prevents echo skip-code)
+            this.clientId = e.clientId();
+
+            console.log("Stream synced, clientId:", e.clientId());
+
             this.paperSend.setClientId(this.clientId)
         }
 
@@ -44,6 +49,7 @@ export default class PaperReceive {
 
             if (clientId === this.clientId)
                 return;
+
 
             this.drawIncrement(
                 clientId,
@@ -63,13 +69,18 @@ export default class PaperReceive {
             const drawObjectEvent = msg.events(eventIndex, new event.DrawObject());
             const clientId = drawObjectEvent.clientId();
 
+            console.log("drawobject", clientId);
+
             if (clientId === this.clientId)
                 return;
+
 
             //transform into regular array
             let points = [];
             for (const n of drawObjectEvent.pointsArray())
                 points.push(n);
+            console.log("drawobject", clientId, points);
+
 
             this.drawObject(clientId, points);
 

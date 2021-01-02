@@ -28,7 +28,7 @@ void MsgSessionPaper::streamStart(std::string &paper_id, uint8_t client_id) {
 
     streaming = true;
     streaming_offset = 0;
-    this->id = id;
+    this->id = client_id;
 
     MsgBuilder mb(200);
     mb.add_event(event::EventUnion::EventUnion_StreamStart,

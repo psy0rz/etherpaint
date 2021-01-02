@@ -3,7 +3,7 @@
 #include "messages/register_handler.h"
 #include "SharedSessionPaper.h"
 #include "MsgSessionPaper.h"
-#include "messages/program_error.hpp"
+//#include "messages/program_error.hpp"
 
 //Generic function template to create EVENT and call appropriate SharedSessionPaper::addDraw() overload.
 //Does all necessary validation against malicious input.
@@ -18,7 +18,7 @@ template<typename EVENT> void addDraw(const std::shared_ptr<MsgSession> &msg_ses
 
     const auto event = msg->events()->GetAs<EVENT>(event_index);
 
-    if (event->client_id() != msg_session_paper->id)
+    if (event->clientId() != msg_session_paper->id)
         throw (program_error("Invalid client id"));
 
     shared_session_paper->addDraw(event);
@@ -45,7 +45,7 @@ int main(const int argc, const char *argv[]) {
         auto cursor = msg->events()->GetAs<event::Cursor>(event_index);
 
 
-        if (cursor->client_id() != msg_session_paper->id)
+        if (cursor->clientId() != msg_session_paper->id)
             throw (program_error("Invalid client id"));
 
         //not thread safe but shouldnt matter for cursors?

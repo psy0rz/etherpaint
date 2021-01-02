@@ -27,7 +27,7 @@ table Message {
 struct Cursor
 {
     ///client id
-    client_id: uint8;
+    clientId: uint8;
     x: uint16;
     y: uint16;
 }
@@ -56,13 +56,13 @@ table Join
 //new stream started
 table StreamStart
 {
-  paper_id: string;
+  paperId: string;
 }
 
-//stream complete, tells client_id to use as well
+//stream complete, tells clientId to use as well
 table StreamSynced
 {
-    client_id: uint8;
+    clientId: uint8;
 }
 
 
@@ -99,7 +99,7 @@ enum IncrementalType:byte
 /// draw command, 8 bytes
 struct DrawIncrement
 {
-    client_id: uint8;
+    clientId: uint8;
     type: IncrementalType;
     p1: uint16;
     p2: uint16;
@@ -112,7 +112,7 @@ struct DrawIncrement
 //always stored
 table DrawObject
 {
-    client_id: uint8;
+    clientId: uint8;
     points: [uint16];
 }
 

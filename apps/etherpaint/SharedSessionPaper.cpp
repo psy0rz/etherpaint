@@ -156,7 +156,7 @@ void SharedSessionPaper::addDraw(const event::DrawObject *draw_object) {
             event::EventUnion::EventUnion_DrawObject,
             event::CreateDrawObject(
                     msg_builder.builder,
-                    draw_object->client_id(),
+                    draw_object->clientId(),
                     msg_builder.builder.CreateVector(
                             draw_object->points()->data(),
                             draw_object->points()->size()
@@ -168,7 +168,7 @@ void SharedSessionPaper::addDraw(const event::DrawObject *draw_object) {
             event::EventUnion::EventUnion_DrawObject,
             event::CreateDrawObject(
                     msg_builder_storage.builder,
-                    draw_object->client_id(),
+                    draw_object->clientId(),
                     msg_builder_storage.builder.CreateVector(
                             draw_object->points()->data(),
                             draw_object->points()->size()
@@ -348,6 +348,7 @@ void SharedSessionPaper::stream(const std::shared_ptr<MsgSessionPaper> &msg_sess
 
     //send message
     msg_session_paper->enqueue(msg_serialized);
+    WARNING("bam");
 
 }
 

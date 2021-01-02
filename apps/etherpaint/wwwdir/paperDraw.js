@@ -5,7 +5,7 @@
 
 import PaperClient from "./paperClient.js";
 import {SVG} from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js'
-import {PaperActionUndo} from "./paperAction.js";
+import {PaperActionUndo, PaperActionRedo} from "./paperAction.js";
 
 export default class PaperDraw {
 
@@ -93,6 +93,44 @@ export default class PaperDraw {
 
         console.log("Cant undo any further.");
 
+    }
+
+
+    //add redo action
+    addRedo(clientId) {
+        let redoIndex = this.increments.length - 1;
+        let redoSkip = 0;
+
+        while (redoIndex > 0) {
+            const action = this.increments[redoIndex];
+            //its our action?
+            if (action.clientId === clientId) {
+                //it another redo action?
+                if (action instanceof PaperActionRedo) {
+                    //skip that undo, when we encounter it
+                    redoSkip++;
+                } else {
+                    //found an undo?
+                    if (action instanceof PaperActionUndo) {
+                        //should we skip this action?
+                        if (redoSkip > 0) {
+                            redoSkip--;
+                        } else {
+                            //found the undo-action we should redo
+                            this.addAction(
+                                new PaperActionRedo(
+                                    clientId,
+                                    action
+                                ),
+                                true);
+                            return;
+                        }
+                    }
+                }
+            }
+            redoIndex--;
+        }
+        console.log("Cant redo any further.");
     }
 
     //add cursor update to client

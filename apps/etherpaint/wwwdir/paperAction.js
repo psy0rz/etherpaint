@@ -128,3 +128,18 @@ export class PaperActionUndo {
     }
 }
 
+//basically points to a paperactionundo that will be reversed. (resulting in a normal draw of the original action)
+export class PaperActionRedo {
+    constructor(clientId, undoAction) {
+        this.clientId=clientId;
+        this.undoAction=undoAction;
+    }
+
+    draw(svg) {
+        this.undoAction.drawReverse(svg);
+    }
+
+    drawReverse(svg) {
+        this.undoAction.draw(svg);
+    }
+}

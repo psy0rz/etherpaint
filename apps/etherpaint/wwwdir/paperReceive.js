@@ -148,6 +148,9 @@ export default class PaperReceive {
             case event.IncrementalType.Undo:
                 this.paperDraw.addUndo(clientId);
                 break;
+            case event.IncrementalType.Redo:
+                this.paperDraw.addRedo(clientId);
+                break;
         }
     }
 

@@ -72,8 +72,12 @@ export default class ControlDrawing {
 
         $('.paper-click.paper-undo').on('click', function () {
             self.paperSend.undo();
+            self.paperSend.send();
+        });
 
-
+        $('.paper-click.paper-redo').on('click', function () {
+            self.paperSend.redo();
+            self.paperSend.send();
         });
 
         $('.paper-click.paper-zoom-in').on('click', function () {

@@ -50,6 +50,7 @@ table Error
 table Join
 {
   id: string;
+  clientId: uint8; //obosolete
 }
 
 

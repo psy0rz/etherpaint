@@ -174,8 +174,8 @@ export default class PaperSend {
 
         //TODO: optimize polyline with https://mourner.github.io/simplify-js/
 
-        this.drawObject(this.points);
         this.drawIncrement(event.IncrementalType.Cancel, 0, 0, 0, false);
+        this.drawObject(this.points);
         this.points = [];
 
     }

@@ -8,12 +8,12 @@ union EventUnion {
     Error,
     Join,
     StreamStart,
-    StreamSynced,
 
     Cursor,
     DrawIncrement,
-    DrawObject
+    DrawObject,
 
+    StreamSynced,
 }
 
 //32 bytes overhead

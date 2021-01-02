@@ -194,7 +194,7 @@ export default class PaperSend {
                     event.DrawObject.createPointsVector(this.messages.builder, points)
                 ));
 
-            this.paperReceive.drawObject(points);
+            this.paperReceive.drawObject(this.clientId,points);
 
         }
 

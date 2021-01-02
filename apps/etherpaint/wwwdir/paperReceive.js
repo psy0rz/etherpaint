@@ -69,7 +69,7 @@ export default class PaperReceive {
             const drawObjectEvent = msg.events(eventIndex, new event.DrawObject());
             const clientId = drawObjectEvent.clientId();
 
-            console.log("drawobject", clientId);
+            // console.log("drawobject", clientId);
 
             if (clientId === this.clientId)
                 return;
@@ -79,7 +79,7 @@ export default class PaperReceive {
             let points = [];
             for (const n of drawObjectEvent.pointsArray())
                 points.push(n);
-            console.log("drawobject", clientId, points);
+            // console.log("drawobject", clientId, points);
 
 
             this.drawObject(clientId, points);

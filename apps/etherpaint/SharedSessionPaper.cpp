@@ -348,7 +348,6 @@ void SharedSessionPaper::stream(const std::shared_ptr<MsgSessionPaper> &msg_sess
 
     //send message
     msg_session_paper->enqueue(msg_serialized);
-    WARNING("bam");
 
 }
 

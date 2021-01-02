@@ -110,6 +110,7 @@ export default class PaperSend {
                 store
             ));
 
+        //local echo
         this.paperReceive.drawIncrement(this.clientId, type, p1, p2, p3, store);
 
         // if (test.recording)
@@ -200,15 +201,16 @@ export default class PaperSend {
 
     }
 
-    test() {
-        this.messages.add_event(
-            event.EventUnion.DrawObject,
-            event.DrawObject.createDrawObject(
-                this.messages.builder,
-                this.clientId,
-                event.DrawObject.createPointsVector(this.messages.builder, [0, 0, 0, 0, 0, 0])
-            ));
+    undo(steps)
+    {
+        this.drawIncrement(event.IncrementalType.Undo, steps, 0, 0, true);
+
     }
 
+    redo(steps)
+    {
+        this.drawIncrement(event.IncrementalType.Redo, steps, 0, 0, true);
+
+    }
 
 }

@@ -71,6 +71,7 @@ export default class ControlDrawing {
         });
 
         $('.paper-click.paper-undo').on('click', function () {
+            self.paperSend.undo();
 
 
         });

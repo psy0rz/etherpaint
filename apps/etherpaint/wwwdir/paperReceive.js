@@ -124,6 +124,7 @@ export default class PaperReceive {
                 break;
             case event.IncrementalType.DrawObject:
                 client.currentAction = new client.Class(
+                    clientId,
                     client.getNextId(),
                     [p1, p2],
                     client.attributes);
@@ -139,9 +140,13 @@ export default class PaperReceive {
                 break;
             case event.IncrementalType.Cancel:
                 this.paperDraw.addAction(new PaperActionDelete(
+                    clientId,
                     client.currentAction.element
                 ), store);
                 client.currentAction = undefined;
+                break;
+            case event.IncrementalType.Undo:
+                this.paperDraw.addUndo(clientId);
                 break;
         }
     }
@@ -150,6 +155,7 @@ export default class PaperReceive {
     {
         const client = this.paperDraw.getClient(clientId);
         client.currentAction = new client.Class(
+            clientId,
             client.getNextId(),
             points,
             client.attributes);

@@ -93,6 +93,8 @@ enum IncrementalType:byte
     AddPoint,
     Cancel,
     Delete,
+    Undo,
+    Redo,
 
 }
 

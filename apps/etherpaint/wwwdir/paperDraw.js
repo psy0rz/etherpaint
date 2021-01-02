@@ -4,8 +4,8 @@
 
 
 import PaperClient from "./paperClient.js";
-import { SVG } from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js'
-// import { SVG } from '@svgdotjs/svg.js'
+import {SVG} from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js'
+import {PaperActionUndo} from "./paperAction.js";
 
 export default class PaperDraw {
 
@@ -52,21 +52,54 @@ export default class PaperDraw {
         if (store) {
             this.increments.push(action);
             this.targetIndex = this.increments.length - 1;
-        }
-        else
-        {
+        } else {
             this.tmpActions.push(action);
         }
 
         this.requestDraw();
     }
 
+    //add undo action
+    addUndo(clientId) {
+        let undoIndex = this.increments.length - 1;
+        let undoSkip = 0;
+
+        while (undoIndex > 0) {
+            const action = this.increments[undoIndex];
+            //its our action?
+            if (action.clientId === clientId) {
+                //it another undo action?
+                if (action instanceof PaperActionUndo) {
+                    //skip that action, when we encounter it
+                    undoSkip++;
+                } else {
+                    //should we skip this action?
+                    if (undoSkip > 0) {
+                        undoSkip--;
+                    } else {
+                        //found the action we should undo
+                        this.addAction(
+                            new PaperActionUndo(
+                                clientId,
+                                action
+                            ),
+                            true);
+                        return;
+                    }
+                }
+            }
+            undoIndex--;
+        }
+
+        console.log("Cant undo any further.");
+
+    }
 
     //add cursor update to client
-    updateCursor(clientId, x,y) {
+    updateCursor(clientId, x, y) {
         const client = this.getClient(clientId);
-        client.cursorX=x;
-        client.cursorY=y;
+        client.cursorX = x;
+        client.cursorY = y;
         this.changedClients.add(client);
         this.requestDraw();
 
@@ -82,7 +115,7 @@ export default class PaperDraw {
 
     //do actual drawing stuff, call this from inside an animation frame. (e.g. 60fps)
     draw() {
-        this.drawRequested=false;
+        this.drawRequested = false;
 
         //let all changed clients do their incremental draw and cursor stuff:
         for (const client of this.changedClients) {
@@ -119,12 +152,11 @@ export default class PaperDraw {
     }
 
 
-    drawTmpIncrements()
-    {
+    drawTmpIncrements() {
         for (const action of this.tmpActions) {
             action.draw(this.scratchSvg);
         }
-        this.tmpActions=[];
+        this.tmpActions = [];
 
     }
 

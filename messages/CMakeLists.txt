@@ -1,5 +1,4 @@
-#i had some issues with git cloning in 3.16
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.13.4)
 project(messages)
 include(GNUInstallDirs)
 

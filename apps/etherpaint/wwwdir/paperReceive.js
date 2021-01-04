@@ -125,15 +125,16 @@ export default class PaperReceive {
                 client.Class = classTypeMap[p1]
                 break;
             case event.IncrementalType.SelectColor:
-                let color = p1 << 16 + p2 << 8 + p3;
-                client.attributes['stroke'] = "#" + color.toString(16).padStart(6, '0');
+                // let color = p1 << 16 + p2 << 8 + p3;
+                // client.attributes['stroke'] = "#" + color.toString(16).padStart(6, '0');
+                client.selectAttribute('c', 'c'+p1 );
                 break;
             case event.IncrementalType.DrawObject:
                 client.currentAction = new client.Class(
                     clientId,
                     client.getNextId(),
                     [p1, p2],
-                    client.attributes);
+                    client.attributeClassStr);
                 this.paperDraw.addAction(client.currentAction, store);
                 break;
             case event.IncrementalType.AddPoint:
@@ -165,7 +166,7 @@ export default class PaperReceive {
             clientId,
             client.getNextId(),
             points,
-            client.attributes);
+            client.attributeClassStr);
         this.paperDraw.addAction(client.currentAction, true);
     }
 

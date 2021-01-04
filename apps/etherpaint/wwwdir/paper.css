@@ -1,0 +1,35 @@
+.paper-defaults {
+    fill: none;
+    stroke: #000000;
+}
+
+/*COLORS*/
+
+.c0 {
+    stroke: black;
+}
+
+.c1 {
+    stroke: red;
+}
+.c2 {
+    stroke: green;
+}
+.c3 {
+    stroke: blue;
+}
+
+
+ .w1 {
+   stroke-width:1px;
+}
+ .w2 {
+    stroke-width:2px;
+}
+ .w3 {
+    stroke-width:4px;
+}
+
+ .w4 {
+   stroke-width:8px;
+}

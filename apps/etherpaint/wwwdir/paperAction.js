@@ -9,9 +9,9 @@ import {SVG} from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
 
 
 export class PaperActionPolyline {
-    constructor(clientId, id,  points, attributes) {
+    constructor(clientId, id,  points, classStr) {
         this.clientId=clientId;
-        this.element = new SVG().polyline(points).attr(attributes);
+        this.element = new SVG().polyline(points).addClass(classStr);
         this.element.node.id = id;
         this.updatePoints=[];
     }
@@ -41,9 +41,9 @@ export class PaperActionPolyline {
 
 
 export class PaperActionRectangle {
-    constructor(clientId, id, points, attributes) {
+    constructor(clientId, id, points, classStr) {
         this.clientId=clientId;
-        this.element = new SVG().rect().attr(attributes);
+        this.element = new SVG().rect().addClass(classStr);
         this.x = points[0];
         this.y = points[1];
         this.setxy(points[2], points[3]);

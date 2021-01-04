@@ -35,6 +35,11 @@ export default class ControlDrawing {
         //regular pointer stuff
         this.primaryDown = false;
 
+
+        this.selectedColor="c0";
+        this.selectedWidth="w1";
+
+
         const eventElement=this.scratchElement;//scratch is faster?
 
         eventElement.addEventListener('pointermove', this.onPointerMove.bind(this), {passive: true});
@@ -87,32 +92,57 @@ export default class ControlDrawing {
             // self.paperPanZoom.setZoom(self.paperPanZoom.zoomUpdateFactor-0.1, 1000 , 1000);
 
         });
+
+        $('.paper-select-color .paper-click').on('click', function () {
+            self.selectColor(this.classList[0]);
+        });
+
+        $('.paper-select-width .paper-click').on('click', function () {
+            self.selectWidth(this.classList[0]);
+        });
+
+    }
+
+    selectColor(cls)
+    {
+        $('.paper-attribute-preview').removeClass(this.selectedColor);
+        this.selectedColor=cls;
+        $('.paper-attribute-preview').addClass(this.selectedColor);
+
+    }
+
+    selectWidth(cls)
+    {
+        $('.paper-attribute-preview').removeClass(this.selectedWidth);
+        this.selectedWidth=cls;
+        $('.paper-attribute-preview').addClass(this.selectedWidth);
+
     }
 
 
-    deselectAll() {
-        for (const e of document.querySelectorAll(".selected")) {
-            e.classList.remove("selected");
-        }
-    }
-
-
-    select(target) {
-
-        if (target.id !== 'viewer') {
-
-            //select
-            target.classList.add("selected");
-        }
-    }
-
-    deleteSelected() {
-        for (const e of document.querySelectorAll(".selected")) {
-            // e.classList.remove("selected"); //deselect as well (its hidden now)
-            this.paperSend.drawIncrement(event.IncrementalType.Delete, e.id, 0, 0, true);
-        }
-        this.paperSend.send();
-    }
+    // deselectAll() {
+    //     for (const e of document.querySelectorAll(".selected")) {
+    //         e.classList.remove("selected");
+    //     }
+    // }
+    //
+    //
+    // select(target) {
+    //
+    //     if (target.id !== 'viewer') {
+    //
+    //         //select
+    //         target.classList.add("selected");
+    //     }
+    // }
+    //
+    // deleteSelected() {
+    //     for (const e of document.querySelectorAll(".selected")) {
+    //         // e.classList.remove("selected"); //deselect as well (its hidden now)
+    //         this.paperSend.drawIncrement(event.IncrementalType.Delete, e.id, 0, 0, true);
+    //     }
+    //     this.paperSend.send();
+    // }
 
     //calculate svg xy point from normal pageXy coords.
     getSvgPoint(x, y) {

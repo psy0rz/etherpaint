@@ -5,7 +5,7 @@ export default class PaperClient {
     constructor(clientId, scratchSvg) {
         this.clientId = clientId;
         //next uniq id for draw objects
-        this.nextId=clientId*1000000;
+        this.nextId = clientId * 1000000;
 
         //selected drawing class
         this.Class = undefined;
@@ -13,13 +13,9 @@ export default class PaperClient {
         //current action the client is working on (used by add points)
         this.action = undefined;
 
-        //attributes for new svg objects (color etc)
-        this.attributes = {
-            'stroke': '#000000',
-            'fill': 'none',
-            'stroke-width': 4
-        };
-
+        //selected attribute classes for new svg objects. (see paper.css)
+        this.attributeClasses = {};
+        this.attributeClassStr = "";
 
 
         //create cursor
@@ -32,15 +28,14 @@ export default class PaperClient {
             });
         this.cursorSvg.text("client " + this.clientId);
 
-        this.cursorX=0;
-        this.cursorY=0;
+        this.cursorX = 0;
+        this.cursorY = 0;
 
     }
 
-    getNextId()
-    {
-        this.nextId=this.nextId+1;
-        return(this.nextId);
+    getNextId() {
+        this.nextId = this.nextId + 1;
+        return (this.nextId);
     }
 
     animateCursor() {
@@ -50,5 +45,12 @@ export default class PaperClient {
             translateY: this.cursorY
         });
     }
+
+    selectAttribute(attribute, attributeClass) {
+        this.attributeClasses[attribute]=attributeClass;
+        this.attributeClassStr=Object.keys(this.attributeClasses).join(' ');
+        console.log(this.attributeClassStr);
+    }
+
 
 }

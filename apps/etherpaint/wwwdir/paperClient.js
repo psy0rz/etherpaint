@@ -48,8 +48,8 @@ export default class PaperClient {
 
     selectAttribute(attribute, attributeClass) {
         this.attributeClasses[attribute]=attributeClass;
-        this.attributeClassStr=Object.keys(this.attributeClasses).join(' ');
-        console.log(this.attributeClassStr);
+        this.attributeClassStr=Object.values(this.attributeClasses).join(' ');
+        console.log("select" ,this.attributeClassStr);
     }
 
 

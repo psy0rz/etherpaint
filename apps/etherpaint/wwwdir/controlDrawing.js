@@ -103,19 +103,21 @@ export default class ControlDrawing {
 
     }
 
-    selectColor(cls)
+    selectColor(sel)
     {
         $('.paper-attribute-preview').removeClass(this.selectedColor);
-        this.selectedColor=cls;
+        this.selectedColor=sel;
         $('.paper-attribute-preview').addClass(this.selectedColor);
+        this.paperSend.selectColor(parseInt(sel.substr(1)));
 
     }
 
-    selectWidth(cls)
+    selectWidth(sel)
     {
         $('.paper-attribute-preview').removeClass(this.selectedWidth);
-        this.selectedWidth=cls;
+        this.selectedWidth=sel;
         $('.paper-attribute-preview').addClass(this.selectedWidth);
+        this.paperSend.selectWidth(parseInt(sel.substr(1)));
 
     }
 

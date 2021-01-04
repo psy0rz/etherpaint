@@ -129,6 +129,9 @@ export default class PaperReceive {
                 // client.attributes['stroke'] = "#" + color.toString(16).padStart(6, '0');
                 client.selectAttribute('c', 'c'+p1 );
                 break;
+            case event.IncrementalType.SelectWidth:
+                client.selectAttribute('w', 'w'+p1 );
+                break;
             case event.IncrementalType.DrawObject:
                 client.currentAction = new client.Class(
                     clientId,

@@ -4,32 +4,75 @@
 }
 
 /*COLORS*/
-
 .c0 {
     stroke: black;
 }
 
+/*primary colors*/
 .c1 {
-    stroke: red;
+    stroke: #ff0000;
 }
+
 .c2 {
-    stroke: green;
+    stroke: #00ff00;
 }
+
 .c3 {
-    stroke: blue;
+    stroke: #0000ff;
+}
+
+/*secondairy colors*/
+.c4 {
+    stroke: #FFFF00;
+}
+
+.c5 {
+    stroke: #FF00FF;
+}
+
+.c6 {
+    stroke: #00FFFF;
 }
 
 
- .w1 {
-   stroke-width:1px;
-}
- .w2 {
-    stroke-width:2px;
-}
- .w3 {
-    stroke-width:4px;
+/*tertriary colors*/
+.c7 {
+    stroke: #FF7F00;
 }
 
- .w4 {
-   stroke-width:8px;
+.c8 {
+    stroke: #FF007F;
+}
+
+.c9 {
+    stroke: #7FFF00;
+}
+
+.c10 {
+    stroke: #7F00FF;
+}
+
+.c11 {
+    stroke: #00FF7F;
+}
+
+.c12 {
+    stroke: #007FFF;
+}
+
+
+.w1 {
+    stroke-width: 1px;
+}
+
+.w2 {
+    stroke-width: 2px;
+}
+
+.w3 {
+    stroke-width: 4px;
+}
+
+.w4 {
+    stroke-width: 8px;
 }

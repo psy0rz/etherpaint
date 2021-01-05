@@ -95,8 +95,21 @@
     stroke-width: 8px;
 }
 
+.w12 {
+    stroke-width: 8px;
+}
+
+
 .w16 {
     stroke-width: 16px;
+}
+
+.w20 {
+    stroke-width: 20px;
+}
+
+.w24 {
+    stroke-width: 24px;
 }
 
 .w32 {

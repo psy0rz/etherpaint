@@ -32,17 +32,17 @@ export default class PaperReceive {
             console.log("Started stream ", e.paperId());
 
             this.clientId = 0; //no client yet (prevents echo skip-code)
-            this.paperSend.setClientId(0)
-            this.paperDraw.clear();
+            this.paperSend.setClientId(0);
+            this.paperDraw.streamStart();
         };
 
         this.messages.handlers[event.EventUnion.StreamSynced] = (msg, eventIndex) => {
             const e = msg.events(eventIndex, new event.StreamSynced());
             this.clientId = e.clientId();
-
+            this.paperSend.setClientId(this.clientId)
+            this.paperDraw.streamSynced();
             console.log("Stream synced, clientId:", e.clientId());
 
-            this.paperSend.setClientId(this.clientId)
         }
 
 

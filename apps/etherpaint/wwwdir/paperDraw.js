@@ -31,6 +31,21 @@ export default class PaperDraw {
 
     }
 
+
+    streamStart()
+    {
+        this.clear();
+        $(this.paperElement).trigger('streamStart');
+    }
+
+    streamSynced()
+    {
+        this.clear();
+        $(this.paperElement).trigger('streamSynced');
+    }
+
+
+
     // //sets our own client id
     // setClientId(id)
     // {

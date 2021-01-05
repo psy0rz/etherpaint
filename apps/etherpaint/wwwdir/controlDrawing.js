@@ -122,6 +122,7 @@ export default class ControlDrawing {
         $(".paper-select-color ."+this.selectedColor).addClass("selected");
 
         this.paperSend.selectColor(parseInt(sel.substr(1)));
+        this.paperSend.send();
 
 
     }
@@ -136,6 +137,7 @@ export default class ControlDrawing {
         $(".paper-select-width ."+this.selectedWidth).addClass("selected");
 
         this.paperSend.selectWidth(parseInt(sel.substr(1)));
+        this.paperSend.send();
 
     }
 
@@ -150,6 +152,7 @@ export default class ControlDrawing {
         $(".paper-select-dashing ."+this.selectedDashing).addClass("selected");
 
         this.paperSend.selectDashing(parseInt(sel.substr(1)));
+        this.paperSend.send();
 
     }
 

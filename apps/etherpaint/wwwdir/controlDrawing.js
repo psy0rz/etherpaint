@@ -105,6 +105,10 @@ export default class ControlDrawing {
             self.selectWidth(this.classList[0]);
         });
 
+        $('.paper-select-dashing .paper-click').on('click', function () {
+            self.selectDashing(this.classList[0]);
+        });
+
     }
 
     selectColor(sel)
@@ -135,6 +139,19 @@ export default class ControlDrawing {
 
     }
 
+
+    selectDashing(sel)
+    {
+        $('.paper-attribute-preview').removeClass(this.selectedDashing);
+        $(".paper-select-dashing ."+this.selectedDashing).removeClass("selected");
+
+        this.selectedDashing=sel;
+        $('.paper-attribute-preview').addClass(this.selectedDashing);
+        $(".paper-select-dashing ."+this.selectedDashing).addClass("selected");
+
+        this.paperSend.selectDashing(parseInt(sel.substr(1)));
+
+    }
 
     // deselectAll() {
     //     for (const e of document.querySelectorAll(".selected")) {

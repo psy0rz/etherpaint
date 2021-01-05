@@ -3,7 +3,7 @@
     stroke: #000000;
 }
 
-/*COLORS*/
+/******************************** COLORS */
 .c0 {
     stroke: black;
 }
@@ -74,6 +74,7 @@
     /*color: #007FFF !important;*/
 }
 
+/******************************** WIDTH */
 
 .w1 {
     stroke-width: 1px;
@@ -114,4 +115,28 @@
 
 .w32 {
     stroke-width: 32px;
+}
+
+
+
+/******************************** DASHING */
+
+.d1 {
+    stroke-dasharray: none;
+}
+
+.d2 {
+    stroke-dasharray: 5;
+}
+
+.d3 {
+    stroke-dasharray: 10;
+}
+
+.d3 {
+    stroke-dasharray: 20;
+}
+
+.d4 {
+    stroke-dasharray: 40;
 }

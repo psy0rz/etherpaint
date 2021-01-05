@@ -97,6 +97,7 @@ enum IncrementalType:byte
     Redo,
 
     SelectWidth,
+    SelectDashing,
 }
 
 

@@ -137,6 +137,11 @@ export default class PaperSend {
         this.drawIncrement(event.IncrementalType.SelectWidth, width, 0, 0, true);
     }
 
+    selectDashing(dashing)
+    {
+        this.drawIncrement(event.IncrementalType.SelectDashing, dashing, 0, 0, true);
+    }
+
     //start temporary realtime updated object of selected draw class.
     //this will store the points and send a final complete drawObject to the server after calling drawFinish.
     //this object is also optimized so it has less points, in case of polylines.

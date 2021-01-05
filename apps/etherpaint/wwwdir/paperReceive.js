@@ -132,6 +132,9 @@ export default class PaperReceive {
             case event.IncrementalType.SelectWidth:
                 client.selectAttribute('w', 'w'+p1 );
                 break;
+            case event.IncrementalType.SelectDashing:
+                client.selectAttribute('d', 'd'+p1 );
+                break;
             case event.IncrementalType.DrawObject:
                 client.currentAction = new client.Class(
                     clientId,

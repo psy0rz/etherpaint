@@ -55,6 +55,10 @@ export default class ControlDrawing {
         //mobile pan/zoom stuff (for desktop the native browser zoom/pan should be ok)
         this.paperPanZoom = new PaperPanZoom(this.containerElement,this.paperElement, this.scratchElement, this.cancel.bind(this));
 
+        this.attributeDropdown=$('.paper-attribute-dropdown').dropdown({
+
+        });
+
 
         $('.paper-click.paper-tool.paper-pointer').on('click', function () {
             self.mode = Modes.Point;
@@ -109,6 +113,8 @@ export default class ControlDrawing {
         this.selectedColor=sel;
         $('.paper-attribute-preview').addClass(this.selectedColor);
         this.paperSend.selectColor(parseInt(sel.substr(1)));
+
+        this.attributeDropdown.dropdown('hide');
 
     }
 

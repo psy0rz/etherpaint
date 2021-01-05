@@ -57,7 +57,11 @@ m.log = function (txt) {
 m.handlers = [];
 
 m.delayed_restart = function () {
-    setTimeout(m.restart, 1000);
+    if (document.URL.search("debug")==-1)
+        setTimeout(m.restart, 1000);
+    else
+        //debug mode, reload page to make developing easier:
+        setTimeout(function(){ location.reload()}, 100);
 }
 
 
@@ -130,6 +134,7 @@ m.restart = function () {
     m.ws.onclose = function (evt) {
         m.log('Disconnected, reconnecting.');
         m.delayed_restart();
+
     };
 
 }

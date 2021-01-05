@@ -12,9 +12,6 @@ export default class ControlUI {
             self.highlightTool(this);
         })
 
-        $('.paper-attribute-dropdown').dropdown({
-
-        });
 
 
         //make sure paper starts after toolbar

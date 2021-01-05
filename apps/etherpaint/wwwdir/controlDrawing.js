@@ -110,19 +110,27 @@ export default class ControlDrawing {
     selectColor(sel)
     {
         $('.paper-attribute-preview').removeClass(this.selectedColor);
+        $(".paper-select-color ."+this.selectedColor).removeClass("selected");
+
         this.selectedColor=sel;
+
         $('.paper-attribute-preview').addClass(this.selectedColor);
+        $(".paper-select-color ."+this.selectedColor).addClass("selected");
+
         this.paperSend.selectColor(parseInt(sel.substr(1)));
 
-        // this.attributeDropdown.dropdown('hide');
 
     }
 
     selectWidth(sel)
     {
         $('.paper-attribute-preview').removeClass(this.selectedWidth);
+        $(".paper-select-width ."+this.selectedWidth).removeClass("selected");
+
         this.selectedWidth=sel;
         $('.paper-attribute-preview').addClass(this.selectedWidth);
+        $(".paper-select-width ."+this.selectedWidth).addClass("selected");
+
         this.paperSend.selectWidth(parseInt(sel.substr(1)));
 
     }

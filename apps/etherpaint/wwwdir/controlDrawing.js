@@ -114,7 +114,7 @@ export default class ControlDrawing {
         $('.paper-attribute-preview').addClass(this.selectedColor);
         this.paperSend.selectColor(parseInt(sel.substr(1)));
 
-        this.attributeDropdown.dropdown('hide');
+        // this.attributeDropdown.dropdown('hide');
 
     }
 

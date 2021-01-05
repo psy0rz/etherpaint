@@ -4,15 +4,8 @@
 }
 
 /******************************** COLORS */
-.c0 {
-    stroke: black;
-}
 
-.c255 {
-    stroke: white;
-}
-
-
+/**** thes are the primary/secondary/tritairy RYB colors, usually used for painting */
 .c1 {
     stroke: #FE2712;
     /*color: #ff0000 !important;*/
@@ -74,6 +67,34 @@
     /*color: #007FFF !important;*/
 }
 
+/*** black/grays/white */
+.c0 {
+    stroke: black;
+}
+
+.c100 {
+    stroke: gray;
+}
+
+.c105 {
+    stroke: darkgray;
+}
+
+.c110 {
+    stroke: lightgray;
+}
+
+.c255 {
+    stroke: white;
+}
+
+/*other random commonly used/requested colors*/
+.c20 {
+    stroke: pink;
+}
+
+
+
 /******************************** WIDTH */
 
 .w1 {
@@ -97,7 +118,7 @@
 }
 
 .w12 {
-    stroke-width: 8px;
+    stroke-width: 12px;
 }
 
 
@@ -142,4 +163,9 @@
 
 .d4 {
     stroke-dasharray: 40;
+}
+
+/*the famous dash dot pattern :) */
+.d5 {
+    stroke-dasharray: 20 10 5 10;
 }

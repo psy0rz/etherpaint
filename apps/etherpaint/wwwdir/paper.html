@@ -49,6 +49,11 @@
 
         }
 
+        /*we need more width to properly show the dashing pattern*/
+        .paper-select-dashing svg {
+            width: 44px;
+        }
+
         /*scale to 0.5, since this is the default scale of the drawing*/
         .paper-attribute-pallet path {
             transform: scale(0.5);
@@ -103,7 +108,7 @@
             // controlDrawing.selectColor("c3");
             // controlDrawing.selectWidth("w2");
             // $(".paper-click.paper-polyline").click();
-            // $(".paper-attribute-pallet").click();
+            $(".paper-attribute-pallet").click();
 
         })
 
@@ -125,9 +130,9 @@
             <div class="ui basic button paper-attribute-dropdown paper-attribute-pallet paper-defaults"
                  style="padding:2px; height:36px;  width:36px;">
 
-                    <svg class="paper-attribute-preview" style="width: 33px; height: 33px; border: none">
-                        <path d="M 0 0 L100 100 "></path>
-                    </svg>
+                <svg class="paper-attribute-preview" style="width: 33px; height: 33px; border: none">
+                    <path d="M 0 0 L100 100 "></path>
+                </svg>
 
                 <div class="ui fluid  menu popup transition hidden  ">
                     <div class="ui grid">
@@ -137,16 +142,7 @@
                         </div>
 
                         <div class="row  paper-select-color" style="padding:0">
-                            <a class="c0 w32  paper-click">
-                                <svg>
-                                    <path d="M 0 0 L0 30 L30 30 L30 0 "></path>
-                                </svg>
-                            </a>
-                            <a class="c255 w32 paper-click">
-                                <svg>
-                                    <path d="M 0 0 L0 30 L30 30 L30 0 "></path>
-                                </svg>
-                            </a>
+<!--                            RYB main colors-->
                             <a class="c1 w32 paper-click ">
                                 <svg class="">
                                     <path d="M 0 0 L0 30 L30 30 L30 0 "></path>
@@ -209,6 +205,43 @@
                             </a>
                         </div>
 
+                        <div class="row  paper-select-color" style="padding:0">
+<!--                            black/gray/white-->
+                            <a class="c0 w32  paper-click">
+                                <svg>
+                                    <path d="M 0 0 L0 30 L30 30 L30 0 "></path>
+                                </svg>
+                            </a>
+                            <a class="c100 w32 paper-click">
+                                <svg>
+                                    <path d="M 0 0 L0 30 L30 30 L30 0 "></path>
+                                </svg>
+                            </a>
+                            <a class="c105 w32  paper-click">
+                                <svg>
+                                    <path d="M 0 0 L0 30 L30 30 L30 0 "></path>
+                                </svg>
+                            </a>
+                            <a class="c110 w32 paper-click">
+                                <svg>
+                                    <path d="M 0 0 L0 30 L30 30 L30 0 "></path>
+                                </svg>
+                            </a>
+                            <a class="c255 w32 paper-click">
+                                <svg>
+                                    <path d="M 0 0 L0 30 L30 30 L30 0 "></path>
+                                </svg>
+                            </a>
+
+<!--                            other common colors-->
+                            <a class="c20 w32 paper-click">
+                                <svg>
+                                    <path d="M 0 0 L0 30 L30 30 L30 0 "></path>
+                                </svg>
+                            </a>
+
+                        </div>
+
                         <!--select width-->
                         <div class="row paper-select-width" style="padding:0">
                             <a class="w1 paper-click">
@@ -217,11 +250,6 @@
                                 </svg>
                             </a>
                             <a class="w2 paper-click">
-                                <svg>
-                                    <path d="M0 20 L40 20 "></path>
-                                </svg>
-                            </a>
-                            <a class="w3 paper-click">
                                 <svg>
                                     <path d="M0 20 L40 20 "></path>
                                 </svg>
@@ -261,36 +289,43 @@
                                     <path d="M0 20 L40 20 "></path>
                                 </svg>
                             </a>
-                            <p class="header">
-                                (width)
-                            </p>
+                            <a class="w64 paper-click">
+                                <svg>
+                                    <path d="M0 20 L40 20 "></path>
+                                </svg>
+                            </a>
+                            <!--                            <p class="header">-->
+                            <!--                                (width)-->
+                            <!--                            </p>-->
                         </div>
 
                         <!--select dashing-->
-                        <div class="row paper-select-dashing" style="padding:0">
-                            <a class="d1 w2 paper-click">
+                        <div class="row paper-select-dashing w4" style="padding:0">
+                            <a class="d1  paper-click">
                                 <svg>
-                                    <path d="M 0 0 L30 30 "></path>
+                                    <path d="M0 15 L90 15 "></path>
                                 </svg>
                             </a>
-                            <a class="d2 w2 paper-click">
+                            <a class="d2 paper-click">
                                 <svg>
-                                    <path d="M 0 0 L30 30 "></path>
+                                    <path d="M0 25 L90 25 "></path>
                                 </svg>
                             </a>
-                            <a class="d3 w2 paper-click">
+                            <a class="d3 paper-click">
                                 <svg>
-                                    <path d="M 0 0 L30 30 "></path>
+                                    <path d="M0 15 L90 15 "></path>
                                 </svg>
                             </a>
-                            <a class="d4 w2 paper-click">
+                            <a class="d4 paper-click">
                                 <svg>
-                                    <path d="M 0 0 L30 30 "></path>
+                                    <path d="M0 25 L90 25 "></path>
                                 </svg>
                             </a>
-                            <p class="header">
-                                (style)
-                            </p>
+                            <a class="d5 paper-click">
+                                <svg>
+                                    <path d="M0 15 L90 15 "></path>
+                                </svg>
+                            </a>
                         </div>
 
 

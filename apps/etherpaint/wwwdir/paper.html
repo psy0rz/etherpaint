@@ -29,7 +29,7 @@
         svg * {
             text-rendering: optimizeSpeed;
             color-rendering: optimizeSpeed;
-            shape-rendering: optimizeSpeed;
+            /*shape-rendering: optimizeSpeed;*/
         }
 
         /*performance*/
@@ -41,10 +41,12 @@
             pointer-events: none;
         }
 
+        /*this will automatcily get assigned classes according to selected attributes*/
         .paper-attribute-preview svg {
             width: 30px;
             height: 30px;
         }
+
 
     </style>
 
@@ -100,86 +102,60 @@
 <div id="topbar" class="ui top fixed menu">
     <span id="debug"></span>
     <div class="item">
-        <div class="ui icon buttons tools">
+        <div class="ui icon buttons tools ">
 
-            <div class="ui basic button paper-attribute-dropdown  paper-attribute-preview paper-defaults"
+            <div class="ui basic button paper-attribute-dropdown paper-attribute-preview paper-defaults   "
                  style="padding:2px; height:36px;  width:36px;">
-                <svg>
+                <svg class="">
                     <path d="M 0 0 L30 30 "></path>
                 </svg>
 
                 <div class="ui fluid  menu popup transition hidden">
-                    <div class="ui four column relaxed equal height divided grid ">
+                    <div class="ui three column relaxed equal height divided grid ">
                         <div class="column">
-                            <div class="ui list paper-select-color">
-                                <a class="c1 item paper-click">
-                                    <svg>
-                                        <path d="M 0 0 L30 30 "></path>
-                                    </svg>
+                            <div class="ui list  paper-select-color">
+                                <a class="c1 item icon paper-click">
+                                    <i class="c1 square icon"></i>
                                 </a>
                                 <a class="c2 item paper-click">
-                                    <svg>
-                                        <path d="M 0 0 L30 30 "></path>
-                                    </svg>
+                                    <i class="c2 square icon"></i>
                                 </a>
                                 <a class="c3 item paper-click">
-                                    <svg>
-                                        <path d="M 0 0 L30 30 "></path>
-                                    </svg>
+                                    <i class="c3 square icon"></i>
                                 </a>
                                 <a class="c4 item paper-click">
-                                    <svg>
-                                        <path d="M 0 0 L30 30 "></path>
-                                    </svg>
+                                    <i class="c4 square icon"></i>
                                 </a>
                                 <a class="c5 item paper-click">
-                                    <svg>
-                                        <path d="M 0 0 L30 30 "></path>
-                                    </svg>
+                                    <i class="c5 square icon"></i>
                                 </a>
                                 <a class="c0 item paper-click">
-                                    <svg>
-                                        <path d="M 0 0 L30 30 "></path>
-                                    </svg>
+                                    <i class="c0 square icon"></i>
                                 </a>
                             </div>
                         </div>
                         <div class="column">
                             <div class="ui list paper-select-color">
                                 <a class="c6 item paper-click">
-                                    <svg>
-                                        <path d="M 0 0 L30 30 "></path>
-                                    </svg>
+                                    <i class="c6 square icon"></i>
                                 </a>
                                 <a class="c7 item paper-click">
-                                    <svg>
-                                        <path d="M 0 0 L30 30 "></path>
-                                    </svg>
+                                    <i class="c7 square icon"></i>
                                 </a>
                                 <a class="c8 item paper-click">
-                                    <svg>
-                                        <path d="M 0 0 L30 30 "></path>
-                                    </svg>
+                                    <i class="c8 square icon"></i>
                                 </a>
                                 <a class="c9 item paper-click">
-                                    <svg>
-                                        <path d="M 0 0 L30 30 "></path>
-                                    </svg>
+                                    <i class="c9 square icon"></i>
                                 </a>
                                 <a class="c10 item paper-click">
-                                    <svg>
-                                        <path d="M 0 0 L30 30 "></path>
-                                    </svg>
+                                    <i class="c10 square icon"></i>
                                 </a>
                                 <a class="c11 item paper-click">
-                                    <svg>
-                                        <path d="M 0 0 L30 30 "></path>
-                                    </svg>
+                                    <i class="c11 square icon"></i>
                                 </a>
                                 <a class="c12 item paper-click">
-                                    <svg>
-                                        <path d="M 0 0 L30 30 "></path>
-                                    </svg>
+                                    <i class="c12 square icon"></i>
                                 </a>
                             </div>
                         </div>
@@ -192,6 +168,21 @@
                                     </svg>
                                 </a>
                                 <a class="w2 item paper-click">
+                                    <svg>
+                                        <path d="M 0 0 L30 30 "></path>
+                                    </svg>
+                                </a>
+                                <a class="w3 item paper-click">
+                                    <svg>
+                                        <path d="M 0 0 L30 30 "></path>
+                                    </svg>
+                                </a>
+                                <a class="w4 item paper-click">
+                                    <svg>
+                                        <path d="M 0 0 L30 30 "></path>
+                                    </svg>
+                                </a>
+                                <a class="w5 item paper-click">
                                     <svg>
                                         <path d="M 0 0 L30 30 "></path>
                                     </svg>

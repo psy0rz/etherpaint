@@ -11,53 +11,65 @@
 /*primary colors*/
 .c1 {
     stroke: #ff0000;
+    color: #ff0000 !important;
 }
 
 .c2 {
     stroke: #00ff00;
+    color: #00ff00 !important;
 }
 
 .c3 {
     stroke: #0000ff;
+    color: #0000ff !important;
 }
 
 /*secondairy colors*/
 .c4 {
     stroke: #FFFF00;
+    color: #ffff00 !important;
 }
 
 .c5 {
     stroke: #FF00FF;
+    color: #ff00ff !important;
 }
 
 .c6 {
     stroke: #00FFFF;
+    color: #00FFFF !important;
 }
 
 
 /*tertriary colors*/
 .c7 {
     stroke: #FF7F00;
+    color: #FF7F00 !important;
 }
 
 .c8 {
     stroke: #FF007F;
+    color: #FF007F !important;
 }
 
 .c9 {
     stroke: #7FFF00;
+    color: #7FFF00 !important;
 }
 
 .c10 {
     stroke: #7F00FF;
+    color: #7F00FF !important;
 }
 
 .c11 {
     stroke: #00FF7F;
+    color: #00FF7F !important;
 }
 
 .c12 {
     stroke: #007FFF;
+    color: #007FFF !important;
 }
 
 
@@ -75,4 +87,8 @@
 
 .w4 {
     stroke-width: 8px;
+}
+
+.w5 {
+    stroke-width: 16px;
 }

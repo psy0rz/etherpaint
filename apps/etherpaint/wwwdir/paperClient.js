@@ -20,13 +20,8 @@ export default class PaperClient {
 
         //create cursor
         this.cursorSvg = scratchSvg.group();
-        this.cursorSvg.path('M-20,0 L20,0 M0,-20 L0,20').attr(
-            {
-                'stroke': '#000000',
-                'stroke-width': 4
-
-            });
-        this.cursorSvg.text("client " + this.clientId);
+        this.cursorSvg.path('M-20,0 L20,0 M0,-20 L0,20');
+        this.cursorSvg.text("client " + this.clientId).size(100);
 
         this.cursorX = 0;
         this.cursorY = 0;
@@ -47,9 +42,13 @@ export default class PaperClient {
     }
 
     selectAttribute(attribute, attributeClass) {
+        this.cursorSvg. removeClass(this.attributeClasses[attribute]);
+        this.cursorSvg.addClass(attributeClass);
+
         this.attributeClasses[attribute]=attributeClass;
         this.attributeClassStr=Object.values(this.attributeClasses).join(' ');
-        console.log("select" ,this.attributeClassStr);
+
+
     }
 
 

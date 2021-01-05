@@ -42,7 +42,7 @@ export default class PaperClient {
     }
 
     selectAttribute(attribute, attributeClass) {
-        this.cursorSvg. removeClass(this.attributeClasses[attribute]);
+        this.cursorSvg.removeClass(this.attributeClasses[attribute]);
         this.cursorSvg.addClass(attributeClass);
 
         this.attributeClasses[attribute]=attributeClass;

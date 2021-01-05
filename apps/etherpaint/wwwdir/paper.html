@@ -20,11 +20,6 @@
     <script src="flatbuffers.js"></script>
 
     <style>
-        /*.selected {*/
-        /*    stroke: blue;*/
-        /*    stroke-dasharray: 10 5 1 5;*/
-        /*}*/
-
 
         svg * {
             text-rendering: optimizeSpeed;
@@ -53,11 +48,16 @@
             border: 1px solid #eeeeee;
 
         }
+        /*scale to 0.5, since this is the default scale of the drawing*/
+        .paper-attribute-pallet  path {
+            transform: scale(0.5);
+        }
 
         .paper-attribute-pallet .selected > svg {
-            border: 2px solid #000000;
+            border: 1px solid #000000;
 
         }
+
 
 
     </style>
@@ -136,74 +136,74 @@
                         </div>
 
                         <div class="row  paper-select-color" style="padding:0">
-                            <a class="c0 w32 paper-click">
+                            <a class="c0 w32  paper-click">
                                 <svg>
-                                    <path d="M 0 0 L30 30 "></path>
+                                    <path d="M 0 0 L0 30 L30 30 L30 0 "></path>
                                 </svg>
                             </a>
                             <a class="c255 w32 paper-click">
                                 <svg>
-                                    <path d="M 0 0 L30 30 "></path>
+                                    <path d="M 0 0 L0 30 L30 30 L30 0 "></path>
                                 </svg>
                             </a>
                             <a class="c1 w32 paper-click ">
                                 <svg class="">
-                                    <path d="M 0 0 L30 30 "></path>
+                                    <path d="M 0 0 L0 30 L30 30 L30 0 "></path>
                                 </svg>
                             </a>
                             <a class="c2 w32 paper-click">
                                 <svg>
-                                    <path d="M 0 0 L30 30 "></path>
+                                    <path d="M 0 0 L0 30 L30 30 L30 0 "></path>
                                 </svg>
                             </a>
                             <a class="c3 w32 paper-click">
                                 <svg>
-                                    <path d="M 0 0 L30 30 "></path>
+                                    <path d="M 0 0 L0 30 L30 30 L30 0 "></path>
                                 </svg>
                             </a>
                             <a class="c4 w32 paper-click">
                                 <svg>
-                                    <path d="M 0 0 L30 30 "></path>
+                                    <path d="M 0 0 L0 30 L30 30 L30 0 "></path>
                                 </svg>
                             </a>
                             <a class="c5 w32 paper-click">
                                 <svg>
-                                    <path d="M 0 0 L30 30 "></path>
+                                    <path d="M 0 0 L0 30 L30 30 L30 0 "></path>
                                 </svg>
                             </a>
                             <a class="c6 w32 paper-click">
                                 <svg>
-                                    <path d="M 0 0 L30 30 "></path>
+                                    <path d="M 0 0 L0 30 L30 30 L30 0 "></path>
                                 </svg>
                             </a>
                             <a class="c7 w32 paper-click">
                                 <svg>
-                                    <path d="M 0 0 L30 30 "></path>
+                                    <path d="M 0 0 L0 30 L30 30 L30 0 "></path>
                                 </svg>
                             </a>
                             <a class="c8 w32 paper-click">
                                 <svg>
-                                    <path d="M 0 0 L30 30 "></path>
+                                    <path d="M 0 0 L0 30 L30 30 L30 0 "></path>
                                 </svg>
                             </a>
                             <a class="c9 w32 paper-click">
                                 <svg>
-                                    <path d="M 0 0 L30 30 "></path>
+                                    <path d="M 0 0 L0 30 L30 30 L30 0 "></path>
                                 </svg>
                             </a>
                             <a class="c10 w32 paper-click">
                                 <svg>
-                                    <path d="M 0 0 L30 30 "></path>
+                                    <path d="M 0 0 L0 30 L30 30 L30 0 "></path>
                                 </svg>
                             </a>
                             <a class="c11 w32 paper-click">
                                 <svg>
-                                    <path d="M 0 0 L30 30 "></path>
+                                    <path d="M 0 0 L0 30 L30 30 L30 0 "></path>
                                 </svg>
                             </a>
                             <a class="c12 w32 paper-click">
                                 <svg>
-                                    <path d="M 0 0 L30 30 "></path>
+                                    <path d="M 0 0 L0 30 L30 30 L30 0 "></path>
                                 </svg>
                             </a>
                         </div>
@@ -212,52 +212,52 @@
                         <div class="row paper-select-width" style="padding:0">
                             <a class="w1 paper-click">
                                 <svg>
-                                    <path d="M 0 0 L30 30 "></path>
+                                    <path d="M 0 20 L40 20 "></path>
                                 </svg>
                             </a>
                             <a class="w2 paper-click">
                                 <svg>
-                                    <path d="M 0 0 L30 30 "></path>
+                                    <path d="M0 20 L40 20 "></path>
                                 </svg>
                             </a>
                             <a class="w3 paper-click">
                                 <svg>
-                                    <path d="M 0 0 L30 30 "></path>
+                                    <path d="M0 20 L40 20 "></path>
                                 </svg>
                             </a>
                             <a class="w4 paper-click">
                                 <svg>
-                                    <path style="stroke-linecap: round;" d="M 15 15  "></path>
+                                    <path d="M0 20 L40 20 "></path>
                                 </svg>
                             </a>
                             <a class="w8 paper-click">
                                 <svg>
-                                    <path d="M 0 0 L30 30 "></path>
+                                    <path d="M0 20 L40 20 "></path>
                                 </svg>
                             </a>
                             <a class="w12 paper-click">
-                                <svg>
-                                    <path d="M 0 0 L30 30 "></path>
+                                <svg >
+                                    <path d="M0 20 L40 20 "></path>
                                 </svg>
                             </a>
                             <a class="w16 paper-click">
                                 <svg>
-                                    <path d="M 0 0 L30 30 "></path>
+                                    <path d="M0 20 L40 20 "></path>
                                 </svg>
                             </a>
                             <a class="w20 paper-click">
                                 <svg>
-                                    <path d="M 0 0 L30 30 "></path>
+                                    <path d="M0 20 L40 20 "></path>
                                 </svg>
                             </a>
                             <a class="w24 paper-click">
                                 <svg>
-                                    <path d="M 0 0 L30 30 "></path>
+                                    <path d="M0 20 L40 20 "></path>
                                 </svg>
                             </a>
                             <a class="w32 paper-click">
                                 <svg>
-                                    <path d="M 0 0 L30 30 "></path>
+                                    <path d="M0 20 L40 20 "></path>
                                 </svg>
                             </a>
                             <p class="header">
@@ -296,7 +296,7 @@
                         <!--                        full line preview-->
                         <div class="row paper-attribute-preview" style="padding:0">
                             <svg style="border: none; width:100%; height:40px">
-                                <path d="M 20 20 L300 20 "></path>
+                                <path d="M 20 20 L600 20 "></path>
                             </svg>
                         </div>
 

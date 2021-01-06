@@ -38,10 +38,10 @@ export default class PaperReceive {
 
         this.messages.handlers[event.EventUnion.StreamSynced] = (msg, eventIndex) => {
             const e = msg.events(eventIndex, new event.StreamSynced());
+            console.log("Stream synced, clientId:", e.clientId());
             this.clientId = e.clientId();
             this.paperSend.setClientId(this.clientId)
             this.paperDraw.streamSynced();
-            console.log("Stream synced, clientId:", e.clientId());
 
         }
 

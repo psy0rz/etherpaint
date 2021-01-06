@@ -66,7 +66,6 @@ m.delayed_restart = function () {
 
 
 m.start = function () {
-    m.start_message();
     m.restart();
 }
 
@@ -85,6 +84,7 @@ m.restart = function () {
     }
     m.log("Connecting to " + ws_url);
 
+    m.start_message();
     m.ws = new WebSocket(ws_url);
     m.ws.binaryType = 'arraybuffer';
 

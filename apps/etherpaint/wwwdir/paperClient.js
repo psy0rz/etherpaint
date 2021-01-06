@@ -21,7 +21,7 @@ export default class PaperClient {
         //create cursor
         this.cursorSvg = scratchSvg.group();
         this.cursorSvg.path('M-20,0 L20,0 M0,-20 L0,20');
-        this.cursorSvg.text("client " + this.clientId).size(100);
+        this.cursorSvg.text("client " + this.clientId).addClass("cursor-text").dy(-50);
 
         this.cursorX = 0;
         this.cursorY = 0;

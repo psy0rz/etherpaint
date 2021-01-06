@@ -65,8 +65,7 @@ m.delayed_restart = function () {
 }
 
 
-m.start = function (connectcb) {
-    m.connectcb = connectcb;
+m.start = function () {
     m.start_message();
     m.restart();
 }
@@ -92,7 +91,7 @@ m.restart = function () {
     // connected
     m.ws.onopen = function () {
         m.log("Connected");
-        m.connectcb();
+        document.dispatchEvent(new Event("wsConnected"));
     };
 
     // receive websocket messages.
@@ -129,10 +128,12 @@ m.restart = function () {
 
     m.ws.onerror = function (evt) {
         m.log('Connection error');
+        $('document').trigger('wsDisconnected');
     };
 
     m.ws.onclose = function (evt) {
         m.log('Disconnected, reconnecting.');
+        document.dispatchEvent(new Event("wsDisconnected"));
         m.delayed_restart();
 
     };

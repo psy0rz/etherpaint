@@ -81,7 +81,6 @@
 
         window.addEventListener('load', (event) => {
 
-
             let paperDraw = new PaperDraw(
                 document.querySelector("#paper"),
                 document.querySelector("#scratch")
@@ -97,18 +96,13 @@
             let controlUI = new ControlUI();
 
 
+
+
             // //start websocket messaging:
-            m.start(function () {
-                //(re)-connected
-                paperSend.join(document.location.search);
-                paperSend.send();
-            });
+            m.start();
 
             //XXX
-            // controlDrawing.selectColor("c3");
-            // controlDrawing.selectWidth("w2");
-            // $(".paper-click.paper-polyline").click();
-            $(".paper-attribute-pallet").click();
+            // $(".paper-attribute-pallet").click();
 
         })
 
@@ -123,7 +117,7 @@
 
 <div id="topbar" class="ui top fixed menu">
     <span id="debug"></span>
-    <div class="item">
+    <div id="draw-toolbar" class="item">
         <div class="ui icon buttons tools ">
 
             <!--            color/attribute popup button-->

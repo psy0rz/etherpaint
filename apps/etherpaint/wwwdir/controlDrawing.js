@@ -30,6 +30,8 @@ export default class ControlDrawing {
         this.paperSvg = SVG(this.paperElement);
         this.scratchElement = document.querySelector("#scratch");
 
+        this.eventElement=this.scratchElement;//scratch is faster?
+
 
 
         //regular pointer stuff
@@ -40,20 +42,56 @@ export default class ControlDrawing {
         this.selectedWidth="w1";
 
 
-        const eventElement=this.scratchElement;//scratch is faster?
+        //mobile pan/zoom stuff (for desktop the native browser zoom/pan should be ok)
+        this.paperPanZoom = new PaperPanZoom(this.containerElement,this.paperElement, this.scratchElement, this.cancel.bind(this));
 
-        eventElement.addEventListener('pointermove', this.onPointerMove.bind(this), {passive: true});
-        eventElement.addEventListener('pointerdown', this.onPointerDown.bind(this), {passive: true});
-        eventElement.addEventListener('pointerup', this.onPointerUp.bind(this), {passive: true});
-        eventElement.addEventListener('pointercancel', this.onPointerCancel.bind(this), {passive: true});
+        this.disableDrawing();
+
+        ///////////////////////////////////event listeners
+
+        this.eventElement.addEventListener('pointermove', this.onPointerMove.bind(this), {passive: true});
+        this.eventElement.addEventListener('pointerdown', this.onPointerDown.bind(this), {passive: true});
+        this.eventElement.addEventListener('pointerup', this.onPointerUp.bind(this), {passive: true});
+        this.eventElement.addEventListener('pointercancel', this.onPointerCancel.bind(this), {passive: true});
 
         //we DONT want pointer captures (happens on mobile)
-        eventElement.addEventListener('gotpointercapture', function (m) {
+        this.eventElement.addEventListener('gotpointercapture', function (m) {
             m.target.releasePointerCapture(m.pointerId);
         });
 
-        //mobile pan/zoom stuff (for desktop the native browser zoom/pan should be ok)
-        this.paperPanZoom = new PaperPanZoom(this.containerElement,this.paperElement, this.scratchElement, this.cancel.bind(this));
+
+        document.addEventListener("wsDisconnected", function()
+        {
+            self.disableDrawing();
+        });
+
+
+        //join on (re)connect
+        document.addEventListener("wsConnected", function()
+        {
+            self.disableDrawing();
+            self.paperSend.join(document.location.search);
+            self.paperSend.send();
+        });
+
+        //new stream started and is syncing.
+        this.paperElement.addEventListener("streamStart", function()
+        {
+            self.disableDrawing();
+
+        });
+
+        //new stream completed
+        this.paperElement.addEventListener("streamSynced", function()
+        {
+            self.enableDrawing();
+            //reselect correct defaults (clientsId are reused, so theres a big chance the currect selection are non-default)
+            self.selectColor("c9");
+            self.selectWidth("w4");
+            self.selectDashing("d1");
+            $(".paper-click.paper-polyline").click();
+        });
+
 
         this.attributeDropdown=$('.paper-attribute-dropdown').dropdown({
 
@@ -109,6 +147,19 @@ export default class ControlDrawing {
             self.selectDashing(this.classList[0]);
         });
 
+    }
+
+
+    //disable drawing input from user. (readonly, also used during connect/sync)
+    disableDrawing()
+    {
+        $("#draw-toolbar .button").addClass("disabled");
+        this.eventElement.classList.add("drawDisabled");
+    }
+
+    enableDrawing()
+    {
+        $("#draw-toolbar .button").removeClass("disabled");
     }
 
     selectColor(sel)

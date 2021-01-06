@@ -10,6 +10,7 @@ import {PaperActionUndo, PaperActionRedo} from "./paperAction.js";
 export default class PaperDraw {
 
     constructor(paperElement, scratchElement) {
+        this.paperElement = paperElement;
         this.paperSvg = SVG(paperElement);
         this.scratchSvg = SVG(scratchElement);
         this.clear();
@@ -35,13 +36,12 @@ export default class PaperDraw {
     streamStart()
     {
         this.clear();
-        $(this.paperElement).trigger('streamStart');
+        this.paperElement.dispatchEvent(new Event("streamStart"));
     }
 
     streamSynced()
     {
-        this.clear();
-        $(this.paperElement).trigger('streamSynced');
+        this.paperElement.dispatchEvent(new Event("streamSynced"));
     }
 
 

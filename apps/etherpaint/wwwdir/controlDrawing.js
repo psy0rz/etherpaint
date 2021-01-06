@@ -155,11 +155,14 @@ export default class ControlDrawing {
     {
         $("#draw-toolbar .button").addClass("disabled");
         this.eventElement.classList.add("drawDisabled");
+        document.body.classList.add("busy");
     }
 
     enableDrawing()
     {
         $("#draw-toolbar .button").removeClass("disabled");
+        this.eventElement.classList.remove("drawDisabled");
+        document.body.classList.remove("busy");
     }
 
     selectColor(sel)

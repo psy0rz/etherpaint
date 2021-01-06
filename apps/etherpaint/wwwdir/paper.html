@@ -64,15 +64,13 @@
 
         }
 
-        .drawDisabled
-        {
+        .draw-disabled {
             pointer-events: none;
         }
 
-        .busy
-        {
-            cursor: wait;
-        }
+        /*.busy {*/
+        /*    cursor: wait;*/
+        /*}*/
 
     </style>
 
@@ -100,10 +98,8 @@
             let paperReceive = new PaperReceive(m, paperDraw, paperSend);
             paperSend.paperReceive = paperReceive;
 
-            let controlDrawing = new ControlDrawing(paperSend);
-
             let controlUI = new ControlUI();
-
+            let controlDrawing = new ControlDrawing(paperSend);
 
 
 
@@ -145,7 +141,7 @@
                         </div>
 
                         <div class="row  paper-select-color" style="padding:0">
-<!--                            RYB main colors-->
+                            <!--                            RYB main colors-->
                             <a class="c1 w32 paper-click ">
                                 <svg class="">
                                     <path d="M 0 0 L0 30 L30 30 L30 0 "></path>
@@ -209,7 +205,7 @@
                         </div>
 
                         <div class="row  paper-select-color" style="padding:0">
-<!--                            black/gray/white-->
+                            <!--                            black/gray/white-->
                             <a class="c0 w32  paper-click">
                                 <svg>
                                     <path d="M 0 0 L0 30 L30 30 L30 0 "></path>
@@ -236,7 +232,7 @@
                                 </svg>
                             </a>
 
-<!--                            other common colors-->
+                            <!--                            other common colors-->
                             <a class="c20 w32 paper-click">
                                 <svg>
                                     <path d="M 0 0 L0 30 L30 30 L30 0 "></path>
@@ -387,14 +383,20 @@
         <!--            <div class="ui button" paper-click="test.startPlayback()"><i class="play icon"></i></div>-->
         <!--        </div>-->
     </div>
+
+
+
 </div>
 
+
+
 <div id="paper-container"
+     class=""
      style="
         position: absolute;
         left:0;
         right:0;
-        top:0;
+        top:63;
         bottom:0;
     ">
 
@@ -426,6 +428,29 @@
         top:0;
         bottom:0;
         "></svg>
+
+
+
+    <div id="loading-message" class="ui icon floating message">
+        <i class="notched circle loading icon"></i>
+        <div class="content">
+            <div class="header">
+                Just one second
+            </div>
+            <p>Drawing is loading.</p>
+        </div>
+    </div>
+
+    <div id="disconnected-message" class="ui icon floating error message float">
+        <i class="notched circle loading icon"></i>
+        <div class="content">
+            <div class="header">
+                Disconnected
+            </div>
+            <p>Trying to reconnect.</p>
+        </div>
+    </div>
+
 
 </div>
 </body>

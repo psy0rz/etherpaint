@@ -62,6 +62,7 @@ export default class ControlDrawing {
 
         document.addEventListener("wsDisconnected", function()
         {
+            $("#disconnected-message").show();
             self.disableDrawing();
         });
 
@@ -69,6 +70,7 @@ export default class ControlDrawing {
         //join on (re)connect
         document.addEventListener("wsConnected", function()
         {
+            $("#disconnected-message").hide();
             self.disableDrawing();
             self.paperSend.join(document.location.search);
             self.paperSend.send();
@@ -78,6 +80,7 @@ export default class ControlDrawing {
         this.paperElement.addEventListener("streamStart", function()
         {
             self.disableDrawing();
+            $("#loading-message").show();
 
         });
 
@@ -90,6 +93,7 @@ export default class ControlDrawing {
             self.selectWidth("w4");
             self.selectDashing("d1");
             $(".paper-click.paper-polyline").click();
+            $("#loading-message").hide();
         });
 
 
@@ -154,15 +158,15 @@ export default class ControlDrawing {
     disableDrawing()
     {
         $("#draw-toolbar .button").addClass("disabled");
-        this.eventElement.classList.add("drawDisabled");
-        document.body.classList.add("busy");
+        this.eventElement.classList.add("draw-disabled");
+        // document.body.classList.add("busy");
     }
 
     enableDrawing()
     {
         $("#draw-toolbar .button").removeClass("disabled");
-        this.eventElement.classList.remove("drawDisabled");
-        document.body.classList.remove("busy");
+        this.eventElement.classList.remove("draw-disabled");
+        // document.body.classList.remove("busy");
     }
 
     selectColor(sel)

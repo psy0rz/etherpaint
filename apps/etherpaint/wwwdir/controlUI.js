@@ -1,8 +1,10 @@
 //control UI for foomatic-ui
 
+import {event} from "./messages_generated.js";
+
 export default class ControlUI {
 
-    constructor(paperSend) {
+    constructor(messages) {
 
         const self=this;
 
@@ -16,6 +18,19 @@ export default class ControlUI {
 
         //make sure paper starts after toolbar
         document.querySelector('#paper-container').style.top = document.querySelector("#topbar").offsetHeight + "px";
+
+
+        //display server errors
+        messages.handlers[event.EventUnion.Error] = (msg, eventIndex) => {
+            const error = msg.events(eventIndex, new event.Error());
+            console.error(error.description());
+            $("body").toast({
+                class: "error",
+                title: "Error",
+                message: error.description(),
+                displayTime: 0
+            });
+        }
 
     }
 

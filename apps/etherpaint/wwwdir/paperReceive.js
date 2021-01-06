@@ -106,11 +106,6 @@ export default class PaperReceive {
 
         }
 
-        //received an error
-        this.messages.handlers[event.EventUnion.Error] = (msg, eventIndex) => {
-            const error = msg.events(eventIndex, new event.Error());
-            console.error("Server reports error: " + error.description());
-        }
 
     }
 

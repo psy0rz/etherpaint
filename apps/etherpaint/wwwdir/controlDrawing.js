@@ -262,13 +262,12 @@ export default class ControlDrawing {
     }
 
     onPointerDown(m) {
-        // m.stopPropagation();
-        // m.preventDefault();
 
         if (!m.isPrimary)
             return;
 
-        // console.log("DOWN", m.pageX, m.pageY);
+        this.pageXstart=m.pageX;
+        this.pageYstart=m.pageY;
 
         //calculate action svg paper location
         const point = this.getSvgPoint(m.pageX, m.pageY);
@@ -300,10 +299,6 @@ export default class ControlDrawing {
         if (!m.isPrimary)
             return;
 
-
-        // m.stopPropagation();
-
-
         //calculate actual svg paper location
         const point = this.getSvgPoint(m.pageX, m.pageY);
 
@@ -330,8 +325,8 @@ export default class ControlDrawing {
     }
 
     onPointerMove(m) {
-        // m.stopPropagation();
-        // console.log(m.target);
+
+        //pan (only need the last event, no need to decoales)
 
         if (m.getCoalescedEvents) {
             for (const coalesced of m.getCoalescedEvents()) {
@@ -340,7 +335,7 @@ export default class ControlDrawing {
         }
         this.onPointerMove_(m);
 
-        //sending it at this point also makes use of coalescing.
+        //sending it at this point also makes use of coalescing. (messages will get queued instead of send directly)
         this.paperSend.send();
     };
 

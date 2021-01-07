@@ -68,8 +68,6 @@ export default class PaperPanZoom {
             //zoom has limits, so recalc scale
             scale = newFactor / this.zoomFactorPinchStart;
 
-            // const left = this.scrollLeftPinchStart - (ev.deltaX - ev.center.x * (scale - 1)) / newFactor;
-            // const top = this.scrollTopPinchStart - (ev.deltaY - ev.center.y * (scale - 1)) / newFactor;
             const left = this.scrollLeftPinchStart - (ev.deltaX - this.xCenterPinchStart * (scale - 1)) / newFactor;
             const top = this.scrollTopPinchStart - (ev.deltaY - this.yCenterPinchStart * (scale - 1)) / newFactor;
 
@@ -87,7 +85,7 @@ export default class PaperPanZoom {
     }
 
 
-    //change current pan by x and y
+    //change current pan to x and y
     setPan(x, y) {
 
         const bb = this.paperElement.getBBox();
@@ -178,8 +176,7 @@ export default class PaperPanZoom {
     }
 
 
-    //handle pinch zoom/panning on mobile
-    //much more complicated than you would have hoped :)
+    //animate actual stuff during animation frame
     animate() {
         const now = Date.now();
 

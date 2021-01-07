@@ -6,6 +6,8 @@
 #include "MsgSessionPaper.h"
 #include <chrono>
 #include "messages/program_error.hpp"
+#include <regex>
+
 //#include "msg.hpp"
 
 using namespace std::chrono_literals;
@@ -21,6 +23,10 @@ SharedSessionPaper::SharedSessionPaper(const std::string &id) :
         msg_builder(500),
         msg_builder_storage(500) {
 
+    //security
+    std::regex invalid_chars("[^a-zA-Z0-9_?-]");
+    if (std::regex_search(id, invalid_chars))
+        throw program_error("id contains invalid characters");
 
     fs.exceptions(std::ios::failbit | std::ios::badbit);
     fs.open(id + ".paper", std::ios::in | std::ios::out | std::ios::binary | std::ios::app);

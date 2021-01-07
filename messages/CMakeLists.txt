@@ -80,6 +80,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
 
 INCLUDE(FindBoost)
 set(Boost_USE_MULTITHREADED ON)
-find_package(Boost 1.65.1 REQUIRED thread regex system filesystem)
+find_package(Boost 1.65.1 REQUIRED thread system filesystem)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${Boost_LIBRARIES})
 

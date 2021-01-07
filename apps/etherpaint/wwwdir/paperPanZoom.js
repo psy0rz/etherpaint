@@ -1,23 +1,19 @@
 'use strict';
 
-//Handle panning/zooming on mobile
-//Much much more complex than you might expect :)
+//Handle panning/zooming
 
-import Hammer from "./node_modules/@egjs/hammerjs/dist/hammer.esm.js";
 import {SVG} from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
 
 export default class PaperPanZoom {
 
-    constructor(containerElement, paperElement, scratchElement, startedCallback) {
+    constructor(containerElement, paperElement, scratchElement) {
 
         this.containerElement = containerElement;
         this.paperElement = paperElement;
-        this.scratchElement = scratchElement;
 
         this.paperSvg = SVG(paperElement);
         this.scratchSvg = SVG(scratchElement);
 
-        this.startedCallback = startedCallback;
 
         this.scrollLeft = 0;
         this.scrollTop = 0;
@@ -28,59 +24,10 @@ export default class PaperPanZoom {
         this.zoomFactor = 0.5;
 
         this.animating = false;
-        this.controlling = false;
 
-
-        //pinch zoom/pan
-        this.hammer = new Hammer(this.scratchElement, {});
-        this.hammer.get('pinch').set({enable: true});
 
         //force update
         this.requestAnimate();
-
-        this.hammer.on('pinchstart', (ev) => {
-
-            this.controlling = true;
-            this.startedCallback();
-
-            this.zoomFactorPinchStart = this.zoomFactor;
-            this.scrollLeftPinchStart = this.scrollLeft;
-            this.scrollTopPinchStart = this.scrollTop;
-            this.xCenterPinchStart = ev.center.x;
-            this.yCenterPinchStart = ev.center.y;
-
-        });
-
-
-        this.hammer.on('pinch', (ev) => {
-            this.controlling = true;
-
-            let scale;
-            //snap/prevent useless zooming because of performance
-            if (Math.abs(ev.scale - 1) < 0.25) {
-                scale = 1;
-            } else {
-                scale = ev.scale;
-            }
-
-            const newFactor = this.setZoom(this.zoomFactorPinchStart * scale);
-
-            //zoom has limits, so recalc scale
-            scale = newFactor / this.zoomFactorPinchStart;
-
-            const left = this.scrollLeftPinchStart - (ev.deltaX - this.xCenterPinchStart * (scale - 1)) / newFactor;
-            const top = this.scrollTopPinchStart - (ev.deltaY - this.yCenterPinchStart * (scale - 1)) / newFactor;
-
-            this.setPan(left, top);
-
-        });
-
-
-        this.hammer.on('pinchend', (ev) => {
-            this.setPanVelocity(-ev.velocityX / this.zoomFactor, -ev.velocityY / this.zoomFactor);
-            this.controlling = false;
-        });
-
 
     }
 
@@ -108,7 +55,6 @@ export default class PaperPanZoom {
         else
             this.scrollTop = y;
 
-        this.panning = true;
         this.requestAnimate();
     }
 
@@ -130,7 +76,6 @@ export default class PaperPanZoom {
             this.velocityY = y;
 
 
-        this.panning = true;
         this.requestAnimate();
     }
 

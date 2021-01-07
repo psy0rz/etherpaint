@@ -6,6 +6,7 @@
 import {event} from "./messages_generated.js";
 import {SVG} from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
 import PaperPanZoom from "./paperPanZoom.js";
+import ControlTouchPanZoom from "./controlTouchPanZoom.js";
 
 
 const Modes =
@@ -42,8 +43,9 @@ export default class ControlDrawing {
         this.selectedWidth="w1";
 
 
-        //mobile pan/zoom stuff (for desktop the native browser zoom/pan should be ok)
-        this.paperPanZoom = new PaperPanZoom(this.containerElement,this.paperElement, this.scratchElement, this.cancel.bind(this));
+        //panzoom stuff
+        this.paperPanZoom = new PaperPanZoom(this.containerElement,this.paperElement, this.scratchElement);
+        this.controlTouchPanZoom=new ControlTouchPanZoom(this.paperPanZoom, this.scratchElement, this.cancel.bind(this) );
 
         this.disableDrawing();
 

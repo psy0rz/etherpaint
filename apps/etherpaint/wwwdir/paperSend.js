@@ -73,6 +73,7 @@ export default class PaperSend {
 
     //send join to server
     join(id) {
+        console.log("Send join request for: "+id);
         this.messages.add_event(
             event.EventUnion.Join,
             event.Join.createJoin(

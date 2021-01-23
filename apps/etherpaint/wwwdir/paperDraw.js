@@ -3,9 +3,9 @@
 // keeps track of PaperClients
 
 
-import PaperClient from "./paperClient.js";
-import {SVG} from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js'
-import {PaperActionUndo, PaperActionRedo} from "./paperAction.js";
+import PaperClient from "/paperClient.js";
+import {SVG} from '/node_modules/@svgdotjs/svg.js/dist/svg.esm.js'
+import {PaperActionUndo, PaperActionRedo} from "/paperAction.js";
 
 export default class PaperDraw {
 

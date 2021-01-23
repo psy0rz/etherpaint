@@ -3,10 +3,10 @@
 //control actual drawing.
 
 
-import {event} from "./messages_generated.js";
-import {SVG} from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
-import PaperPanZoom from "./paperPanZoom.js";
-import ControlTouchPanZoom from "./controlTouchPanZoom.js";
+import {event} from "/messages_generated.js";
+import {SVG} from '/node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
+import PaperPanZoom from "/paperPanZoom.js";
+import ControlTouchPanZoom from "/controlTouchPanZoom.js";
 
 
 const Modes =
@@ -74,7 +74,7 @@ export default class ControlDrawing {
         {
             $("#disconnected-message").hide();
             self.disableDrawing();
-            self.paperSend.join(document.location.search);
+            self.paperSend.join(document.location.pathname.substr(3));
             self.paperSend.send();
         });
 

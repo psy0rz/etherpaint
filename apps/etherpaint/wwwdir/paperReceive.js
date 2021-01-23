@@ -29,7 +29,7 @@ export default class PaperReceive {
         this.messages.handlers[event.EventUnion.StreamStart] = (msg, eventIndex) => {
             const e = msg.events(eventIndex, new event.StreamStart());
 
-            console.log("Started stream ", e.paperId());
+            console.log("Started stream: ", e.paperId());
 
             this.clientId = 0; //no client yet (prevents echo skip-code)
             this.paperSend.setClientId(0);

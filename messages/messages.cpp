@@ -79,12 +79,17 @@ int messagerunner(const int argc, const char *argv[]) {
                     uWS::TemplatedApp<ENABLE_SSL>({.key_file_name = "/home/psy/key.pem",
                                                           .cert_file_name = "/home/psy/cert.pem",
                                                           .passphrase = ""})
+                            //static data
                             .get("/*",
                                  [](auto *res, auto *req) {
                                      auto file_name = std::string(req->getUrl());
 
                                      if (file_name=="/")
                                          file_name="/index.html";
+
+                                     //HACK: paper stuff doesnt belong here, make more generic.
+                                     if (file_name.starts_with("/d/"))
+                                         file_name="/paper.html";
 
                                      auto file = file_cacher.get(file_name);
 
@@ -93,6 +98,7 @@ int messagerunner(const int argc, const char *argv[]) {
                                          res->end("not found");
                                      } else {
                                          res->writeHeader("Content-Type", file->second->m_content_type);
+                                         res->writeHeader("Cache-Control","public, max-age=31536000, immutable");
                                          res->end(file->second->m_view);
                                      }
                                      return;

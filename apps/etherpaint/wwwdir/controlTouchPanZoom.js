@@ -3,7 +3,7 @@
 //Handle panning/zooming on mobile
 //Much much more complex than you might expect :)
 
-import Hammer from "./node_modules/@egjs/hammerjs/dist/hammer.esm.js";
+import Hammer from "/node_modules/@egjs/hammerjs/dist/hammer.esm.js";
 
 export default class ControlTouchPanZoom {
 

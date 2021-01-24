@@ -74,8 +74,19 @@ export default class ControlDrawing {
         {
             $("#disconnected-message").hide();
             self.disableDrawing();
-            self.paperSend.join(document.location.pathname.substr(3));
+            if (location.pathname=="/paper.html")
+            {
+                //legacy mode
+                self.paperSend.join(document.location.search);
+            }
+            else
+            {
+                //new mode
+                self.paperSend.join(document.location.pathname.substr(3));
+            }
             self.paperSend.send();
+
+
         });
 
         //new stream started and is syncing.

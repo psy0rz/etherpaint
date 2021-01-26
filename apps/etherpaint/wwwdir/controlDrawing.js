@@ -26,26 +26,25 @@ export default class ControlDrawing {
         let self = this;
 
         // this.scratchElement = document.querySelector("#paper-scratch");
-        this.containerElement=document.querySelector("#paper-container");
+        this.containerElement = document.querySelector("#paper-container");
         this.paperElement = document.querySelector("#paper");
         this.paperSvg = SVG(this.paperElement);
         this.scratchElement = document.querySelector("#scratch");
 
-        this.eventElement=this.scratchElement;//scratch is faster?
-
+        this.eventElement = this.scratchElement;//scratch is faster?
 
 
         //regular pointer stuff
         this.primaryDown = false;
 
 
-        this.selectedColor="c0";
-        this.selectedWidth="w1";
+        this.selectedColor = "c0";
+        this.selectedWidth = "w1";
 
 
         //panzoom stuff
-        this.paperPanZoom = new PaperPanZoom(this.containerElement,this.paperElement, this.scratchElement);
-        this.controlTouchPanZoom=new ControlTouchPanZoom(this.paperPanZoom, this.scratchElement, this.cancel.bind(this) );
+        this.paperPanZoom = new PaperPanZoom(this.containerElement, this.paperElement, this.scratchElement);
+        this.controlTouchPanZoom = new ControlTouchPanZoom(this.paperPanZoom, this.scratchElement, this.cancel.bind(this));
 
         this.disableDrawing();
 
@@ -62,25 +61,20 @@ export default class ControlDrawing {
         });
 
 
-        document.addEventListener("wsDisconnected", function()
-        {
+        document.addEventListener("wsDisconnected", function () {
             $("#disconnected-message").show();
             self.disableDrawing();
         });
 
 
         //join on (re)connect
-        document.addEventListener("wsConnected", function()
-        {
+        document.addEventListener("wsConnected", function () {
             $("#disconnected-message").hide();
             self.disableDrawing();
-            if (location.pathname=="/paper.html")
-            {
+            if (location.pathname == "/paper.html") {
                 //legacy mode
                 self.paperSend.join(document.location.search);
-            }
-            else
-            {
+            } else {
                 //new mode
                 self.paperSend.join(document.location.pathname.substr(3));
             }
@@ -90,16 +84,14 @@ export default class ControlDrawing {
         });
 
         //new stream started and is syncing.
-        this.paperElement.addEventListener("streamStart", function()
-        {
+        this.paperElement.addEventListener("streamStart", function () {
             self.disableDrawing();
             $("#loading-message").show();
 
         });
 
         //new stream completed
-        this.paperElement.addEventListener("streamSynced", function()
-        {
+        this.paperElement.addEventListener("streamSynced", function () {
             self.enableDrawing();
             //reselect correct defaults (clientsId are reused, so theres a big chance the currect selection are non-default)
             self.selectColor("c9");
@@ -110,9 +102,7 @@ export default class ControlDrawing {
         });
 
 
-        this.attributeDropdown=$('.paper-attribute-dropdown').dropdown({
-
-        });
+        this.attributeDropdown = $('.paper-attribute-dropdown').dropdown({});
 
 
         $('.paper-click.paper-tool.paper-pointer').on('click', function () {
@@ -168,29 +158,26 @@ export default class ControlDrawing {
 
 
     //disable drawing input from user. (readonly, also used during connect/sync)
-    disableDrawing()
-    {
+    disableDrawing() {
         $("#draw-toolbar .button").addClass("disabled");
         this.eventElement.classList.add("draw-disabled");
         // document.body.classList.add("busy");
     }
 
-    enableDrawing()
-    {
+    enableDrawing() {
         $("#draw-toolbar .button").removeClass("disabled");
         this.eventElement.classList.remove("draw-disabled");
         // document.body.classList.remove("busy");
     }
 
-    selectColor(sel)
-    {
+    selectColor(sel) {
         $('.paper-attribute-preview').removeClass(this.selectedColor);
-        $(".paper-select-color ."+this.selectedColor).removeClass("selected");
+        $(".paper-select-color ." + this.selectedColor).removeClass("selected");
 
-        this.selectedColor=sel;
+        this.selectedColor = sel;
 
         $('.paper-attribute-preview').addClass(this.selectedColor);
-        $(".paper-select-color ."+this.selectedColor).addClass("selected");
+        $(".paper-select-color ." + this.selectedColor).addClass("selected");
 
         this.paperSend.selectColor(parseInt(sel.substr(1)));
         this.paperSend.send();
@@ -198,14 +185,13 @@ export default class ControlDrawing {
 
     }
 
-    selectWidth(sel)
-    {
+    selectWidth(sel) {
         $('.paper-attribute-preview').removeClass(this.selectedWidth);
-        $(".paper-select-width ."+this.selectedWidth).removeClass("selected");
+        $(".paper-select-width ." + this.selectedWidth).removeClass("selected");
 
-        this.selectedWidth=sel;
+        this.selectedWidth = sel;
         $('.paper-attribute-preview').addClass(this.selectedWidth);
-        $(".paper-select-width ."+this.selectedWidth).addClass("selected");
+        $(".paper-select-width ." + this.selectedWidth).addClass("selected");
 
         this.paperSend.selectWidth(parseInt(sel.substr(1)));
         this.paperSend.send();
@@ -213,14 +199,13 @@ export default class ControlDrawing {
     }
 
 
-    selectDashing(sel)
-    {
+    selectDashing(sel) {
         $('.paper-attribute-preview').removeClass(this.selectedDashing);
-        $(".paper-select-dashing ."+this.selectedDashing).removeClass("selected");
+        $(".paper-select-dashing ." + this.selectedDashing).removeClass("selected");
 
-        this.selectedDashing=sel;
+        this.selectedDashing = sel;
         $('.paper-attribute-preview').addClass(this.selectedDashing);
-        $(".paper-select-dashing ."+this.selectedDashing).addClass("selected");
+        $(".paper-select-dashing ." + this.selectedDashing).addClass("selected");
 
         this.paperSend.selectDashing(parseInt(sel.substr(1)));
         this.paperSend.send();
@@ -255,9 +240,8 @@ export default class ControlDrawing {
     getSvgPoint(x, y) {
         let point = this.paperSvg.point(x, y);
         //max range is 0-65553
-        point.x = Math.max(0,Math.min(65535,Math.round(point.x)));
-        point.y = Math.max(0,Math.min(65535,Math.round(point.y)));
-
+        point.x = Math.max(0, Math.min(65535, Math.round(point.x)));
+        point.y = Math.max(0, Math.min(65535, Math.round(point.y)));
 
 
         return (point);
@@ -277,12 +261,13 @@ export default class ControlDrawing {
         if (!m.isPrimary)
             return;
 
-        this.pageXstart=m.pageX;
-        this.pageYstart=m.pageY;
 
-        //calculate action svg paper location
+        //calculate actual svg paper location
         const point = this.getSvgPoint(m.pageX, m.pageY);
 
+        //for offset panning
+        this.lastPageX=m.pageX;
+        this.lastPageY=m.pageY;
 
         this.paperSend.updateCursor(point.x, point.y);
 
@@ -314,8 +299,6 @@ export default class ControlDrawing {
         const point = this.getSvgPoint(m.pageX, m.pageY);
 
 
-        //update latest cursor location
-        this.paperSend.updateCursor(point.x, point.y);
         switch (this.mode) {
             case Modes.Draw:
                 if (this.primaryDown) {
@@ -337,8 +320,6 @@ export default class ControlDrawing {
 
     onPointerMove(m) {
 
-        //pan (only need the last event, no need to decoales)
-
         if (m.getCoalescedEvents) {
             for (const coalesced of m.getCoalescedEvents()) {
                 this.onPointerMove_(coalesced);
@@ -346,8 +327,31 @@ export default class ControlDrawing {
         }
         this.onPointerMove_(m);
 
+
+        ///////////////////// the following stuff here only cares about the last coordinates and wants to skip all the coalesced events:
+
+        if (!m.isPrimary)
+            return;
+
+        //calculate actual svg paper location
+        const point = this.getSvgPoint(m.pageX, m.pageY);
+
+        //pan (only need the last event, no need to decoales)
+        if (this.mode == Modes.Point && this.primaryDown) {
+            const offsetPoint=this.getSvgPoint(this.lastPageX-m.pageX, this.lastPageY-m.pageY);
+            this.paperPanZoom.offsetPan(offsetPoint.x, offsetPoint.y);
+        }
+
+        //update latest cursor location
+        this.paperSend.updateCursor(point.x, point.y);
+
         //sending it at this point also makes use of coalescing. (messages will get queued instead of send directly)
         this.paperSend.send();
+
+        // this.lastPoint = point;
+        this.lastPageX=m.pageX;
+        this.lastPageY=m.pageY;
+
     };
 
 

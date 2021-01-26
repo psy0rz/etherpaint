@@ -1,6 +1,7 @@
 'use strict';
 
 //Handle panning/zooming
+//All coordinates are in paper-coordinates.
 
 import {SVG} from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
 
@@ -32,31 +33,32 @@ export default class PaperPanZoom {
     }
 
 
-    //change current pan to x and y
-    setPan(x, y) {
+    //change current pan left top to x,y
+    setPan(left, top) {
 
         const bb = this.paperElement.getBBox();
         const maxLeft = bb.x + bb.width;
         const maxTop = bb.y + bb.height;
 
 
-        if (x < 0)
+        if (left < 0)
             this.scrollLeft = 0;
-        else if (x > maxLeft)
+        else if (left > maxLeft)
             this.scrollLeft = maxLeft;
         else
-            this.scrollLeft = x;
+            this.scrollLeft = left;
 
 
-        if (y < 0)
+        if (top < 0)
             this.scrollTop = 0;
-        else if (y > maxTop)
+        else if (top > maxTop)
             this.scrollTop = maxTop;
         else
-            this.scrollTop = y;
+            this.scrollTop = top;
 
         this.requestAnimate();
     }
+
 
 
     //in pixel/ms
@@ -80,7 +82,9 @@ export default class PaperPanZoom {
     }
 
 
-    setZoom(factor) {
+    //change zoom factor and make sure x,y stays at same spot by correcting pan.
+    setZoom(factor, x,y) {
+
 
         //limits
         if (factor > 2)
@@ -89,9 +93,13 @@ export default class PaperPanZoom {
             factor = 0.1;
 
         if (factor !== this.zoomFactor) {
+
             this.zoomFactor = factor;
+
             this.requestAnimate();
+
         }
+
 
         return (factor);
     }
@@ -118,6 +126,43 @@ export default class PaperPanZoom {
             return (Vprev - deltaV)
         else
             return (Vprev + deltaV)
+    }
+
+    //store start values, for relative pan/zoom.
+    //This is used to make pinchzoom and mousepan easier, the rel-function all accept unzoomed relative screen coordinates from this start point.
+    //centerXY are in screen coordinates and are the place to zoom on
+    relStart(centerX, centerY)
+    {
+        this.zoomFactorStart = this.zoomFactor;
+        this.scrollLeftStart = this.scrollLeft;
+        this.scrollTopStart = this.scrollTop;
+        this.centerXstart = centerX / this.zoomFactor;
+        this.centerYstart = centerY / this.zoomFactor;
+    }
+
+
+    //relative zoompan in screen coordinates.
+    //used by mobile pinchzoom and others
+    relZoomPan(relFactor, deltaX, deltaY )
+    {
+
+        this.setZoom(this.zoomFactorStart * relFactor);
+
+        //hint: zoom+ should be compensated with pan+
+
+        //how much to scale the center?
+        let centerScale=1-(this.zoomFactorStart/this.zoomFactor);
+
+        //calculate new left top in a way that the centerpoint stays in the same spot
+        let left = this.scrollLeftStart + (this.centerXstart * centerScale);
+        let top = this.scrollTopStart + (this.centerYstart * centerScale);
+
+        //also correct deltaX/Y by zoom factor and add them
+        left = left - deltaX/this.zoomFactor;
+        top = top - deltaY/this.zoomFactor;
+
+        this.setPan(left, top);
+
     }
 
 

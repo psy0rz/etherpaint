@@ -98,7 +98,7 @@ int messagerunner(const int argc, const char *argv[]) {
                                          res->end("not found");
                                      } else {
                                          res->writeHeader("Content-Type", file->second->m_content_type);
-                                         res->writeHeader("Cache-Control","public, max-age=31536000, immutable");
+//                                         res->writeHeader("Cache-Control","public, max-age=31536000, immutable");
                                          res->end(file->second->m_view);
                                      }
                                      return;

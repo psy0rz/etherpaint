@@ -60,7 +60,7 @@ export default class ControlTouchPanZoom {
 
 
         this.hammer.on('pinchend', (ev) => {
-            // paperPanZoom.setPanVelocity(-ev.velocityX / paperPanZoom.zoomFactor, -ev.velocityY / paperPanZoom.zoomFactor);
+            paperPanZoom.setPanVelocity(-ev.velocityX / paperPanZoom.zoomFactor, -ev.velocityY / paperPanZoom.zoomFactor);
         });
 
     }

@@ -142,7 +142,7 @@ export default class PaperPanZoom {
 
 
     //relative zoompan in screen coordinates.
-    //used by mobile pinchzoom and others
+    //used by mobile pinchzoom and desktop drag/scroll
     relZoomPan(relFactor, deltaX, deltaY )
     {
 

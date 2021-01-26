@@ -55,6 +55,18 @@ export default class ControlDrawing {
         this.eventElement.addEventListener('pointerup', this.onPointerUp.bind(this), {passive: true});
         this.eventElement.addEventListener('pointercancel', this.onPointerCancel.bind(this), {passive: true});
 
+        this.eventElement.addEventListener('wheel', function (m) {
+            self.paperPanZoom.relStart(m.offsetX, m.offsetY);
+            if (m.shiftKey) {
+                self.paperPanZoom.relZoomPan(1, 0, -m.deltaY);
+            } else {
+                const factor = 1 - m.deltaY / 1000;
+                self.paperPanZoom.relZoomPan(factor, 0, 0);
+            }
+            console.log(m.deltaZ);
+        });
+
+
         //we DONT want pointer captures (happens on mobile)
         this.eventElement.addEventListener('gotpointercapture', function (m) {
             m.target.releasePointerCapture(m.pointerId);
@@ -265,9 +277,6 @@ export default class ControlDrawing {
         //calculate actual svg paper location
         const point = this.getSvgPoint(m.pageX, m.pageY);
 
-        //for offset panning
-        this.lastPageX=m.pageX;
-        this.lastPageY=m.pageY;
 
         this.paperSend.updateCursor(point.x, point.y);
 
@@ -279,6 +288,12 @@ export default class ControlDrawing {
                     break;
                 case Modes.Delete:
                     this.deleteSelected();
+                    break;
+                case Modes.Point:
+                    //for offset panning
+                    this.offsetXstart = m.offsetX;
+                    this.offsetYstart = m.offsetY;
+                    this.paperPanZoom.relStart(m.offsetX, m.offsetY);
                     break;
 
             }
@@ -338,8 +353,7 @@ export default class ControlDrawing {
 
         //pan (only need the last event, no need to decoales)
         if (this.mode == Modes.Point && this.primaryDown) {
-            const offsetPoint=this.getSvgPoint(this.lastPageX-m.pageX, this.lastPageY-m.pageY);
-            this.paperPanZoom.offsetPan(offsetPoint.x, offsetPoint.y);
+            this.paperPanZoom.relZoomPan(1, m.offsetX - this.offsetXstart, m.offsetY - this.offsetYstart);
         }
 
         //update latest cursor location
@@ -348,9 +362,7 @@ export default class ControlDrawing {
         //sending it at this point also makes use of coalescing. (messages will get queued instead of send directly)
         this.paperSend.send();
 
-        // this.lastPoint = point;
-        this.lastPageX=m.pageX;
-        this.lastPageY=m.pageY;
+
 
     };
 

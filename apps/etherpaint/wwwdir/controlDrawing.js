@@ -20,7 +20,7 @@ const Modes =
 export default class ControlDrawing {
 
     constructor(paperSend) {
-        this.mode = Modes.Point;
+        // this.mode = Modes.Point;
         this.paperSend = paperSend;
 
         let self = this;
@@ -63,7 +63,7 @@ export default class ControlDrawing {
                 const factor = 1 - m.deltaY / 250;
                 self.paperPanZoom.relZoomPan(factor, 0, 0);
             }
-            console.log(m.deltaZ);
+            // console.log(m.deltaZ);
         });
 
 
@@ -117,6 +117,7 @@ export default class ControlDrawing {
         this.attributeDropdown = $('.paper-attribute-dropdown').dropdown({});
 
 
+
         $('.paper-click.paper-tool.paper-pointer').on('click', function () {
             self.mode = Modes.Point;
         });
@@ -168,8 +169,26 @@ export default class ControlDrawing {
 
     }
 
+    setCursor()
+    {
+        switch (this.mode) {
+            case Modes.Draw:
+                this.containerElement.style.cursor="grabbing";
+                break;
+            case Modes.Delete:
+                this.containerElement.style.cursor="grabbing";
+                break;
+            case Modes.Point:
+                this.containerElement.style.cursor="grabbing";
+                break;
 
-    //disable drawing input from user. (readonly, also used during connect/sync)
+        }
+
+    }
+
+
+
+//disable drawing input from user. (readonly, also used during connect/sync)
     disableDrawing() {
         $("#draw-toolbar .button").addClass("disabled");
         this.eventElement.classList.add("draw-disabled");
@@ -309,6 +328,7 @@ export default class ControlDrawing {
             //middle mouse
             if (m.buttons & 4)
             {
+                this.containerElement.style.cursor="grabbing";
                 this.panStart(m);
             }
         }
@@ -397,6 +417,8 @@ export default class ControlDrawing {
             }
             this.primaryDown = false;
         }
+
+        this.setCursor();
     };
 
     onPointerCancel(m) {

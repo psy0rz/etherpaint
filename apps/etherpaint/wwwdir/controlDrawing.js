@@ -60,7 +60,7 @@ export default class ControlDrawing {
             if (m.shiftKey) {
                 self.paperPanZoom.relZoomPan(1, 0, -m.deltaY);
             } else {
-                const factor = 1 - m.deltaY / 1000;
+                const factor = 1 - m.deltaY / 250;
                 self.paperPanZoom.relZoomPan(factor, 0, 0);
             }
             console.log(m.deltaZ);
@@ -268,6 +268,14 @@ export default class ControlDrawing {
         }
     }
 
+    panStart(m)
+    {
+        this.offsetXstart = m.offsetX;
+        this.offsetYstart = m.offsetY;
+        this.paperPanZoom.relStart(m.offsetX, m.offsetY);
+
+    }
+
     onPointerDown(m) {
 
         if (!m.isPrimary)
@@ -280,6 +288,7 @@ export default class ControlDrawing {
 
         this.paperSend.updateCursor(point.x, point.y);
 
+        //main button
         if (m.buttons & 1) {
             this.primaryDown = true;
             switch (this.mode) {
@@ -290,12 +299,17 @@ export default class ControlDrawing {
                     this.deleteSelected();
                     break;
                 case Modes.Point:
-                    //for offset panning
-                    this.offsetXstart = m.offsetX;
-                    this.offsetYstart = m.offsetY;
-                    this.paperPanZoom.relStart(m.offsetX, m.offsetY);
+                    this.panStart(m);
                     break;
 
+            }
+        }
+        else {
+
+            //middle mouse
+            if (m.buttons & 4)
+            {
+                this.panStart(m);
             }
         }
 
@@ -352,7 +366,11 @@ export default class ControlDrawing {
         const point = this.getSvgPoint(m.pageX, m.pageY);
 
         //pan (only need the last event, no need to decoales)
-        if (this.mode == Modes.Point && this.primaryDown) {
+        if (
+            (m.buttons & 4) || //middle mouse pressed
+            (this.mode == Modes.Point && this.primaryDown) //point mode selected
+        )
+        {
             this.paperPanZoom.relZoomPan(1, m.offsetX - this.offsetXstart, m.offsetY - this.offsetYstart);
         }
 

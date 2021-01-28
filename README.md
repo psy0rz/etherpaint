@@ -1,8 +1,9 @@
 
 ## Etherpaint demo
 
-Alpha version is running at: http://internet-paper.com/
+Alpha version is running at: http://draw.cafe/
 
+Please sign our "guestbook" drawing :) http://draw.cafe/d/4yXtsY5wsBXjIGJJGYN6
 
 ## Installing
 

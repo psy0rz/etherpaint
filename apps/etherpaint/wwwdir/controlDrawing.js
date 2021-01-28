@@ -119,22 +119,22 @@ export default class ControlDrawing {
 
 
         $('.paper-click.paper-tool.paper-pointer').on('click', function () {
-            self.mode = Modes.Point;
+            self.setMode(Modes.Point);
         });
 
 
         $('.paper-click.paper-tool.paper-polyline').on('click', function () {
-            self.mode = Modes.Draw;
+            self.setMode(Modes.Draw);
             self.paperSend.selectDrawClass(event.ClassType.Polyline);
         });
 
         $('.paper-click.paper-tool.paper-rect').on('click', function () {
-            self.mode = Modes.Draw;
+            self.setMode(Modes.Draw);
             self.paperSend.selectDrawClass(event.ClassType.Rectangle);
         });
 
         $('.paper-click.paper-tool.paper-delete').on('click', function () {
-            self.mode = Modes.Delete;
+            self.setMode(Modes.Delete);
         });
 
         $('.paper-click.paper-undo').on('click', function () {
@@ -169,14 +169,20 @@ export default class ControlDrawing {
 
     }
 
+    setMode(mode)
+    {
+        this.mode=mode;
+        this.setCursor();
+    }
+
     setCursor()
     {
         switch (this.mode) {
             case Modes.Draw:
-                this.containerElement.style.cursor="grabbing";
+                this.containerElement.style.cursor="crosshair";
                 break;
             case Modes.Delete:
-                this.containerElement.style.cursor="grabbing";
+                this.containerElement.style.cursor="";
                 break;
             case Modes.Point:
                 this.containerElement.style.cursor="grabbing";

@@ -16,7 +16,7 @@
 
 class SharedSessionPaper : public SharedSession {
 private:
-    MsgBuilder msg_builder; //to send to clients
+    MsgBuilder msg_builder_broadcast; //to send to clients
     MsgBuilder msg_builder_storage; //to send to storage module (without cursors and non-store increments)
     std::mutex msg_builder_mutex;
 
@@ -30,7 +30,10 @@ public:
 
     //basic joining/leaving/drawing stuff
     void join(std::shared_ptr<MsgSession> new_msg_session) override;
-    void leave(std::shared_ptr<MsgSession> new_msg_session) override;
+    void leave(std::shared_ptr<MsgSession> msg_session) override;
+
+    //Add draw event to the broadcast buffer and store to disk (if necessary)
+    //Events will only be broadcasted to clients that are synced (vs streaming a drawing from disk)
     void addDraw(const event::DrawIncrement* draw_increment);
     void addDraw(const event::DrawObject* draw_object);
 

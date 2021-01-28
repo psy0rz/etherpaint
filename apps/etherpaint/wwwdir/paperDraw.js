@@ -69,6 +69,7 @@ export default class PaperDraw {
             this.targetIndex = this.increments.length - 1;
         } else {
             this.tmpActions.push(action);
+            action.tmp=true;
         }
 
      //  this.requestDraw();

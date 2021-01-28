@@ -21,7 +21,7 @@ export default class PaperReceive {
 
         this.messages.doneHandler = () => {
             //dont update during streaming
-            if (this.clientId!=0)
+            if (this.clientId != 0)
                 this.paperDraw.requestDraw();
         }
 
@@ -53,6 +53,7 @@ export default class PaperReceive {
             const clientId = drawIncrementEvent.clientId();
             const store = drawIncrementEvent.store();
 
+            //ignore our own events, these are handled by local echo
             if (clientId === this.clientId)
                 return;
 
@@ -122,13 +123,13 @@ export default class PaperReceive {
             case event.IncrementalType.SelectColor:
                 // let color = p1 << 16 + p2 << 8 + p3;
                 // client.attributes['stroke'] = "#" + color.toString(16).padStart(6, '0');
-                client.selectAttribute('c', 'c'+p1 );
+                client.selectAttribute('c', 'c' + p1);
                 break;
             case event.IncrementalType.SelectWidth:
-                client.selectAttribute('w', 'w'+p1 );
+                client.selectAttribute('w', 'w' + p1);
                 break;
             case event.IncrementalType.SelectDashing:
-                client.selectAttribute('d', 'd'+p1 );
+                client.selectAttribute('d', 'd' + p1);
                 break;
             case event.IncrementalType.DrawObject:
                 client.currentAction = new client.Class(
@@ -152,6 +153,18 @@ export default class PaperReceive {
                 ), store);
                 client.currentAction = undefined;
                 break;
+            //client disconnected
+            case event.IncrementalType.Cleanup:
+                //is the current action temporary?
+                if (client.currentAction !== undefined && client.currentAction.tmp) {
+                    this.paperDraw.addAction(new PaperActionDelete(
+                        clientId,
+                        client.currentAction.element
+                    ), store);
+                    client.currentAction = undefined;
+                }
+                break;
+
             case event.IncrementalType.Undo:
                 this.paperDraw.addUndo(clientId);
                 break;

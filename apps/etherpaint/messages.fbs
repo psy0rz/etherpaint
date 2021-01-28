@@ -14,6 +14,9 @@ union EventUnion {
     DrawObject,
 
     StreamSynced,
+
+    ClientJoined,
+    ClientLeft,
 }
 
 //32 bytes overhead
@@ -46,7 +49,7 @@ table Error
 }
 
 
-//request join
+//request join (send from a client to server)
 table Join
 {
   id: string;
@@ -54,16 +57,28 @@ table Join
 }
 
 
-//new stream started
+//new stream started (send from server to specific client)
 table StreamStart
 {
   paperId: string;
 }
 
-//stream complete, tells clientId to use as well
+//stream complete, tells clientId to use as well (send from server to specific client)
 table StreamSynced
 {
     clientId: uint8;
+}
+
+//a client has joined (send from server to ALL clients)
+table ClientJoined
+{
+  clientId: uint8;
+}
+
+//a client has left (send from server to ALL clients)
+table ClientLeft
+{
+  clientId: uint8;
 }
 
 
@@ -98,6 +113,8 @@ enum IncrementalType:byte
 
     SelectWidth,
     SelectDashing,
+
+    Cleanup, //send by server when a client disconnects
 }
 
 

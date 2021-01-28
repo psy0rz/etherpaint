@@ -20,7 +20,7 @@ std::shared_ptr<SharedSession> SharedSession::create(const std::string &id) {
 
 SharedSessionPaper::SharedSessionPaper(const std::string &id) :
         SharedSession(id),
-        msg_builder(500),
+        msg_builder_broadcast(500),
         msg_builder_storage(500) {
 
     //security
@@ -75,20 +75,21 @@ void SharedSessionPaper::send_frame() {
 
         if (msg_session_paper->cursor_changed) {
             msg_session_paper->cursor_changed = false;
-            msg_builder.add_event(
+            msg_builder_broadcast.add_event(
                     event::EventUnion::EventUnion_Cursor,
-                    msg_builder.builder.CreateStruct<event::Cursor>(msg_session_paper->cursor).Union()
+                    msg_builder_broadcast.builder.CreateStruct<event::Cursor>(msg_session_paper->cursor).Union()
             );
         }
     }
 
 
-    if (!msg_builder.empty()) {
-        msg_builder.finish();
-        auto msg_serialized = std::make_shared<MsgSerialized>(std::move(msg_builder));
+    if (!msg_builder_broadcast.empty()) {
+        msg_builder_broadcast.finish();
+        auto msg_serialized = std::make_shared<MsgSerialized>(std::move(msg_builder_broadcast));
         for (auto &msg_session : msg_sessions) {
             auto msg_session_paper = std::static_pointer_cast<MsgSessionPaper>(msg_session);
 
+            //only send if client ist currently streaming from disk
             if (!msg_session_paper->streaming)
                 msg_session_paper->enqueue(msg_serialized);
         }
@@ -116,6 +117,11 @@ void SharedSessionPaper::join(std::shared_ptr<MsgSession> new_msg_session) {
         if (!used_ids[client_id]) {
             DEB("Client joining as " << int(client_id) << " to shared paper session " << this->id);
 
+            msg_builder_broadcast.add_event(
+                    event::EventUnion_ClientJoined,
+                    event::CreateClientJoined(msg_builder_broadcast.builder, client_id).Union()
+            );
+
             new_msg_session_paper->streamStart(id, client_id);
             msg_sessions.insert(new_msg_session_paper);
             return;
@@ -129,19 +135,34 @@ void SharedSessionPaper::join(std::shared_ptr<MsgSession> new_msg_session) {
 
 }
 
-void SharedSessionPaper::leave(std::shared_ptr<MsgSession> new_msg_session) {
-    SharedSession::leave(new_msg_session);
+void SharedSessionPaper::leave(std::shared_ptr<MsgSession> msg_session) {
 
+    auto msg_session_paper = std::static_pointer_cast<MsgSessionPaper>(msg_session);
 
+    SharedSession::leave(msg_session);
+
+    //inform all clients that this one left
+    {
+        std::unique_lock<std::mutex> lock(msg_builder_mutex);
+        msg_builder_broadcast.add_event(
+                event::EventUnion_ClientLeft,
+                event::CreateClientLeft(msg_builder_broadcast.builder, msg_session_paper->id).Union()
+        );
+    }
+
+    //inform drawing system that a client (that will correctly cleanup unfinished temporary operations)
+    //TODO: only send this when needed
+    event::DrawIncrement draw_increment(msg_session_paper->id, event::IncrementalType::IncrementalType_Cleanup, 0,0,0,false);
+    addDraw(&draw_increment);
 }
 
 
 void SharedSessionPaper::addDraw(const event::DrawIncrement *draw_increment) {
     std::unique_lock<std::mutex> lock(msg_builder_mutex);
 
-    msg_builder.add_event(
+    msg_builder_broadcast.add_event(
             event::EventUnion::EventUnion_DrawIncrement,
-            msg_builder.builder.CreateStruct<event::DrawIncrement>(*draw_increment).Union()
+            msg_builder_broadcast.builder.CreateStruct<event::DrawIncrement>(*draw_increment).Union()
     );
 
     //store to persistent storage buffer? (will be storage/emptied in store()
@@ -158,12 +179,12 @@ void SharedSessionPaper::addDraw(const event::DrawObject *draw_object) {
     std::unique_lock<std::mutex> lock(msg_builder_mutex);
 
 
-    msg_builder.add_event(
+    msg_builder_broadcast.add_event(
             event::EventUnion::EventUnion_DrawObject,
             event::CreateDrawObject(
-                    msg_builder.builder,
+                    msg_builder_broadcast.builder,
                     draw_object->clientId(),
-                    msg_builder.builder.CreateVector(
+                    msg_builder_broadcast.builder.CreateVector(
                             draw_object->points()->data(),
                             draw_object->points()->size()
                     )

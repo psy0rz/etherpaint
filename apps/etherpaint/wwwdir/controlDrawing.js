@@ -418,7 +418,7 @@ export default class ControlDrawing {
 
         if (this.primaryDown) {
             if (this.mode === Modes.Draw) {
-                this.paperSend.drawFinish();
+                this.paperSend.drawFinish(1/this.paperPanZoom.zoomFactor);
                 this.paperSend.send();
             }
             this.primaryDown = false;

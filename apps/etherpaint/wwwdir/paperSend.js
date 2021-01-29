@@ -190,7 +190,7 @@ export default class PaperSend {
     }
 
     //transform temporary points in final message. (also try optimizing the number of points)
-    drawFinish() {
+    drawFinish(tolerance) {
 
         //cancel temporary object
         this.drawIncrement(event.IncrementalType.Cancel, 0, 0, 0, false);
@@ -208,14 +208,14 @@ export default class PaperSend {
 
                 const oldLength=this.points.length;
                 this.points = [];
-                for (let point of simplify(simplifyPoints, 0.8, true))
+                for (let point of simplify(simplifyPoints, tolerance, true))
                 {
                     this.points.push(point.x);
                     this.points.push(point.y);
                 }
 
                 // console.log("Simplify polygon factor: ", this.points.length/oldLength);
-                document.querySelector("#debug").textContent=this.points.length/oldLength;
+                document.querySelector("#debug").textContent=tolerance+" "+this.points.length/oldLength;
                 // document.querySelector("#debug").textContent="sfd";
 
                 this.drawObject(this.points);

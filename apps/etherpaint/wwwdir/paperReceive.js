@@ -3,12 +3,13 @@
 //receive actions from server and pass them to paperDraw.js
 
 import {event} from "./messages_generated.js";
-import {PaperActionPolyline, PaperActionRectangle, PaperActionDelete} from "./paperAction.js";
+import {PaperActionPolyline, PaperActionRectangle, PaperActionDelete, PaperActionCircle} from "./paperAction.js";
 
 //maps event classtype number to actual javascript class
 const classTypeMap = [];
 classTypeMap[event.ClassType.Polyline] = PaperActionPolyline;
 classTypeMap[event.ClassType.Rectangle] = PaperActionRectangle;
+classTypeMap[event.ClassType.Circle] = PaperActionCircle;
 
 
 export default class PaperReceive {

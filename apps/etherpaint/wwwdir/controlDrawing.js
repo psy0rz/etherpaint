@@ -133,6 +133,11 @@ export default class ControlDrawing {
             self.paperSend.selectDrawClass(event.ClassType.Rectangle);
         });
 
+        $('.paper-click.paper-tool.paper-circle').on('click', function () {
+            self.setMode(Modes.Draw);
+            self.paperSend.selectDrawClass(event.ClassType.Circle);
+        });
+
         $('.paper-click.paper-tool.paper-delete').on('click', function () {
             self.setMode(Modes.Delete);
         });

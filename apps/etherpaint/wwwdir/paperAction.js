@@ -96,6 +96,51 @@ export class PaperActionRectangle {
 }
 
 
+
+
+export class PaperActionCircle {
+    constructor(clientId, id, points, classStr) {
+        this.clientId=clientId;
+        this.element = new SVG().ellipse().addClass(classStr);
+        this.x = points[0];
+        this.y = points[1];
+        this.setxy(points[2], points[3]);
+        this.element.node.id = id;
+        // this.client.element.move(points[0], points[1]);
+    }
+
+    //annoyingly a rectangle cant have negative width/heights...
+    setxy(x2, y2)
+    {
+        this.element.cx(this.x);
+        this.element.cy(this.y);
+        this.element.width(Math.abs(this.x-x2)*2);
+        this.element.height(Math.abs(this.y-y2)*2);
+
+    }
+
+    addPoint(svgPoint) {
+        this.updatePoint=svgPoint;
+
+    }
+
+    draw(svg) {
+        svg.add(this.element);
+    }
+
+    drawUpdate()
+    {
+        this.setxy(this.updatePoint.x, this.updatePoint.y);
+    }
+
+    drawReverse(svg) {
+        this.element.remove(); //removes it from DOM
+    }
+
+
+}
+
+
 export class PaperActionDelete {
     constructor(clientId, element) {
         this.clientId=clientId;

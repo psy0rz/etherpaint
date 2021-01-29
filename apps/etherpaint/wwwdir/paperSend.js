@@ -7,6 +7,7 @@
 import {event} from "./messages_generated.js";
 
 
+
 export default class PaperSend {
 
 
@@ -188,14 +189,42 @@ export default class PaperSend {
         }
     }
 
-    //transform temporary points in final message.
+    //transform temporary points in final message. (also try optimizing the number of points)
     drawFinish() {
 
-
-        //TODO: optimize polyline with https://mourner.github.io/simplify-js/
-
+        //cancel temporary object
         this.drawIncrement(event.IncrementalType.Cancel, 0, 0, 0, false);
-        this.drawObject(this.points);
+
+        switch (this.selectedClass) {
+            case event.ClassType.Polyline:
+
+                //reduce number of segments with simplify-js
+
+                let simplifyPoints=[];
+                for (let i=0; i<this.points.length; i=i+2)
+                {
+                    simplifyPoints.push({x: this.points[i], y: this.points[i+1]});
+                }
+
+                const oldLength=this.points.length;
+                this.points = [];
+                for (let point of simplify(simplifyPoints, 0.8, true))
+                {
+                    this.points.push(point.x);
+                    this.points.push(point.y);
+                }
+
+                // console.log("Simplify polygon factor: ", this.points.length/oldLength);
+                document.querySelector("#debug").textContent=this.points.length/oldLength;
+                // document.querySelector("#debug").textContent="sfd";
+
+                this.drawObject(this.points);
+                break;
+            default:
+                this.drawObject(this.points);
+                break;
+        }
+
         this.points = [];
 
     }

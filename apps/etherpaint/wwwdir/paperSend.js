@@ -215,8 +215,7 @@ export default class PaperSend {
                 }
 
                 // console.log("Simplify polygon factor: ", this.points.length/oldLength);
-                document.querySelector("#debug").textContent=tolerance+" "+this.points.length/oldLength;
-                // document.querySelector("#debug").textContent="sfd";
+                // document.querySelector("#debug").textContent=tolerance+" "+this.points.length/oldLength;
 
                 this.drawObject(this.points);
                 break;

@@ -22,7 +22,7 @@
 #define LOG_HPP
 
 #include <iostream>
-#include <boost/thread/thread.hpp>
+#include <thread>
 
 
 //colors and ansi stuff (we dont want ncurses YET)
@@ -50,22 +50,18 @@
 #ifdef NDEBUG
 #define DEB(s) {}
 #else
-//#define DEB(s) LOG (boost::this_thread::get_id() << " " << "DEB: " << s << " @" << __FILE__ << ":" << __LINE__ << " in " << __PRETTY_FUNCTION__ << std::endl)
-#define DEB(s) LOG (boost::this_thread::get_id() << " " << s << " [" << __FILE__ << ":" << __LINE__ << "]" << std::endl)
+#define DEB(s) LOG (std::this_thread::get_id() << " " << s << " [" << __FILE__ << ":" << __LINE__ << "]" << std::endl)
 #endif
 
 //normal info:
-#define INFO(s) LOG(boost::this_thread::get_id() << " " << TERM_BOLD << "INFO: " << s << TERM_NORMAL << std::endl)
+#define INFO(s) LOG(std::this_thread::get_id() << " " << TERM_BOLD << "INFO: " << s << TERM_NORMAL << std::endl)
 
 //errors:
-#define ERROR(s) LOG(boost::this_thread::get_id() << " " << TERM_BAD << "ERROR: " << s << TERM_NORMAL << std::endl)
+#define ERROR(s) LOG(std::this_thread::get_id() << " " << TERM_BAD << "ERROR: " << s << TERM_NORMAL << std::endl)
 
 //warnings:
-#define WARNING(s) LOG(boost::this_thread::get_id() << " " << TERM_WARN << "WARNING: " << s << TERM_NORMAL << std::endl)
+#define WARNING(s) LOG(std::this_thread::get_id() << " " << TERM_WARN << "WARNING: " << s << TERM_NORMAL << std::endl)
 
-//messages:
-// #define LOG_SEND(s) LOG(boost::this_thread::get_id() << " " << TERM_SEND_MESSAGE << s << TERM_NORMAL << std::endl)
-// #define LOG_RECV(s) LOG(boost::this_thread::get_id() << " " << TERM_RECV_MESSAGE << s << TERM_NORMAL << std::endl)
 
 
 

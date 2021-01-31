@@ -78,8 +78,9 @@ set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
 
-INCLUDE(FindBoost)
-set(Boost_USE_MULTITHREADED ON)
-find_package(Boost 1.65.1 REQUIRED thread system filesystem)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${Boost_LIBRARIES})
+#currently doesnt need boost
+#INCLUDE(FindBoost)
+#set(Boost_USE_MULTITHREADED ON)
+#find_package(Boost 1.65.1 REQUIRED thread system filesystem)
+#target_link_libraries(${PROJECT_NAME} PRIVATE ${Boost_LIBRARIES})
 

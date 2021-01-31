@@ -56,11 +56,19 @@ export default class ControlDrawing {
         this.eventElement.addEventListener('pointercancel', this.onPointerCancel.bind(this), {passive: true});
 
         this.eventElement.addEventListener('wheel', function (m) {
+
+            let delta;
+            //DOM_DELTA_LINE, only used by firefox and it sucks and is hard to correctly convert to pixels. so we just use a fixed value we guessed.
+            if (m.deltaMode==1)
+                delta=m.deltaY*10;
+            else
+                delta=m.deltaY;
+
             self.paperPanZoom.relStart(m.offsetX, m.offsetY);
             if (m.shiftKey) {
-                self.paperPanZoom.relZoomPan(1, 0, -m.deltaY);
+                self.paperPanZoom.relZoomPan(1, 0, -delta);
             } else {
-                const factor = 1 - m.deltaY / 250;
+                const factor = 1 - delta / 250;
                 self.paperPanZoom.relZoomPan(factor, 0, 0);
             }
             // console.log(m.deltaZ);

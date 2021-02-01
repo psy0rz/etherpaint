@@ -50,14 +50,14 @@
 #ifdef NDEBUG
 #define DEB(s) {}
 #else
-#define DEB(s) LOG (std::this_thread::get_id() << " " << s << " [" << __FILE__ << ":" << __LINE__ << "]" << std::endl)
+#define DEB(s) LOG ("[" << std::this_thread::get_id() << "] " << s << " [" << __FILE__ << ":" << __LINE__ << "]" << std::endl)
 #endif
 
 //normal info:
-#define INFO(s) LOG(std::this_thread::get_id() << " " << TERM_BOLD << "INFO: " << s << TERM_NORMAL << std::endl)
+#define INFO(s) LOG("[" << std::this_thread::get_id() << "] " << TERM_BOLD << "INFO: " << s << TERM_NORMAL << std::endl)
 
 //errors:
-#define ERROR(s) LOG(std::this_thread::get_id() << " " << TERM_BAD << "ERROR: " << s << TERM_NORMAL << std::endl)
+#define ERROR(s) LOG("[" << std::this_thread::get_id() << "] " << TERM_BAD << "ERROR: " << s << TERM_NORMAL << std::endl)
 
 //warnings:
 #define WARNING(s) LOG(std::this_thread::get_id() << " " << TERM_WARN << "WARNING: " << s << TERM_NORMAL << std::endl)

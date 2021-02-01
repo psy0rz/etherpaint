@@ -6,7 +6,7 @@
 #define PAPER_MSGSESSIONPAPER_H
 #include "messages/MsgSession.h"
 #include "messages_generated.h"
-
+#include "messages/config.h"
 
 class MsgSessionPaper:public MsgSession {
 public:

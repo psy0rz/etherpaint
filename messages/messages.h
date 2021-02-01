@@ -6,7 +6,9 @@
 #define MESSAGES_MESSAGES_H
 
 #include "MsgSession.h"
-int messagerunner(const int argc, const char * argv[]);
+#include "inicpp.h"
+
+int messagerunner(ini::IniFile & config);
 
 
 #endif

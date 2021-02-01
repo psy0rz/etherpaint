@@ -1,5 +1,5 @@
 /* Released under GNU General Public License v3.0
- * (C) Edwin Eefting -- ediwn@datux.nl
+ * (C) Edwin Eefting -- edwin@datux.nl
  *
  * This framework is designed with performance and scalability in mind. All
  * design decisions are made accordingly:
@@ -62,33 +62,36 @@ Transfer/sec:      2.97GB
 #include "register_handler.h"
 
 
-FileCacher file_cacher("../wwwdir");
+FileCacher file_cacher;
 
 struct PerSocketData {
     std::shared_ptr<MsgSession> msg_session;
 };
 
 
-int messagerunner(const int argc, const char *argv[]) {
+int messagerunner(ini::IniFile &config) {
     std::vector<std::thread *> threads(std::thread::hardware_concurrency());
 
+    file_cacher.load(config["webserver"]["wwwdir"].as<std::string>());
+
     std::transform(
-            threads.begin(), threads.end(), threads.begin(), [](std::thread *t) {
-                return new std::thread([]() {
-                    uWS::TemplatedApp<ENABLE_SSL>({.key_file_name = "/home/psy/key.pem",
-                                                          .cert_file_name = "/home/psy/cert.pem",
+            threads.begin(), threads.end(), threads.begin(), [&](std::thread *t) {
+                return new std::thread([&]() {
+                    uWS::TemplatedApp<ENABLE_SSL>({
+                                                          .key_file_name = config["webserver"]["ssl_key"].as<const char *>(),
+                                                          .cert_file_name = config["webserver"]["ssl_cert"].as<const char *>(),
                                                           .passphrase = ""})
                             //static data
                             .get("/*",
                                  [](auto *res, auto *req) {
                                      auto file_name = std::string(req->getUrl());
 
-                                     if (file_name=="/")
-                                         file_name="/index.html";
+                                     if (file_name == "/")
+                                         file_name = "/index.html";
 
                                      //HACK: paper stuff doesnt belong here, make more generic.
                                      if (file_name.starts_with("/d/"))
-                                         file_name="/paper.html";
+                                         file_name = "/paper.html";
 
                                      auto file = file_cacher.get(file_name);
 
@@ -100,13 +103,12 @@ int messagerunner(const int argc, const char *argv[]) {
 //                                         res->writeHeader("Cache-Control","public, max-age=31536000, immutable");
                                          res->end(file->second->m_view);
                                      }
-                                     return;
                                  })
                             .ws<PerSocketData>(
                                     "/ws",
                                     {
-                                            .compression = uWS::SHARED_COMPRESSOR,
-//                                            .compression = uWS::DISABLED,
+//                                            .compression = uWS::SHARED_COMPRESSOR,
+                                            .compression = uWS::DISABLED,
                                             .maxPayloadLength = 10024,
                                             .idleTimeout = 1000,
                                             .maxBackpressure = 0,
@@ -168,21 +170,21 @@ int messagerunner(const int argc, const char *argv[]) {
                                                             handlers[event_type](msg_session, message, event_index);
 
                                                         }
-                                                        catch (program_error e) {
+                                                        catch (program_error & e) {
                                                             std::stringstream desc;
                                                             desc << "Program error while handling "
                                                                  << event::EnumNamesEventUnion()[event_type] << ": "
                                                                  << e.what();
                                                             msg_session->enqueue_error(desc.str());
                                                         }
-                                                        catch (std::system_error e) {
+                                                        catch (std::system_error & e) {
                                                             std::stringstream desc;
                                                             desc << "System error while handling "
                                                                  << event::EnumNamesEventUnion()[event_type] << ": "
                                                                  << e.code().message() << ": " << std::strerror(errno);
                                                             msg_session->enqueue_error(desc.str());
                                                         }
-                                                        catch (std::exception e) {
+                                                        catch (std::exception & e) {
                                                             std::stringstream desc;
                                                             desc << "Exception while handling "
                                                                  << event::EnumNamesEventUnion()[event_type] << ":"
@@ -221,7 +223,7 @@ int messagerunner(const int argc, const char *argv[]) {
                                                         ->msg_session->closed();
                                             }})
 
-                            .listen(3000,
+                            .listen(config["webserver"]["ssl_port"].as<int>(),
                                     [](auto *token) {
                                         if (token) {
                                             INFO("Listening");
@@ -231,22 +233,6 @@ int messagerunner(const int argc, const char *argv[]) {
                 });
             });
 
-    // while (1) {
-    //   if (lastsess != nullptr) {
-    //     lastsess->enqueue_error(
-    //       "dummydatadummydatadummydatadummydatadummydatadummydatadummydatadummyda"
-    //       "tadummydatadummydatadummydatadummydatadummydatadummydatadummydatadummy"
-    //       "datadummydatadummydatadummydatadummydatadummydatadummydatadummydatadum"
-    //       "mydatadummydatadummydatadummydatadummydatadummydatadummydatadummydatad"
-    //       "ummydatadummydatadummydatadummydatadummydatadummydatadummydatadummydat"
-    //       "adummydatadummydatadummydatadummydatadummydatadummydatadummydatadummyd"
-    //       "atadummydatadummydatadummydatadummydatadummydatadummydatadummydatadumm"
-    //       "ydatadummydatadummydatadummydatadummydatadummydatadummydatadummydatadu"
-    //       "mmydatadummydatadummydatadummydatadummydatadummydatadummydatadummydata"
-    //       "dummydata");
-    //   }
-    //   std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    // }
 
     std::for_each(
             threads.begin(), threads.end(), [](std::thread *t) { t->join(); });

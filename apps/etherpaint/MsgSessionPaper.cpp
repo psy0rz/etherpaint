@@ -11,7 +11,7 @@ std::shared_ptr<MsgSession> MsgSession::create(uWS::WebSocket<ENABLE_SSL, true> 
     return (msg_session);
 }
 
-MsgSessionPaper::MsgSessionPaper(uWS::WebSocket<false, true> *ws) : MsgSession(ws) {
+MsgSessionPaper::MsgSessionPaper(uWS::WebSocket<ENABLE_SSL, true> *ws) : MsgSession(ws) {
 
 
 }

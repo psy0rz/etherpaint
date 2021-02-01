@@ -30,12 +30,12 @@ public:
 
     void reload() {
 
-        INFO("Caching " << m_path);
+//        INFO("Caching " << m_path);
 
         if (content_type_map.find(m_path.extension()) == content_type_map.end())
         {
-            WARNING("Filetype not supported " << m_path.extension());
-            m_content_type="unknown";
+//            WARNING(m_path << ": Filetype not supported " << m_path.extension());
+            m_content_type="application/octet-stream";
 
         }
         else {
@@ -73,7 +73,8 @@ public:
 //    std::mutex mutex;
 
 
-    FileCacher(std::string root_dir) {
+    void load(std::string root_dir) {
+        INFO("Caching " << root_dir)
         m_root_dir = root_dir;
         for (auto &dir_entry :
                 std::filesystem::recursive_directory_iterator(m_root_dir)) {
@@ -83,7 +84,7 @@ public:
                 url.erase(0, m_root_dir.length());
 
                 m_cached_files[url] = std::make_unique<CachedFile>(dir_entry.path());
-                DEB("Web path: " << url);
+//                DEB("Web path: " << url);
             }
         }
     }

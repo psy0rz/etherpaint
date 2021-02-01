@@ -4,6 +4,8 @@
 
 #ifndef messages_CONFIG_H
 #define messages_CONFIG_H
-#define ENABLE_SSL false
+
+//should always be true
+#define ENABLE_SSL true
 
 #endif //messages_CONFIG_H

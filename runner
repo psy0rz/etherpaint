@@ -6,9 +6,10 @@ killall paper
 
 if [ "$1" == "make" ] ; then
     make -j32 || exit 1
-echo WTF
 fi
-./paper &
+
+cd ../conf
+../cmake-build-debug/paper etherpaint.ini &
 
 
 wait

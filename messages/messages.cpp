@@ -69,11 +69,33 @@ struct PerSocketData {
 };
 
 
+//simple http server that redirects to http and allows letsencrypt validation
+void http_server(ini::IniFile &config) {
+    uWS::App ()
+            //static data
+            .get("/",
+                 [&](auto *res, auto *req) {
+
+                     res->writeStatus("301");
+                     res->writeHeader("Location", config["webserver"]["http_redir"].as<std::string>());
+                     res->end();
+                 })
+            .listen(config["webserver"]["port"].as<int>(),
+                    [](auto *token) {
+                        if (token) {
+                            INFO("HTTP redirector thread started");
+                        }
+                    })
+            .run();
+
+};
+
 int messagerunner(ini::IniFile &config) {
-    std::vector<std::thread *> threads(std::thread::hardware_concurrency());
 
     file_cacher.load(config["webserver"]["wwwdir"].as<std::string>());
 
+    //multi threaded ssl server (fails if cert is missing)
+    std::vector<std::thread *> threads(std::thread::hardware_concurrency());
     std::transform(
             threads.begin(), threads.end(), threads.begin(), [&](std::thread *t) {
                 return new std::thread([&]() {
@@ -226,7 +248,7 @@ int messagerunner(ini::IniFile &config) {
                             .listen(config["webserver"]["ssl_port"].as<int>(),
                                     [](auto *token) {
                                         if (token) {
-                                            INFO("Listening");
+                                            INFO("HTTPS webserver thread started");
                                         }
                                     })
                             .run();
@@ -234,8 +256,12 @@ int messagerunner(ini::IniFile &config) {
             });
 
 
+    //simple http redirector
+    http_server( config);
+
     std::for_each(
             threads.begin(), threads.end(), [](std::thread *t) { t->join(); });
-    ERROR("FAILED to listen");
+    ERROR("FAILED to start SSL");
+
     return EXIT_SUCCESS;
 }

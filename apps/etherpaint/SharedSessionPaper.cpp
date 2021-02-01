@@ -28,6 +28,7 @@ SharedSessionPaper::SharedSessionPaper(const std::string &id) :
     if (std::regex_search(id, invalid_chars))
         throw program_error("id contains invalid characters");
 
+
     fs.exceptions(std::ios::failbit | std::ios::badbit);
     fs.open(id + ".paper", std::ios::in | std::ios::out | std::ios::binary | std::ios::app);
 
@@ -38,6 +39,8 @@ void SharedSessionPaper::update_thread() {
 
     const auto fps = 60;
     using frames = std::chrono::duration<int64_t, std::ratio<1, fps>>;
+
+    INFO("Update thread started");
 
     auto start_time = std::chrono::system_clock::now();
     while (!stop) {
@@ -210,6 +213,7 @@ void SharedSessionPaper::addDraw(const event::DrawObject *draw_object) {
 //calls store_all and stream_all at the right times.
 void SharedSessionPaper::io_thread() {
 
+    INFO("IO thread started");
 
     while (!stop) {
         stream_all(); //runs/waits for 5 seconds

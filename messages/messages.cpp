@@ -105,7 +105,7 @@ int messagerunner(ini::IniFile &config) {
                                                           .passphrase = ""})
                             //static data
                             .get("/*",
-                                 [](auto *res, auto *req) {
+                                 [&](auto *res, auto *req) {
                                      auto file_name = std::string(req->getUrl());
 
                                      if (file_name == "/")
@@ -122,7 +122,7 @@ int messagerunner(ini::IniFile &config) {
                                          res->end("not found");
                                      } else {
                                          res->writeHeader("Content-Type", file->second->m_content_type);
-//                                         res->writeHeader("Cache-Control","public, max-age=31536000, immutable");
+                                         res->writeHeader("Cache-Control",config["webserver"]["cache_control"].as<std::string>());
                                          res->end(file->second->m_view);
                                      }
                                  })

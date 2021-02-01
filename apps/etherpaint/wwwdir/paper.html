@@ -101,6 +101,8 @@
 
         window.addEventListener('load', (event) => {
 
+            document.version="v0.5";
+
             let paperDraw = new PaperDraw(
                 document.querySelector("#paper"),
                 document.querySelector("#scratch")
@@ -385,7 +387,7 @@ overflow: hidden;
 
         <div class="ui label">
             <a href="https://github.com/psy0rz/etherpaint/issues">
-            <i class="icon github"></i>v0.4
+            <i class="icon github"></i><span id="version"></span>
             </a>
         </div>
 

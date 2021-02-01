@@ -8,6 +8,8 @@ export default class ControlUI {
 
         const self=this;
 
+        $("#version").text(document.version);
+
         this.hideTools();
 
         $('.paper-click.paper-tool').on('click', function () {

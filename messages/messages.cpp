@@ -73,7 +73,7 @@ struct PerSocketData {
 void http_server(ini::IniFile &config) {
     uWS::App ()
             //static data
-            .get("/",
+            .get("/*",
                  [&](auto *res, auto *req) {
 
                      res->writeStatus("301");

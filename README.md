@@ -1,9 +1,9 @@
 
 ## Etherpaint demo
 
-Alpha version is running at: http://draw.cafe/
+Alpha version is running at: https://draw.cafe/
 
-Please sign our "guestbook" drawing :) http://draw.cafe/d/4yXtsY5wsBXjIGJJGYN6
+Please sign our "guestbook" drawing :) https://draw.cafe/d/4yXtsY5wsBXjIGJJGYN6
 
 ## Installing
 

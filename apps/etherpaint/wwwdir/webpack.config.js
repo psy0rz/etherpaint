@@ -2,14 +2,14 @@ const path = require('path');
 
 module.exports = {
 
-  // mode: 'development',
-  // devtool: 'inline-source-map',
+  mode: 'development',
+  devtool: 'inline-source-map',
 
-  mode: 'production',
-  optimization: {
-         usedExports: true,
-        innerGraph: true,
-     },
+  // mode: 'production',
+  // optimization: {
+  //        usedExports: true,
+  //       innerGraph: true,
+  //    },
 
   entry: './index.js',
   output: {

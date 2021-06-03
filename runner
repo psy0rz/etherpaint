@@ -3,6 +3,7 @@
 #todo: move to cmake, since it depends on generated messages.js
 pushd apps/etherpaint/wwwdir
 yarn install || exit 1
+echo "Webpack.."
 npx webpack || exit 1
 popd
 

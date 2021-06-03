@@ -2,7 +2,7 @@
 
 #todo: move to cmake, since it depends on generated messages.js
 pushd apps/etherpaint/wwwdir
-npm install || exit 1
+yarn install || exit 1
 npx webpack || exit 1
 popd
 

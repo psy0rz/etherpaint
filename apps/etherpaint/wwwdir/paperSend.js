@@ -5,7 +5,7 @@
 //most stuff is queued or cached before sending an actual message.
 
 import {event} from "./messages_generated.js";
-
+var simplify=require('simplify-js');
 
 
 export default class PaperSend {

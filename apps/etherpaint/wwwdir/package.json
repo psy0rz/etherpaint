@@ -9,6 +9,7 @@
     "simplify-js": "1.2.4"
   },
   "name": "etherpaint",
+  "sideEffects": false,
   "version": "1.0.0",
   "private": true,
   "license": "GPL",

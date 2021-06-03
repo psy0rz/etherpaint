@@ -7,6 +7,7 @@ import {event} from "/messages_generated.js";
 import {SVG} from '@svgdotjs/svg.js/dist/svg.esm';
 import PaperPanZoom from "/paperPanZoom.js";
 import ControlTouchPanZoom from "/controlTouchPanZoom.js";
+// import $ from 'jquery';
 
 
 const Modes =

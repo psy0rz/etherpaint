@@ -1,6 +1,7 @@
 //control UI for foomatic-ui
 
 import {event} from "/messages_generated.js";
+// import $ from 'jquery';
 
 export default class ControlUI {
 
@@ -15,6 +16,7 @@ export default class ControlUI {
         $('.paper-click.paper-tool').on('click', function () {
             self.highlightTool(this);
         })
+
 
 
 
@@ -67,6 +69,11 @@ export default class ControlUI {
             }
         );
 
+    }
+
+    ongebruikt(txt)
+    {
+        console.log("moi");
     }
 
     highlightTool(e) {

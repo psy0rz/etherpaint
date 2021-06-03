@@ -7,8 +7,6 @@ import ControlUI from "./controlUI.js";
 
 export default function main()
 {
-    console.log("in main");
-
     window.addEventListener('load', (event) => {
 
         document.version = "v0.5";

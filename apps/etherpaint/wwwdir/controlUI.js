@@ -1,7 +1,7 @@
 //control UI for foomatic-ui
 
 import {event} from "/messages_generated.js";
-// import $ from 'jquery';
+import $ from 'jquery';
 
 export default class ControlUI {
 

@@ -5,6 +5,10 @@ import PaperReceive from "./paperReceive.js";
 import ControlDrawing from "./controlDrawing.js";
 import ControlUI from "./controlUI.js";
 
+import jQuery from 'jquery';
+window.jQuery=jQuery;
+require("fomantic-ui-css/semantic");
+
 export default function main()
 {
     window.addEventListener('load', (event) => {

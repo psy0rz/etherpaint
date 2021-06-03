@@ -5,7 +5,7 @@
 
 //NOTE: simple one finger panning-mode isnt in here, since that doesnt require gesture detection. (its in controlDrawing.js, mode Point)
 
-import Hammer from "/node_modules/@egjs/hammerjs/dist/hammer.esm.js";
+import Hammer from "@egjs/hammerjs/dist/hammer.esm";
 
 export default class ControlTouchPanZoom {
 

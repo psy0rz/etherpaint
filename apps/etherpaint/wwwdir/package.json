@@ -2,12 +2,18 @@
   "dependencies": {
     "@egjs/hammerjs": "2.0.17",
     "@svgdotjs/svg.js": "3.0.16",
+    "flatbuffers": "^2.0.1",
     "fomantic-ui-css": "2.8.7",
     "jquery": "3.5.1",
+    "package.json": "^2.0.1",
     "simplify-js": "1.2.4"
   },
   "name": "etherpaint",
   "version": "1.0.0",
-  "main": "index.js",
-  "license": "GPL"
+  "private": true,
+  "license": "GPL",
+  "devDependencies": {
+    "webpack": "^5.38.1",
+    "webpack-cli": "^4.7.0"
+  }
 }

@@ -3,7 +3,7 @@
 //Handle panning/zooming
 //All coordinates are in paper-coordinates.
 
-import {SVG} from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
+import {SVG} from '@svgdotjs/svg.js/dist/svg.esm';
 
 export default class PaperPanZoom {
 

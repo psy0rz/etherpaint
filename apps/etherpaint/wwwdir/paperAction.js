@@ -5,8 +5,7 @@
 //
 //Drawing is done in animation frames.
 
-import {SVG} from './node_modules/@svgdotjs/svg.js/dist/svg.esm.js';
-
+import {SVG} from '@svgdotjs/svg.js/dist/svg.esm';
 
 export class PaperActionPolyline {
     constructor(clientId, id,  points, classStr) {

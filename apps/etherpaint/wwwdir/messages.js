@@ -1,13 +1,14 @@
 'use strict';
 
 import {event} from "./messages_generated.js";
+import {Builder, ByteBuffer} from "flatbuffers";
 
 //m (messages)
 var m = {};
 export {m};
 
 //fixed builder we reuse every time we send a message
-m.builder = new flatbuffers.Builder(1);
+m.builder = new Builder(1);
 
 //clear buffers, start new message.
 m.start_message = function () {
@@ -102,7 +103,7 @@ m.restart = function () {
     }
 
     m.callHandlers = function (msgArray) {
-        let byteBuffer = new flatbuffers.ByteBuffer(msgArray);
+        let byteBuffer = new ByteBuffer(msgArray);
         let msg = event.Message.getRootAsMessage(byteBuffer);
 
         let events_length = msg.eventsLength();

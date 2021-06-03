@@ -4,7 +4,7 @@
 
 
 import PaperClient from "/paperClient.js";
-import {SVG} from '/node_modules/@svgdotjs/svg.js/dist/svg.esm.js'
+import {SVG} from '@svgdotjs/svg.js/dist/svg.esm'
 import {PaperActionUndo, PaperActionRedo} from "/paperAction.js";
 
 export default class PaperDraw {

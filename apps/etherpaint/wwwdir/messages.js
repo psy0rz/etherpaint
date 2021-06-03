@@ -2,6 +2,7 @@
 
 import {event} from "./messages_generated.js";
 import {Builder, ByteBuffer} from "flatbuffers";
+import $ from 'jquery';
 
 //m (messages)
 var m = {};

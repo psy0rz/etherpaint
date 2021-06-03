@@ -26,7 +26,7 @@ table Message {
 
 //een struct  als een event is minimaal 8 bytes (4 overhead, stappen van 4 bytes)
 
-//12 bytes
+//12 bytes, cursor position update
 struct Cursor
 {
     ///client id

@@ -56,6 +56,7 @@ export default class ControlDrawing {
         this.eventElement.addEventListener('pointerup', this.onPointerUp.bind(this), {passive: true});
         this.eventElement.addEventListener('pointercancel', this.onPointerCancel.bind(this), {passive: true});
 
+        //mouse wheel zoom
         this.eventElement.addEventListener('wheel', function (m) {
 
             let delta;
@@ -81,7 +82,7 @@ export default class ControlDrawing {
             m.target.releasePointerCapture(m.pointerId);
         });
 
-
+        //websocket disconnected
         document.addEventListener("wsDisconnected", function () {
             $("#disconnected-message").show();
             self.disableDrawing();
@@ -315,6 +316,7 @@ export default class ControlDrawing {
 
     }
 
+    //pointer down
     onPointerDown(m) {
 
         if (!m.isPrimary)
@@ -387,6 +389,7 @@ export default class ControlDrawing {
         }
     }
 
+    //pointer move
     onPointerMove(m) {
 
         if (m.getCoalescedEvents) {
@@ -424,7 +427,7 @@ export default class ControlDrawing {
 
     };
 
-
+    //pointer up
     onPointerUp(m) {
         if (!m.isPrimary)
             return;
@@ -441,6 +444,7 @@ export default class ControlDrawing {
         this.setCursor();
     };
 
+    //pointer cancel
     onPointerCancel(m) {
         this.cancel();
     };

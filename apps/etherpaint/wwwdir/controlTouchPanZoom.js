@@ -2,6 +2,7 @@
 
 //Handle panning/zooming on mobile
 //Much much more complex than you might expect :)
+//complex stuff is in paperPanZoom.js now.
 
 //NOTE: simple one finger panning-mode isnt in here, since that doesnt require gesture detection. (its in controlDrawing.js, mode Point)
 

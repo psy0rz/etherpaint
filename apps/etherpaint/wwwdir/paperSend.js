@@ -146,7 +146,7 @@ export default class PaperSend {
 
     //start temporary realtime updated object of selected draw class.
     //this will store the points and send a final complete drawObject to the server after calling drawFinish.
-    //this object is also optimized so it has less points, in case of polylines.
+    //the final object is also optimized so it has less points, in case of polylines.
     drawStart(x, y) {
         if (x < 0 || y < 0)
             return;

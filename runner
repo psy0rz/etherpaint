@@ -1,23 +1,23 @@
 #!/bin/bash
-
+set -e
 
 #make?
 if [ "$1" == "make" ] ; then
     pushd apps/etherpaint/cmake-build-debug/
-    make -j32 || exit 1
+    make -j32 
     popd
 fi
 
 #webpack
 pushd apps/etherpaint/wwwdir
-yarn install || exit 1
+yarn install 
 echo "Webpack.."
-npx webpack || exit 1
+npx webpack 
 popd
 
 #run
-cd cd apps/etherpaint/conf
-killall paper
+cd apps/etherpaint/conf
+killall paper || true
 ../cmake-build-debug/paper etherpaint.ini &
 
 

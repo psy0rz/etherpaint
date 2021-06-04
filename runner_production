@@ -1,0 +1,27 @@
+#!/bin/bash
+
+#todo: move to cmake, since it depends on generated messages.js
+pushd apps/etherpaint/wwwdir
+yarn install || exit 1
+echo "Webpack.."
+npx webpack --mode production --no-devtool || exit 1
+popd
+
+
+cd apps/etherpaint/cmake-build-debug/
+
+killall paper
+
+if [ "$1" == "make" ] ; then
+    make -j32 || exit 1
+fi
+
+cd ../conf
+../cmake-build-debug/paper etherpaint.ini &
+
+
+wait
+echo "BACKGROUND DONE!"
+
+
+

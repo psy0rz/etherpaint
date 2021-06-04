@@ -47,7 +47,7 @@ add_custom_command(
 # add_dependencies(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/messages_generated.h )
 set_property(SOURCE messages.cpp APPEND PROPERTY OBJECT_DEPENDS ${CMAKE_SOURCE_DIR}/messages_generated.h)
 
-############################# flatc compile .fbs to .js
+############################# flatc compile .fbs to .ts
 add_custom_command(
         OUTPUT ${MESSAGES_GENERATED_JS_PATH}/messages_generated.js
         BYPRODUCTS ${MESSAGES_GENERATED_JS_PATH}/messages_generated.js

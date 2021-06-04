@@ -30,6 +30,10 @@ add_dependencies(${PROJECT_NAME} flatbuffers)
 include("uwebsockets.cmake")
 add_dependencies(${PROJECT_NAME} uwebsockets)
 
+############################# clone gzip-hpp
+include("gzip-hpp.cmake")
+add_dependencies(${PROJECT_NAME} gzip)
+
 
 ############################# flatc compile .fbs to .h
 add_custom_command(
@@ -62,6 +66,7 @@ include_directories(
         ${FLATBUFFERS_INCLUDE_DIR}
         ${MESSAGES_GENERATED_H_PATH}
         ${UWEBSOCKETS_INCLUDE_DIRS}
+        ${GZIP_INCLUDE_DIR}
 )
 
 #add_library(${EXTERNAL_PROJECTS_INSTALL_PREFIX}/lib/librestbed.a )

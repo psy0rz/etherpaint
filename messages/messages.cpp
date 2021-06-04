@@ -69,10 +69,9 @@ struct PerSocketData {
 };
 
 
-//simple http server that redirects to http and allows letsencrypt validation
+//simple http server that redirects to http
 void http_server(ini::IniFile &config) {
     uWS::App ()
-            //static data
             .get("/*",
                  [&](auto *res, auto *req) {
 
@@ -81,8 +80,8 @@ void http_server(ini::IniFile &config) {
                      res->end();
                  })
             .listen(config["webserver"]["port"].as<int>(),
-                    [](auto *token) {
-                        if (token) {
+                    [](auto *socket) {
+                        if (socket) {
                             INFO("HTTP redirector thread started");
                         }
                     })
@@ -123,14 +122,25 @@ int messagerunner(ini::IniFile &config) {
                                      } else {
                                          res->writeHeader("Content-Type", file->second->m_content_type);
                                          res->writeHeader("Cache-Control",config["webserver"]["cache_control"].as<std::string>());
-                                         res->end(file->second->m_view);
+
+                                         //can we use compression and do we have a compressed version?
+                                         if (req->getHeader("accept-encoding").find("gzip")!=std::string::npos && file->second->m_compressed)
+                                         {
+                                            res->writeHeader("content-encoding", "gzip");
+                                            res->end(file->second->m_view_compressed);
+                                         }
+                                         else
+                                         {
+                                             res->end(file->second->m_view);
+                                         }
+
                                      }
                                  })
                             .ws<PerSocketData>(
                                     "/ws",
                                     {
-//                                            .compression = uWS::SHARED_COMPRESSOR,
-                                            .compression = uWS::DISABLED,
+                                            .compression = uWS::SHARED_COMPRESSOR,
+//                                            .compression = uWS::DISABLED,
                                             .maxPayloadLength = 10024,
                                             .idleTimeout = 1000,
                                             .maxBackpressure = 0,

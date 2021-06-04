@@ -10,7 +10,7 @@ ExternalProject_Add(
         BUILD_COMMAND WITH_OPENSSL=1 CC=${CMAKE_C_COMPILER} make -j1 -C <SOURCE_DIR>/uSockets
         INSTALL_COMMAND ""
         UPDATE_COMMAND ""
-        WORKING_DIRECTORY "GEERT${EXTERNAL_PROJECTS_PREFIX}"
+        WORKING_DIRECTORY "${EXTERNAL_PROJECTS_PREFIX}"
 )
 
 ExternalProject_Get_Property(uwebsockets SOURCE_DIR)

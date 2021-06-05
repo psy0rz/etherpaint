@@ -1,5 +1,7 @@
 'use strict';
 
+import {SVG} from '@svgdotjs/svg.js/dist/svg.esm';
+
 //keep per-client state (cursors, colors, tool type etc) and do the actual svg stuff
 export default class PaperClient {
     constructor(clientId, scratchSvg) {
@@ -19,9 +21,9 @@ export default class PaperClient {
 
 
         //create cursor
-        this.cursorSvg = scratchSvg.group();
-        this.cursorSvg.path('M-20,0 L20,0 M0,-20 L0,20');
-        this.cursorSvg.text("client " + this.clientId).addClass("cursor-text").dy(-50);
+        this.element = new SVG().group();
+        this.element.path('M-20,0 L20,0 M0,-20 L0,20');
+        this.element.text("client " + this.clientId).addClass("cursor-text").dy(-50);
 
         this.cursorX = 0;
         this.cursorY = 0;
@@ -35,15 +37,25 @@ export default class PaperClient {
 
     animateCursor() {
 
-        this.cursorSvg.transform({
+        this.element.transform({
             translateX: this.cursorX,
             translateY: this.cursorY
         });
     }
 
+    show(svg)
+    {
+        svg.add(this.element);
+    }
+
+    hide()
+    {
+        this.element.remove(); //removes it from DOM
+    }
+
     selectAttribute(attribute, attributeClass) {
-        this.cursorSvg.removeClass(this.attributeClasses[attribute]);
-        this.cursorSvg.addClass(attributeClass);
+        this.element.removeClass(this.attributeClasses[attribute]);
+        this.element.addClass(attributeClass);
 
         this.attributeClasses[attribute]=attributeClass;
         this.attributeClassStr=Object.values(this.attributeClasses).join(' ');

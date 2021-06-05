@@ -35,13 +35,17 @@ export default class PaperDraw {
 
     streamStart()
     {
+        this.syncing=true;
         this.clear();
         this.paperElement.dispatchEvent(new Event("streamStart"));
     }
 
     streamSynced()
     {
+        console.log("Synced, actions=", this.increments.length);
         this.paperElement.dispatchEvent(new Event("streamSynced"));
+        this.syncing=false;
+        this.requestDraw();
     }
 
 
@@ -159,8 +163,22 @@ export default class PaperDraw {
 
     }
 
+    //show client cursor
+    showClient(clientId)
+    {
+        const client = this.getClient(clientId);
+        client.show(this.scratchSvg);
+    }
+
+    //hide client cursor
+    hideClient(clientId)
+    {
+        const client = this.getClient(clientId);
+        client.hide();
+    }
+
     requestDraw() {
-        if (!this.drawRequested) {
+        if (!this.drawRequested && !this.syncing) {
             window.requestAnimationFrame(this.draw.bind(this));
             this.drawRequested = true;
         }
@@ -170,6 +188,9 @@ export default class PaperDraw {
     //do actual drawing stuff, call this from inside an animation frame. (e.g. 60fps)
     draw() {
         this.drawRequested = false;
+
+        if (this.syncing)
+            return;
 
         //let all changed clients do their incremental draw and cursor stuff:
         for (const client of this.changedClients) {
@@ -186,13 +207,13 @@ export default class PaperDraw {
         this.slideTo(this.targetIndex);
         this.drawTmpIncrements();
 
-
     }
 
 
     //draw increments until index.
     //pay attention to performance in this one
     drawIncrements(index) {
+        console.log("draw inc", this.incrementIndex, index);
         while (this.incrementIndex < index) {
 
             this.incrementIndex++;
@@ -201,6 +222,7 @@ export default class PaperDraw {
 
 
         }
+        console.log("draw done");
 
     }
 

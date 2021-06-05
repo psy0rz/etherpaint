@@ -21,9 +21,7 @@ export default class PaperReceive {
         this.paperSend = paperSend;
 
         this.messages.doneHandler = () => {
-            //dont update during streaming
-            if (this.clientId != 0)
-                this.paperDraw.requestDraw();
+            this.paperDraw.requestDraw();
         }
 
         //server tells us we are joined to a new session.
@@ -77,8 +75,7 @@ export default class PaperReceive {
             const drawObjectEvent = msg.events(eventIndex, new event.DrawObject());
             const clientId = drawObjectEvent.clientId();
 
-            // console.log("drawobject", clientId);
-
+            //ignore our own events, these are handled by local echo
             if (clientId === this.clientId)
                 return;
 
@@ -108,8 +105,23 @@ export default class PaperReceive {
 
         }
 
+        //a client joined the current session
+        this.messages.handlers[event.EventUnion.ClientJoined] = (msg, eventIndex) => {
+            const clientJoinedEvent = msg.events(eventIndex, new event.ClientJoined());
+            const clientId = clientJoinedEvent.clientId();
+            this.paperDraw.showClient(clientId);
+        }
+
+        //a client left the current session
+        this.messages.handlers[event.EventUnion.ClientLeft] = (msg, eventIndex) => {
+            const clientLeftEvent = msg.events(eventIndex, new event.ClientLeft());
+            const clientId = clientLeftEvent.clientId();
+            const client = this.paperDraw.getClient(clientId);
+            this.paperDraw.hideClient(clientId);
+        }
 
     }
+
 
 
     drawIncrement(clientId, type, p1, p2, p3, store) {

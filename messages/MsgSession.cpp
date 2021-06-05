@@ -100,7 +100,7 @@ void MsgSession::enqueue(const std::shared_ptr<MsgSerialized> &msg_serialized) {
 //    INFO("Q=" << msg_queue.size());
 }
 
-//finishes msg_builder_broadcast and moves it in to a shared_ptr and enqueues it
+//finishes msg_builder and moves it in to a shared_ptr and enqueues it
 void MsgSession::enqueue(MsgBuilder &msg_builder) {
 
     msg_builder.finish();

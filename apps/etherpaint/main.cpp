@@ -19,6 +19,10 @@ void addDraw(const std::shared_ptr<MsgSession> &msg_session, const msg_type &msg
 
     const auto event = msg->events()->GetAs<EVENT>(event_index);
 
+    //has no client id yet.
+    if ( !msg_session_paper->id )
+        return;
+
     if (event->clientId() != msg_session_paper->id)
         throw (program_error("Invalid client id"));
 
@@ -60,8 +64,11 @@ int main(const int argc, const char *argv[]) {
 
         auto cursor = msg->events()->GetAs<event::Cursor>(event_index);
 
+        //has no client id yet.
+        if ( !msg_session_paper->id )
+            return;
 
-        if (cursor->clientId() != msg_session_paper->id)
+        if (cursor->clientId() != msg_session_paper->id )
             throw (program_error("Invalid client id"));
 
         //not thread safe but shouldnt matter for cursors?

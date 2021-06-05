@@ -36,7 +36,7 @@ void MsgSessionPaper::streamStart(std::string &paper_id, uint8_t client_id) {
     enqueue(mb);
 }
 
-//called when sync complete
+//called when sync complete, from IOthread
 void MsgSessionPaper::streamSynced() {
 
     streaming = false;

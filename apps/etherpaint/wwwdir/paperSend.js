@@ -1,8 +1,8 @@
 'use strict';
 
 //receive commands from gui and send to server
-
 //most stuff is queued or cached before sending an actual message.
+//also handles local echo by calling paperReceive directly.
 
 import {event} from "./messages_generated.js";
 var simplify=require('simplify-js');
@@ -20,6 +20,8 @@ export default class PaperSend {
 
     //send queued stuff and add cursor if we have any
     //only sends if output buffer of websocket is empty
+    //usually called by controlDrawing when user finished something
+
     send() {
         // this.scheduled = false;
         //buffer empty enough?

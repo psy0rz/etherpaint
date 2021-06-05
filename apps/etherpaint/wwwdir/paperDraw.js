@@ -190,8 +190,7 @@ export default class PaperDraw {
     }
 
 
-    //draw increments until index. also store reverse increments or delete increments if they dont have a reverse.
-    //increments without a reverse are usually only for visual effect. (e.g. when drawing a rectangle)
+    //draw increments until index.
     //pay attention to performance in this one
     drawIncrements(index) {
         while (this.incrementIndex < index) {

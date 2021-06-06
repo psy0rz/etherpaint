@@ -1,5 +1,5 @@
 import {m} from "./messages.js";
-import PaperDraw from "./paperDraw";
+import PaperDraw from "./paperDraw.js";
 import PaperSend from "./paperSend.js";
 import PaperReceive from "./paperReceive.js";
 import ControlDrawing from "./controlDrawing.js";

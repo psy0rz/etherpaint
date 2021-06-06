@@ -148,8 +148,8 @@ int message_server(ini::IniFile &config) {
 
                                             .open =
                                             [](auto *ws) {
-                                                DEB("websocket open from IP "
-                                                            << ws->getRemoteAddressAsText());
+//                                                DEB("websocket open from IP "
+//                                                            << ws->getRemoteAddressAsText());
                                                 // create message session
 //                                                auto msg_session = std::make_shared<MsgSession>(ws);
                                                 auto msg_session = MsgSession::create(ws);
@@ -175,7 +175,6 @@ int message_server(ini::IniFile &config) {
                                                                                       message_buffer.length());
 
                                                 if (!event::VerifyMessageBuffer(verifier)) {
-                                                    DEB("Corrupt flatbuffer");
                                                     msg_session->enqueue_error("Corrupt flatbuffer received.");
                                                     return;
                                                 }
@@ -195,7 +194,6 @@ int message_server(ini::IniFile &config) {
                                                                 << int(event_type);
 
                                                         msg_session->enqueue_error(desc.str());
-                                                        DEB(desc.str());
                                                     } else {
                                                         try {
                                                             //THE call

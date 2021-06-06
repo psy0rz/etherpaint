@@ -111,6 +111,7 @@ void MsgSession::enqueue(MsgBuilder &msg_builder) {
 void MsgSession::enqueue_error(const std::string &description) {
 
     MsgBuilder msg_builder(100);
+    WARNING( description  );
 
     msg_builder.add_event(
             event::EventUnion_Error,

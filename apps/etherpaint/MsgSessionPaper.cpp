@@ -21,6 +21,7 @@ void MsgSessionPaper::join(std::shared_ptr<SharedSession> shared_session) {
     //request sync
     SharedSessionPaper::request_data(std::static_pointer_cast<MsgSessionPaper>(shared_from_this()));
 
+
 }
 
 //new sync starting

@@ -5,10 +5,12 @@ import {Builder, ByteBuffer} from "flatbuffers";
 
 export default class Messages {
 
-    constructor() {
+    constructor(connected_handler) {
         //fixed builder we reuse every time we send a message
         this.builder = new Builder(1000);
         this.clear();
+
+        this.connected_handler=connected_handler;
 
         //this array will get assigned the actual handlers, one for each EventUnion type from messages.fbs
         this.handlers = [];
@@ -70,7 +72,7 @@ export default class Messages {
         }
     }
 
-    connect() {
+    connect(auto_reconnect) {
 
         let self=this;
 
@@ -96,6 +98,8 @@ export default class Messages {
         this.ws.onopen = function () {
             self.log("Connected");
             document.dispatchEvent(new Event("wsConnected"));
+            if (self.connected_handler)
+                self.connected_handler();
         };
 
         // receive websocket messages.
@@ -113,9 +117,43 @@ export default class Messages {
         this.ws.onclose = function (evt) {
             self.log('Disconnected');
             document.dispatchEvent(new Event("wsDisconnected"));
-            self.delayed_reconnect();
+            if (auto_reconnect)
+                self.delayed_reconnect();
         };
     }
+
+    disconnect()
+    {
+        this.auto_reconnect=false;
+        this.ws.close();
+    }
+
+    unknown_handler(msg, event_index)
+    {
+
+        this.log("Handler not found: " + event.EventUnionName[msg.eventsType(event_index)]);
+    }
+
+    //for unittesting. waits for specified event.
+    //raises exception if something else or something extra is received
+    expect(event_type, handler)
+    {
+        this.unknown_handler=(msg, event_index)=>
+        {
+            if (msg.eventsType(event_index)!= event_type)
+                throw ( new Error("Wrong event type received: ", event.EventUnionName[msg.eventsType(event_index)]));
+
+            this.unknown_handler=function()
+            {
+                throw(new Error("Unexpected event:", event.EventUnionName[msg.eventsType(event_index)]));
+            }
+
+            handler(msg, event_index);
+
+        }
+    }
+
+
 
     //calls the actual handlers for each receive event inside a message.
     call_handlers(eventArray) {
@@ -129,7 +167,7 @@ export default class Messages {
             if (handler !== undefined) {
                 handler(msg, event_index);
             } else {
-                this.log("Handler not found: " + event.EventUnionName[msg.eventsType(event_index)]);
+                this.unknown_handler(msg, event_index);
             }
         }
 

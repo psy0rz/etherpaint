@@ -31,7 +31,7 @@ export default function main()
 
 
         // connect and start websocket messaging:
-        messages.connect();
+        messages.connect(true);
 
     })
 }

@@ -2,25 +2,30 @@
 set -e
 
 #make?
-if [ "$1" == "make" ] ; then
+if echo "$@" | grep make; then
     pushd apps/etherpaint/cmake-build-debug/
     make -j32 
     popd
 fi
 
-#webpack
-pushd apps/etherpaint/wwwdir
-yarn install 
-echo "Webpack.."
-npx webpack 
-popd
 
-#webpack test scripts
-pushd apps/etherpaint/wwwdir/test
-yarn install
-echo "Webpack test scripts.."
-npx webpack
-popd
+if echo "$@" | grep pack; then
+  #webpack
+  pushd apps/etherpaint/wwwdir
+  yarn install
+  echo "Webpack.."
+  npx webpack
+  popd
+fi
+
+if echo "$@" | grep test; then
+  #webpack test scripts
+  pushd apps/etherpaint/wwwdir/test
+  yarn install
+  echo "Webpack test scripts.."
+  npx webpack
+  popd
+fi
 
 
 #run

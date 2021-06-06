@@ -3,14 +3,15 @@
 import {event} from "./messages_generated.js";
 import {Builder, ByteBuffer} from "flatbuffers";
 
-
 export default class Messages {
 
     constructor() {
         //fixed builder we reuse every time we send a message
         this.builder = new Builder(1000);
-        this.handlers = [];
         this.clear();
+
+        //this array will get assigned the actual handlers, one for each EventUnion type from messages.fbs
+        this.handlers = [];
 
         //overwrite this with your own function, called after all handlers are called
         this.done_handler=function() { };
@@ -99,9 +100,9 @@ export default class Messages {
 
         // receive websocket messages.
         this.ws.onmessage = function (wsEvent) {
-            let msgArray = new Uint8Array(wsEvent.data);
+            let eventArray = new Uint8Array(wsEvent.data);
             // console.log("recv", msgArray.length);
-            self.call_handlers(msgArray);
+            self.call_handlers(eventArray);
         }
 
         this.ws.onerror = function (evt) {
@@ -116,8 +117,9 @@ export default class Messages {
         };
     }
 
-    call_handlers(msgArray) {
-        let byteBuffer = new ByteBuffer(msgArray);
+    //calls the actual handlers for each receive event inside a message.
+    call_handlers(eventArray) {
+        let byteBuffer = new ByteBuffer(eventArray);
         let msg = event.Message.getRootAsMessage(byteBuffer);
 
         let events_length = msg.eventsLength();

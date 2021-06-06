@@ -20,7 +20,7 @@ export default class PaperReceive {
         this.paperDraw = paperDraw;
         this.paperSend = paperSend;
 
-        this.messages.doneHandler = () => {
+        this.messages.done_handler = () => {
             this.paperDraw.requestDraw();
         }
 

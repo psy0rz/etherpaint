@@ -10,14 +10,14 @@ export default class Messages {
         //fixed builder we reuse every time we send a message
         this.builder = new Builder(1000);
         this.handlers = [];
-        this.start_message();
+        this.clear();
 
         //overwrite this with your own function, called after all handlers are called
         this.done_handler=function() { };
     };
 
     //clear buffers, start new message.
-    start_message() {
+    clear() {
         this.builder.clear();
         this.event_types = [];
         this.event_offsets = [];
@@ -47,16 +47,20 @@ export default class Messages {
         // console.log("send", msgArray.length);
         this.ws.send(msgArray);
 
-        this.start_message();
+        this.clear();
     }
 
     log(txt) {
         console.debug("messages.js: " + txt);
     }
 
-    delayed_restart() {
+    delayed_reconnect() {
         if (document.URL.search("debug") === -1) {
-            setTimeout(this.restart, 1000);
+            let self=this;
+            setTimeout(function()
+            {
+                self.connect();
+            }, 1000);
         } else {
             //debug mode, reload page to make developing easier:
             setTimeout(function () {
@@ -65,12 +69,7 @@ export default class Messages {
         }
     }
 
-
-    start() {
-        this.restart();
-    }
-
-    restart() {
+    connect() {
 
         let self=this;
 
@@ -88,7 +87,7 @@ export default class Messages {
         }
         this.log("Connecting to " + ws_url);
 
-        this.start_message();
+        this.clear();
         this.ws = new WebSocket(ws_url);
         this.ws.binaryType = 'arraybuffer';
 
@@ -113,7 +112,7 @@ export default class Messages {
         this.ws.onclose = function (evt) {
             self.log('Disconnected');
             document.dispatchEvent(new Event("wsDisconnected"));
-            self.delayed_restart();
+            self.delayed_reconnect();
         };
     }
 

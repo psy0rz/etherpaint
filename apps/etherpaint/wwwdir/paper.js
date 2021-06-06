@@ -30,8 +30,8 @@ export default function main()
         let controlDrawing = new ControlDrawing(paperSend);
 
 
-        // //start websocket messaging:
-        messages.start();
+        // connect and start websocket messaging:
+        messages.connect();
 
     })
 }

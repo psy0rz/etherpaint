@@ -1,5 +1,5 @@
 #!/bin/bash
-find messages/* apps/etherpaint/*.cpp apps/etherpaint/wwwdir/*.html apps/etherpaint/wwwdir/*.css apps/etherpaint/wwwdir/*.js apps/etherpaint/messages.fbs|entr  -r ./runner $@
+find messages/* apps/etherpaint/*.cpp apps/etherpaint/wwwdir/*.html apps/etherpaint/wwwdir/test/* apps/etherpaint/wwwdir/*.css apps/etherpaint/wwwdir/*.js apps/etherpaint/messages.fbs|entr  -r ./runner $@
 
 
 

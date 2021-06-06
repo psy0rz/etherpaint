@@ -15,6 +15,14 @@ echo "Webpack.."
 npx webpack 
 popd
 
+#webpack test scripts
+pushd apps/etherpaint/wwwdir/test
+yarn install
+echo "Webpack test scripts.."
+npx webpack
+popd
+
+
 #run
 cd apps/etherpaint/conf
 killall paper || true

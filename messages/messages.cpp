@@ -89,7 +89,7 @@ void http_server(ini::IniFile &config) {
 
 };
 
-int messagerunner(ini::IniFile &config) {
+int message_server(ini::IniFile &config) {
 
     file_cacher.load(config["webserver"]["wwwdir"].as<std::string>());
 

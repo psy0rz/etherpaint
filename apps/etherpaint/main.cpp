@@ -6,26 +6,35 @@
 #include "SharedSessionPaper.h"
 #include "MsgSessionPaper.h"
 
+//raises program error if something illegal going on
+void validate_command(
+        const std::shared_ptr<MsgSessionPaper> & msg_session_paper,
+        const std::shared_ptr<SharedSessionPaper> & shared_session_paper,
+        const uint8_t clientId)
+{
+    //has no client id yet.
+    if ( !msg_session_paper->id )
+        throw (program_error("Client doesn't have an ID yet."));
+
+    if (clientId != msg_session_paper->id)
+        throw (program_error("Sent invalid client id."));
+
+    if (shared_session_paper == nullptr)
+        throw (program_error("Client hasn't joined a paper yet."));
+}
+
+
 //Generic function template to create EVENT and call appropriate SharedSessionPaper::addDraw() overload.
 //Does all necessary validation against malicious input.
 template<typename EVENT>
 void addDraw(const std::shared_ptr<MsgSession> &msg_session, const msg_type &msg,
              const flatbuffers::uoffset_t &event_index) {
+
     const auto &msg_session_paper = std::static_pointer_cast<MsgSessionPaper>(msg_session);
     const auto &shared_session_paper = std::static_pointer_cast<SharedSessionPaper>(msg_session_paper->shared_session);
-
-    if (shared_session_paper == nullptr)
-        throw (program_error("Client hasn't joined a paper yet."));
-
     const auto event = msg->events()->GetAs<EVENT>(event_index);
 
-    //has no client id yet.
-    if ( !msg_session_paper->id )
-        return;
-
-    if (event->clientId() != msg_session_paper->id)
-        throw (program_error("Invalid client id"));
-
+    validate_command(msg_session_paper, shared_session_paper, event->clientId());
     shared_session_paper->addDraw(event);
 
 };
@@ -61,18 +70,13 @@ int main(const int argc, const char *argv[]) {
     handlers[event::EventUnion_Cursor] = [](const std::shared_ptr<MsgSession> &msg_session, const msg_type &msg,
                                             auto event_index) {
         const auto &msg_session_paper = std::static_pointer_cast<MsgSessionPaper>(msg_session);
+        const auto &shared_session_paper = std::static_pointer_cast<SharedSessionPaper>(msg_session_paper->shared_session);
+        const auto event = msg->events()->GetAs<event::Cursor>(event_index);
 
-        auto cursor = msg->events()->GetAs<event::Cursor>(event_index);
-
-        //has no client id yet.
-        if ( !msg_session_paper->id )
-            return;
-
-        if (cursor->clientId() != msg_session_paper->id )
-            throw (program_error("Invalid client id"));
+        validate_command(msg_session_paper, shared_session_paper, event->clientId());
 
         //not thread safe but shouldnt matter for cursors?
-        msg_session_paper->cursor = *cursor;
+        msg_session_paper->cursor = *event;
         msg_session_paper->cursor_changed = true;
 
     };
@@ -99,7 +103,7 @@ int main(const int argc, const char *argv[]) {
     std::thread io_thread(SharedSessionPaper::io_thread);
 
     //run the main uwebsocket event-framework (messages.cpp)
-    messagerunner(config);
+    message_server(config);
 
     //wait for completion
     update_thread.join();

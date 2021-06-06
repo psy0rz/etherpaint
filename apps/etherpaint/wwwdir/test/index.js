@@ -4,22 +4,7 @@ import {MessageTest} from "./messageTest";
 
 let message_test=new MessageTest();
 
-function send_drawincrement(messages, clientId, inctype, p1, p2, p3, store)
-{
-    messages.add_event(
-        event.EventUnion.DrawObject,
-        event.DrawIncrement.createDrawIncrement(
-            messages.builder,
-            clientId,
-            inctype,
-            p1,
-            p2,
-            p3,
-            store
-        ));
 
-    messages.send();
-}
 
 /////////////test invalid event type
 {
@@ -35,6 +20,7 @@ function send_drawincrement(messages, clientId, inctype, p1, p2, p3, store)
     });
     messages.connect(false);
 }
+
 
 //////////////corrupt buffer
 {
@@ -52,20 +38,35 @@ function send_drawincrement(messages, clientId, inctype, p1, p2, p3, store)
     messages.connect(false);
 }
 
-////////////////send commands while not joined yet
+////////////////send command while not joined
 {
     let messages=new Messages(function()
     {
-        send_drawincrement(messages, 0,0,0,0,0,0);
+        messages.add_event(
+            event.EventUnion.DrawIncrement,
+            event.DrawIncrement.createDrawIncrement(
+                messages.builder,
+                1, 0,0,0,0,0
+            )
+        );
+
+        messages.send();
     });
     message_test.expect(messages, event.EventUnion.Error, (msg, eventIndex) => {
         const error = msg.events(eventIndex, new event.Error());
-        if (error.description().indexOf("joined")===-1)
+        if (error.description().indexOf("Client doesn't have an ID")===-1)
             console.error("Wrong error: ", error.description())
 
     });
     messages.connect(false);
 }
+
+////////////////wrong client id
+
+
+////////////////exaust client ids
+
+////////////////send after exausting
 
 
 //wait for tests to complete

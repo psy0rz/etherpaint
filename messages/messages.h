@@ -8,7 +8,7 @@
 #include "MsgSession.h"
 #include "inicpp.h"
 
-int messagerunner(ini::IniFile & config);
+int message_server(ini::IniFile & config);
 
 
 #endif

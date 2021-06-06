@@ -134,24 +134,6 @@ export default class Messages {
         this.log("Handler not found: " + event.EventUnionName[msg.eventsType(event_index)]);
     }
 
-    //for unittesting. waits for specified event.
-    //raises exception if something else or something extra is received
-    expect(event_type, handler)
-    {
-        this.unknown_handler=(msg, event_index)=>
-        {
-            if (msg.eventsType(event_index)!= event_type)
-                throw ( new Error("Wrong event type received: ", event.EventUnionName[msg.eventsType(event_index)]));
-
-            this.unknown_handler=function()
-            {
-                throw(new Error("Unexpected event:", event.EventUnionName[msg.eventsType(event_index)]));
-            }
-
-            handler(msg, event_index);
-
-        }
-    }
 
 
 

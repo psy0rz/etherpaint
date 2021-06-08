@@ -102,7 +102,7 @@ public:
 
 
     void load(std::string root_dir) {
-        INFO("Compressing and caching files under " << root_dir)
+        INFO( "File cacher: Loading and compressing files under " << root_dir)
         m_root_dir = root_dir;
         for (auto &dir_entry :
                 std::filesystem::recursive_directory_iterator(m_root_dir)) {
@@ -115,6 +115,7 @@ public:
 //                DEB("Web path: " << url);
             }
         }
+        INFO("File cacher: Done");
     }
 
     auto get(const std::string & url) {

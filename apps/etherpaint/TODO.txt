@@ -1,3 +1,4 @@
 - als sessies op zijn komt er wel een error maar synced hij toch
 - aan het einde van een sync komen messages die nog in de msg_buidler staan waarschijnlijk dubbel binnenn
 - aan einde van sync een joinlijst van clients sturen
+- deadlock bij teveel sessies in 1x

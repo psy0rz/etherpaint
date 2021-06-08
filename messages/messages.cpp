@@ -86,6 +86,7 @@ void http_server(ini::IniFile &config) {
                         }
                     })
             .run();
+    ERROR("HTTP redirector failed: " << errno);
 
 };
 
@@ -97,11 +98,16 @@ int message_server(ini::IniFile &config) {
     std::vector<std::thread *> threads(std::thread::hardware_concurrency());
     std::transform(
             threads.begin(), threads.end(), threads.begin(), [&](std::thread *t) {
+
                 return new std::thread([&]() {
+                    INFO("Message server: Starting on port " << (config["webserver"]["ssl_port"].as<int>()));
+
                     uWS::TemplatedApp<ENABLE_SSL>({
                                                           .key_file_name = config["webserver"]["ssl_key"].as<const char *>(),
                                                           .cert_file_name = config["webserver"]["ssl_cert"].as<const char *>(),
-                                                          .passphrase = ""})
+                                                          .passphrase = "",
+
+                                                  })
                             //static data
                             .get("/*",
                                  [&](auto *res, auto *req) {
@@ -146,6 +152,7 @@ int message_server(ini::IniFile &config) {
                                             .maxBackpressure = 0,
                                             /* Handlers */
 
+                                            //websocket opened
                                             .open =
                                             [](auto *ws) {
 //                                                DEB("websocket open from IP "
@@ -256,20 +263,21 @@ int message_server(ini::IniFile &config) {
                             .listen(config["webserver"]["ssl_port"].as<int>(),
                                     [](auto *token) {
                                         if (token) {
-                                            INFO("HTTPS webserver thread started");
+                                            INFO("Message server: Listening");
                                         }
                                     })
                             .run();
+                    ERROR("Message server: Startup failed (check ssl_cert and ssl_key path): " << errno);
+
                 });
             });
 
 
-    //simple http redirector
+    //simple http redirector (current thread)
     http_server( config);
 
     std::for_each(
             threads.begin(), threads.end(), [](std::thread *t) { t->join(); });
-    ERROR("FAILED to start SSL");
 
     return EXIT_SUCCESS;
 }
